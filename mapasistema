@@ -1,0 +1,573 @@
+Perfeito.
+Aqui está **O PLANO COMPLETO**, estruturado como **DOCUMENTO TÉCNICO OFICIAL**, pronto para entregar a um **programador sênior**.
+
+O conteúdo inclui:
+
+✔ Arquitetura completa do sistema
+✔ Mapa dos módulos
+✔ Fluxogramas de processos (descrito passo a passo)
+✔ Entidades e relacionamentos (pré-modelo ER)
+✔ Ciclo de vida das informações
+✔ Regras funcionais
+✔ Regras de negócio
+✔ Fluxo de usuários / níveis de acesso
+✔ Processos interligados
+✔ Dependências entre módulos
+✔ Roadmap de implementação
+
+Este documento descreve **exatamente como o sistema funciona** e **como deve ser implementado**.
+
+---
+
+# 📘 **DOCUMENTO TÉCNICO – GESTÃO DO ENCONTRO DE MISSIONÁRIOS**
+
+*(Versão para programador sênior)*
+
+---
+
+# 🧩 **1. VISÃO GERAL DO SISTEMA**
+
+O sistema “Gestão do Encontro de Missionários” é uma plataforma SPA (Single Page Application) em HTML/CSS/JS puro que orquestra:
+
+* Equipes
+* Projetos
+* Tarefas (Kanban)
+* Cronograma do evento
+* Cardápio
+* Compras
+* Orçamentos
+* Pedidos
+* Financeiro
+* Participantes
+* Alojamentos
+* Palestras
+* Kids
+
+O objetivo é centralizar a **gestão operacional de um evento grande**, integrando **fluxos de trabalho complexos** em um único painel.
+
+---
+
+# 🗺️ **2. MAPA GERAL DO SISTEMA**
+
+```
+SISTEMA
+│
+├── Dashboard
+│
+├── Equipes & Projetos
+│   ├── Equipes
+│   ├── Projetos
+│   ├── Tarefas (Kanban)
+│
+├── Cronograma
+│
+├── Cardápio
+│   ├── Refeições
+│   ├── Lista automática de compras
+│
+├── Compras
+│   ├── Solicitações
+│   ├── Aprovação Orçamentária
+│   ├── Pedidos
+│
+├── Financeiro
+│   ├── Orçado
+│   ├── Realizado
+│   ├── Centros de Custo
+│
+├── Participantes (Famílias)
+│
+├── Alojamentos (Quartos)
+│
+├── Palestras
+│
+└── Kids
+```
+
+---
+
+# 🧬 **3. ENTIDADES PRINCIPAIS (MODELO DE DADOS)**
+
+*(baseada no JS implementado)*
+
+## 3.1 **Equipe**
+
+```
+Equipe {
+    id
+    nome
+    responsavel
+    membros[]
+    projetos[] (ids)
+}
+```
+
+## 3.2 **Projeto**
+
+```
+Projeto {
+    id
+    nome
+    equipeId
+    prazo
+    status (pendente / andamento / concluído)
+}
+```
+
+## 3.3 **Atividade**
+
+```
+Atividade {
+    id
+    projetoId
+    titulo
+    status (pendente / andamento / concluído)
+    prioridade (alta / média / baixa)
+}
+```
+
+## 3.4 **Cronograma**
+
+```
+Cronograma {
+    id
+    titulo
+    data
+    inicio
+    fim
+    responsavel
+}
+```
+
+## 3.5 **Cardápio**
+
+```
+Cardapio {
+    id
+    dia
+    refeicao
+    descricao
+    pessoas
+}
+```
+
+## 3.6 **Compras**
+
+```
+Compra {
+    id
+    item
+    equipeId
+    projetoId
+    qtd
+    status (solicitado / aprovado / pedido / entregue)
+}
+```
+
+## 3.7 **Orçamento**
+
+```
+Orcamento {
+    idCompra
+    valorPrevisto
+    equipeId
+    status (pendente / aprovado)
+}
+```
+
+## 3.8 **Pedido**
+
+```
+Pedido {
+    id
+    item
+    fornecedor
+    valor
+    status (emitido / recebido)
+}
+```
+
+## 3.9 **Participante**
+
+```
+Familia {
+    id
+    nome
+    responsavel
+    telefone
+    qtd
+}
+```
+
+## 3.10 **Quarto**
+
+```
+Quarto {
+    id
+    nome
+    capacidade
+    tipo
+    ocupacao
+}
+```
+
+## 3.11 **Palestra**
+
+```
+Palestra {
+    id
+    titulo
+    palestrante
+    data
+    hora
+}
+```
+
+## 3.12 **Kids**
+
+```
+Kids {
+    id
+    atividade
+    faixa
+    hora
+    local
+}
+```
+
+---
+
+# 🔗 **4. RELACIONAMENTO ENTRE MÓDULOS**
+
+```
+Equipe → Projeto → Atividade (Kanban)
+Atividade → Pode gerar Solicitação de Compra
+
+Cardápio → Gera itens → Solicitação de Compra
+
+Solicitação de Compra → Orçamento → Pedido → Financeiro
+
+Participantes (Famílias) → Impacta Alimentação (pessoas por refeição)
+Participantes → Alojamentos (divisão de quartos)
+
+Cronograma → Relaciona equipes e tarefas
+Palestras → Alimentam Cronograma
+
+Kids → Cronograma Kids (separado do geral)
+```
+
+---
+
+# 🧠 **5. REGRAS DE NEGÓCIO**
+
+### 5.1 Projetos e Tarefas
+
+* Toda tarefa pertence a um projeto.
+* Todo projeto pertence a uma equipe.
+* Status de projeto depende das tarefas:
+
+```
+Se 100% concluídas → projeto concluído
+Se >0% concluídas → andamento
+Se 0% concluídas → pendente
+```
+
+### 5.2 Compras
+
+* Uma tarefa pode solicitar compras.
+* Uma refeição pode gerar necessidade de compras.
+* Compra passa por 3 fases:
+
+```
+1. Solicitação (status=solicitado)
+2. Aprovação orçamentária (cria item no orçamento)
+3. Pedido (gera pedido)
+```
+
+### 5.3 Financeiro
+
+* Orçamento é centralizado por equipe.
+* Pedido impacta Financeiro.
+* Financeiro mostra:
+
+```
+Orçado por equipe
+Realizado por equipe
+Diferença
+Saldo geral
+```
+
+### 5.4 Cronograma
+
+* Ordenação automática por data/hora.
+* Atividades podem se sobrepor ou depender de outras.
+* Atividades de Kids ficam separadas do cronograma geral.
+
+### 5.5 Alojamentos
+
+* Cada quarto tem capacidade e ocupação.
+* Ocupação não pode exceder capacidade.
+* Pode haver tipos (familia, feminino, masculino, VIP etc.).
+
+---
+
+# 🔄 **6. FLUXOGRAMAS DOS PROCESSOS PRINCIPAIS**
+
+---
+
+# 🔷 **6.1 Fluxo – Gestão de Equipes, Projetos e Tarefas**
+
+```
+Criar Equipe
+     ↓
+Criar Projeto (vinculado à equipe)
+     ↓
+Criar Tarefas (Kanban)
+     ↓
+Atualizar status das tarefas
+     ↓
+Projeto altera status automaticamente
+     ↓
+Dashboard atualiza métricas
+```
+
+---
+
+# 🔷 **6.2 Fluxo – Cronograma do Evento**
+
+```
+Criar atividade do cronograma
+     ↓
+Definir data / horário / responsável
+     ↓
+Sistema ordena estrutura automaticamente
+     ↓
+Linha do tempo é atualizada
+     ↓
+Dashboard atualiza atividades do dia
+```
+
+---
+
+# 🔷 **6.3 Fluxo – Alimentação / Cardápio**
+
+```
+Criar refeição
+     ↓
+Adicionar descrição, pessoas previstas
+     ↓
+Sistema gera lista de compras automática
+     ↓
+Lista pode ser convertida em "Solicitação de Compra"
+     ↓
+Aprovação orçamentária
+     ↓
+Pedido
+     ↓
+Entrega → Financeiro
+```
+
+---
+
+# 🔷 **6.4 Fluxo – Compras (workflow completo)**
+
+```
+Solicitação de compra
+     ↓
+Departamento Orçamentário avalia
+     ↓
+APROVADO → cria item no orçamento
+REPROVADO → devolve ao solicitante
+     ↓
+Gerar pedido
+     ↓
+Fornecedor entrega
+     ↓
+Financeiro registra valor real
+     ↓
+Dashboard atualiza
+```
+
+---
+
+# 🔷 **6.5 Fluxo – Financeiro**
+
+```
+Entrada:
+- Orçamento previsto
+- Valor de pedidos
+- Solicitações aprovadas
+
+Saída:
+- Relatório geral
+- Saldo
+- Centros de custo por equipe
+```
+
+---
+
+# 🔷 **6.6 Fluxo – Participantes → Alojamentos**
+
+```
+Cadastrar família
+     ↓
+Número de pessoas definido
+     ↓
+Equipe de Acomodações define quarto
+     ↓
+Quarto atualiza ocupação
+```
+
+---
+
+# 🔷 **6.7 Fluxo – Palestras**
+
+```
+Criar palestra
+     ↓
+Sistema adiciona no cronograma
+     ↓
+Dashboard mostra número de palestras
+```
+
+---
+
+# 🔷 **6.8 Fluxo – Kids**
+
+```
+Criar atividade kids
+     ↓
+Organização define local
+     ↓
+Cronograma Kids
+```
+
+---
+
+# 🧑‍💼 **7. NÍVEIS DE ACESSO**
+
+1. **Administrador**
+
+   * Controle total
+   * Acesso a todos os módulos
+   * Acesso ao financeiro
+
+2. **Coordenação**
+
+   * Acesso somente ao seu setor
+   * Pode criar projeto e tarefas
+   * Pode solicitar compras
+
+3. **Equipe**
+
+   * Pode atualizar tarefas
+   * Pode visualizar cronograma
+   * Pode visualizar cardápio
+
+4. **Visitante**
+
+   * Somente leitura
+
+---
+
+# 🏗️ **8. ARQUITETURA DO SISTEMA**
+
+```
+Frontend SPA (HTML/CSS/JS)
+       │
+       ├── Módulos independentes
+       │      (equipes, cronograma, compras etc.)
+       │
+       └── Camada de dados em memória
+              Objeto JS centralizado
+```
+
+Pronto para integração futura:
+
+* Google Sheets (Ghost DB)
+* Firebase
+* API REST em Apps Script
+
+---
+
+# 🚧 **9. ROADMAP PARA O PROGRAMADOR SÊNIOR**
+
+### ✔ Sprint 1 — Base da Plataforma
+
+* Implementar estrutura SPA (HTML pronto)
+* Criar gerenciador de views
+* Criar service de memória interna
+* Criar entidades (classes ou factory functions)
+
+### ✔ Sprint 2 — Equipes, Projetos, Tarefas
+
+* CRUD completo
+* Kanban funcional
+* Relacionamentos
+
+### ✔ Sprint 3 — Cronograma + Timeline
+
+* CRUD
+* Ordenação cronológica
+* Renderização da timeline
+* Validação de conflitos
+
+### ✔ Sprint 4 — Cardápio → Itens → Compras
+
+* CRUD cardápio
+* Gerar lista automática
+* Criar solicitações de compra
+
+### ✔ Sprint 5 — Compras → Orçamento → Pedidos
+
+* Fluxo completo aprovado
+* Contabilização financeira
+* Atualizar status automaticamente
+
+### ✔ Sprint 6 — Financeiro
+
+* Orçado × Realizado
+* Centros de custo
+* Dashboard financeiro
+
+### ✔ Sprint 7 — Participantes / Quartos / Kids / Palestras
+
+* CRUD completo
+* Integração com cronograma
+
+### ✔ Sprint 8 — Dashboard final
+
+* KPIs
+* Indicadores
+* Integração entre módulos
+* Filtros por data / equipe / projeto
+
+### ✔ Sprint 9 — Integração com Google Sheets (Opcional)
+
+* API via Apps Script
+* Sync offline
+* Envio direto de PDFs
+
+---
+
+# 🧨 **10. ENTREGÁVEL FINAL PARA O PROGRAMADOR**
+
+✔ HTML completo
+✔ CSS completo
+✔ JavaScript completo
+✔ Documento técnico (este mapa)
+✔ Fluxogramas documentados
+✔ Modelo de dados
+✔ Regras de negócio
+✔ Roadmap de implementação
+
+---
+
+# 📌 Deseja que eu gere também:
+
+* **Fluxogramas desenhados (diagramas visuais)** em estilo BPMN?
+* **Modelo ER (diagrama entidade-relacionamento)**?
+* **Arquivo PDF bonito com toda documentação?**
+* **PowerPoint para apresentação do sistema?**
+
+Diga o formato e eu faço.
