@@ -32,9 +32,12 @@
   .btn-small { padding:0.4rem 0.8rem; font-size:0.9rem; }
 
   input, select, textarea { width:100%; padding:0.9rem; border:1px solid #ccc; border-radius:8px; margin:0.5rem 0; font-size:1rem; }
-  table { width:100%; border-collapse:collapse; margin:1.5rem 0; }
-  th, td { padding:1rem; text-align:left; border-bottom:1px solid #e5e7eb; }
-  th { background:#f1f5f9; }
+  table { width:100%; border-collapse:collapse; margin:1.5rem 0; font-size:0.95rem; }
+  th, td { padding:0.85rem 1rem; text-align:left; border-bottom:1px solid #e5e7eb; vertical-align:top; }
+  th { background:#f1f5f9; font-weight:700; }
+  .table-group { background:white; border-radius:12px; padding:1rem 1.2rem; box-shadow:0 4px 12px rgba(0,0,0,0.05); margin:1rem 0; }
+  .table-group h3 { margin-bottom:0.5rem; color:#0f172a; }
+  .nota-dependencia { background:#ecfeff; border:1px dashed #06b6d4; padding:0.8rem 1rem; border-radius:10px; margin-top:0.5rem; color:#0f172a; }
 
   .kpi { font-size:3.2rem; font-weight:900; color:var(--p); }
   .toggle-modo { position:fixed; top:100px; right:20px; z-index:9999; background:var(--p); color:white; padding:1rem 1.5rem; border-radius:50px; font-weight:bold; box-shadow:0 4px 20px rgba(0,0,0,0.3); }
@@ -432,46 +435,91 @@ function atualizarLeitura() {
   document.getElementById('orcado').textContent = DB.financeiro.orcado.toFixed(2).replace('.', ',');
   document.getElementById('realizado').textContent = DB.financeiro.realizado.toFixed(2).replace('.', ',');
 
+  const buildTable = (titulo, headers, rows, vazio) => {
+    const corpo = rows.length
+      ? rows.map(r => `<tr>${r.map(c => `<td>${c}</td>`).join('')}</tr>`).join('')
+      : `<tr><td colspan="${headers.length}">${vazio}</td></tr>`;
+    return `
+      <div class="table-group">
+        <h3>${titulo}</h3>
+        <table>
+          <thead><tr>${headers.map(h => `<th>${h}</th>`).join('')}</tr></thead>
+          <tbody>${corpo}</tbody>
+        </table>
+      </div>`;
+  };
+
   document.getElementById('lista-participantes-leitura').innerHTML =
-    DB.familias.map(f => `<div class="card"><strong>${f.nome}</strong> – ${f.qtd} pessoas – ${f.cidade}</div>`).join('') || '<p>Nenhum participante cadastrado.</p>';
+    buildTable('Famílias inscritas', ['Responsável', 'Pessoas', 'Cidade/Estado'],
+      DB.familias.map(f => [f.nome, `${f.qtd}`, f.cidade]),
+      'Nenhum participante cadastrado.');
 
-  document.getElementById('equipes-lista').innerHTML = DB.equipes.map(eq => {
-    const projetos = DB.projetos.filter(p => p.equipeId === eq.id);
-    const tarefas = DB.tarefas.filter(t => projetos.some(p => p.id === t.projetoId));
-    return `<div class="card"><strong>${eq.nome}</strong> — Resp.: ${eq.responsavel}<br>Membros: ${eq.membros || '—'}<br>
-      <div style="margin-top:0.5rem;"><em>Projetos:</em><ul>${projetos.map(p=>`<li>${p.nome} (${p.status})</li>`).join('') || '<li>Nenhum</li>'}</ul></div>
-      <div><em>Tarefas Kanban:</em><ul>${tarefas.map(t=>`<li>[${t.status}] ${t.titulo}</li>`).join('') || '<li>Nenhuma</li>'}</ul></div></div>`;
-  }).join('') || '<p>Nenhuma equipe cadastrada.</p>';
+  document.getElementById('equipes-lista').innerHTML = [
+    buildTable('Equipes', ['Equipe', 'Responsável', 'Membros'],
+      DB.equipes.map(eq => [eq.nome, eq.responsavel, eq.membros || '—']),
+      'Nenhuma equipe cadastrada.'),
+    buildTable('Projetos por equipe', ['Projeto', 'Equipe', 'Prazo', 'Status'],
+      DB.projetos.map(p => [p.nome, (DB.equipes.find(e => e.id === p.equipeId) || {}).nome || '—', p.prazo || '—', p.status]),
+      'Nenhum projeto cadastrado.'),
+    buildTable('Tarefas (Kanban)', ['Tarefa', 'Projeto', 'Status'],
+      DB.tarefas.map(t => [t.titulo, (DB.projetos.find(p => p.id === t.projetoId) || {}).nome || '—', t.status]),
+      'Nenhuma tarefa registrada.')
+  ].join('');
 
-  document.getElementById('leitura-transporte').innerHTML = `
-    <h3>Ônibus (${DB.onibus.length})</h3>${DB.onibus.map(o => `<div class="card">${o.cidade} – ${o.qtd} pax – ${formatarDataHora(o.data)}</div>`).join('')}
-    <h3>Voos (${DB.voos.length})</h3>${DB.voos.map(v => `<div class="card">${v.passageiro} – ${v.voo} – ${formatarDataHora(v.data)}</div>`).join('')}
-  `;
+  document.getElementById('leitura-transporte').innerHTML = [
+    buildTable(`Ônibus (${DB.onibus.length})`, ['Origem', 'Passageiros', 'Empresa', 'Data/Hora'],
+      DB.onibus.map(o => [o.cidade, `${o.qtd}`, o.empresa, formatarDataHora(o.data)]),
+      'Nenhum ônibus cadastrado.'),
+    buildTable(`Voos (${DB.voos.length})`, ['Passageiro', 'Voo', 'Data/Hora'],
+      DB.voos.map(v => [v.passageiro, v.voo, formatarDataHora(v.data)]),
+      'Nenhum voo cadastrado.')
+  ].join('');
 
-  document.getElementById('leitura-alojamento').innerHTML = DB.quartos.map(q => `<div class="card">${q.nome} – Capacidade ${q.capacidade} – ${q.ocupado ? 'Ocupado' : 'Livre'}</div>`).join('') || '<p>Nenhum quarto cadastrado.</p>';
+  document.getElementById('leitura-alojamento').innerHTML = buildTable('Quartos e ocupação', ['Quarto', 'Capacidade', 'Status'],
+    DB.quartos.map(q => [q.nome, q.capacidade, q.ocupado ? 'Ocupado' : 'Livre']),
+    'Nenhum quarto cadastrado.');
 
   const eventos = [...DB.cronograma].sort((a, b) => new Date(a.data) - new Date(b.data));
-  document.getElementById('cronograma-lista').innerHTML = eventos.map(e => `<div class="card">${formatarDataHora(e.data)} – <strong>${e.titulo}</strong> (${e.responsavel})</div>`).join('') || '<p>Cronograma vazio.</p>';
+  document.getElementById('cronograma-lista').innerHTML = buildTable('Cronograma', ['Data', 'Atividade', 'Responsável'],
+    eventos.map(e => [formatarDataHora(e.data), e.titulo, e.responsavel]),
+    'Cronograma vazio.');
 
-  document.getElementById('cardapio-leitura').innerHTML = DB.refeicoes.map(r => `<div class="card">${r.tipo} em ${r.data} – ${r.descricao}<br><small>Lista automática: frutas, proteínas, bebidas</small></div>`).join('') || '<p>Nenhuma refeição planejada.</p>';
+  document.getElementById('cardapio-leitura').innerHTML = buildTable('Refeições planejadas', ['Data', 'Tipo', 'Cardápio'],
+    DB.refeicoes.map(r => [r.data, r.tipo, `${r.descricao}<br><small>Lista automática: frutas, proteínas, bebidas</small>`]),
+    'Nenhuma refeição planejada.');
 
-  document.getElementById('compras-leitura').innerHTML = `
-    <h3>Solicitações (${DB.solicitacoes.length})</h3>${DB.solicitacoes.map(s=>`<div class="card">${s.item} – ${s.qtd} un – Centro: ${s.centro}</div>`).join('') || '<p>Sem solicitações.</p>'}
-    <h3>Aprovações (${DB.aprovacoes.length})</h3>${DB.aprovacoes.map(a=>`<div class="card">${a.item} – R$ ${a.valor.toFixed(2)} – Aprovado</div>`).join('') || '<p>Sem aprovações.</p>'}
-    <h3>Pedidos (${DB.pedidos.length})</h3>${DB.pedidos.map(p=>`<div class="card">${p.item} – Fornecedor: ${p.fornecedor}</div>`).join('') || '<p>Sem pedidos.</p>'}
-  `;
+  document.getElementById('compras-leitura').innerHTML = [
+    buildTable('Solicitações', ['Item', 'Quantidade', 'Centro de custo'],
+      DB.solicitacoes.map(s => [s.item, s.qtd, s.centro]),
+      'Sem solicitações.'),
+    buildTable('Aprovações', ['Item', 'Qtd', 'Valor aprovado'],
+      DB.aprovacoes.map(a => [a.item, a.qtd, `R$ ${a.valor.toFixed(2)}`]),
+      'Sem aprovações.'),
+    buildTable('Pedidos', ['Item', 'Fornecedor'],
+      DB.pedidos.map(p => [p.item, p.fornecedor]),
+      'Sem pedidos registrados.')
+  ].join('');
 
-  document.getElementById('palestras-leitura').innerHTML = DB.palestras.map(p => `<div class="card">${formatarDataHora(p.data)} – <strong>${p.tema}</strong> com ${p.palestrante}</div>`).join('') || '<p>Nenhuma palestra cadastrada.</p>';
+  document.getElementById('palestras-leitura').innerHTML = buildTable('Palestras', ['Data/Hora', 'Tema', 'Palestrante'],
+    DB.palestras.map(p => [formatarDataHora(p.data), p.tema, p.palestrante]),
+    'Nenhuma palestra cadastrada.');
 
-  document.getElementById('kids-leitura').innerHTML = DB.kids.map(k => `<div class="card">${formatarDataHora(k.data)} – ${k.atividade} (Resp.: ${k.responsavel})</div>`).join('') || '<p>Sem atividades kids.</p>';
+  document.getElementById('kids-leitura').innerHTML = buildTable('Programação Kids', ['Data/Hora', 'Atividade', 'Responsável'],
+    DB.kids.map(k => [formatarDataHora(k.data), k.atividade, k.responsavel]),
+    'Sem atividades kids.');
 
-  const centros = DB.financeiro.centros.map(c => `<li>${c.nome} – Orçado R$ ${c.orcado.toFixed(2)} / Realizado R$ ${c.realizado.toFixed(2)}</li>`).join('') || '<li>Nenhum centro cadastrado.</li>';
+  const fluxoPagamentos = DB.aprovacoes.reduce((s, a) => s + a.valor, 0);
+  const centros = DB.financeiro.centros;
   document.getElementById('financeiro-leitura').innerHTML = `
     <div class="card">
       <strong>Orçado:</strong> R$ ${DB.financeiro.orcado.toFixed(2)}<br>
-      <strong>Realizado:</strong> R$ ${DB.financeiro.realizado.toFixed(2)}
+      <strong>Realizado:</strong> R$ ${DB.financeiro.realizado.toFixed(2)}<br>
+      <small>Pagamentos lançados pelos módulos somam R$ ${fluxoPagamentos.toFixed(2)}.</small>
     </div>
-    <div class="card"><h4>Centros de Custo</h4><ul>${centros}</ul></div>
+    ${buildTable('Centros de Custo', ['Centro', 'Orçado', 'Realizado'],
+      centros.map(c => [c.nome, `R$ ${c.orcado.toFixed(2)}`, `R$ ${c.realizado.toFixed(2)}`]),
+      'Nenhum centro cadastrado.')}
+    <p class="nota-dependencia">A maioria das informações é derivada dos cadastros de participantes. O financeiro consolida pagamentos informados pelos módulos de compras, logística e alimentação.</p>
   `;
 }
 
@@ -482,6 +530,20 @@ function setSelectOptions(selectId, items, labelFn) {
 }
 
 function atualizarEdicao() {
+  const buildTable = (titulo, headers, rows, vazio) => {
+    const corpo = rows.length
+      ? rows.map(r => `<tr>${r.map(c => `<td>${c}</td>`).join('')}</tr>`).join('')
+      : `<tr><td colspan="${headers.length}">${vazio}</td></tr>`;
+    return `
+      <div class="table-group">
+        <h3>${titulo}</h3>
+        <table>
+          <thead><tr>${headers.map(h => `<th>${h}</th>`).join('')}</tr></thead>
+          <tbody>${corpo}</tbody>
+        </table>
+      </div>`;
+  };
+
   setSelectOptions('projetoEquipe', DB.equipes, e => e.nome);
   setSelectOptions('tarefaProjeto', DB.projetos, p => p.nome);
   setSelectOptions('aprovacaoSolicitacao', DB.solicitacoes, s => `${s.item} (${s.qtd} un)`);
@@ -492,31 +554,66 @@ function atualizarEdicao() {
     financeiroForm[1].value = DB.financeiro.realizado;
   }
 
-  document.getElementById('lista-participantes-edicao').innerHTML =
-    DB.familias.map(f => `<div class="card">${f.nome} (${f.qtd} pessoas) <button class="btn-no btn-small" onclick="removerFamilia(${f.id})">Remover</button></div>`).join('');
+  document.getElementById('lista-participantes-edicao').innerHTML = buildTable('Famílias', ['Responsável', 'Pessoas', 'Cidade', 'Ações'],
+    DB.familias.map(f => [f.nome, f.qtd, f.cidade, `<button class="btn-no btn-small" onclick="removerFamilia(${f.id})">Remover</button>`]),
+    'Nenhum participante cadastrado.');
 
-  document.getElementById('equipes-edicao').innerHTML = DB.equipes.map(eq => `<div class="card">${eq.nome} – Resp.: ${eq.responsavel} <button class="btn-no btn-small" onclick="removerEquipe(${eq.id})">Excluir</button></div>`).join('');
+  document.getElementById('equipes-edicao').innerHTML = [
+    buildTable('Equipes', ['Equipe', 'Responsável', 'Membros', 'Ações'],
+      DB.equipes.map(eq => [eq.nome, eq.responsavel, eq.membros || '—', `<button class="btn-no btn-small" onclick="removerEquipe(${eq.id})">Excluir</button>`]),
+      'Nenhuma equipe cadastrada.'),
+    buildTable('Projetos', ['Projeto', 'Equipe', 'Status'],
+      DB.projetos.map(p => [p.nome, (DB.equipes.find(e => e.id === p.equipeId) || {}).nome || '—', p.status]),
+      'Nenhum projeto cadastrado.'),
+    buildTable('Tarefas', ['Tarefa', 'Projeto', 'Status'],
+      DB.tarefas.map(t => [t.titulo, (DB.projetos.find(p => p.id === t.projetoId) || {}).nome || '—', t.status]),
+      'Nenhuma tarefa registrada.')
+  ].join('');
 
-  document.getElementById('edicao-transporte').innerHTML = `
-    <h4>Ônibus</h4>${DB.onibus.map(o=>`<div class="card">${o.cidade} (${o.qtd}) <button class="btn-no btn-small" onclick="removerOnibus(${o.id})">Remover</button></div>`).join('')}
-    <h4>Voos</h4>${DB.voos.map(v=>`<div class="card">${v.voo} – ${v.passageiro} <button class="btn-no btn-small" onclick="removerVoo(${v.id})">Remover</button></div>`).join('')}
-  `;
+  document.getElementById('edicao-transporte').innerHTML = [
+    buildTable('Ônibus', ['Origem', 'Passageiros', 'Empresa', 'Data/Hora', 'Ações'],
+      DB.onibus.map(o => [o.cidade, o.qtd, o.empresa, formatarDataHora(o.data), `<button class="btn-no btn-small" onclick=\"removerOnibus(${o.id})\">Remover</button>`]),
+      'Nenhum ônibus cadastrado.'),
+    buildTable('Voos', ['Passageiro', 'Voo', 'Data/Hora', 'Ações'],
+      DB.voos.map(v => [v.passageiro, v.voo, formatarDataHora(v.data), `<button class="btn-no btn-small" onclick=\"removerVoo(${v.id})\">Remover</button>`]),
+      'Nenhum voo cadastrado.')
+  ].join('');
 
-  document.getElementById('edicao-alojamento').innerHTML = DB.quartos.map(q => `<div class="card">${q.nome} (${q.capacidade}) <button class="btn-no btn-small" onclick="removerQuarto(${q.id})">Remover</button></div>`).join('');
+  document.getElementById('edicao-alojamento').innerHTML = buildTable('Quartos', ['Quarto', 'Capacidade', 'Status', 'Ações'],
+    DB.quartos.map(q => [q.nome, q.capacidade, q.ocupado ? 'Ocupado' : 'Livre', `<button class="btn-no btn-small" onclick="removerQuarto(${q.id})">Remover</button>`]),
+    'Nenhum quarto cadastrado.');
 
-  document.getElementById('cronograma-edicao').innerHTML = DB.cronograma.map(e => `<div class="card">${formatarDataHora(e.data)} – ${e.titulo} <button class="btn-no btn-small" onclick="removerCronograma(${e.id})">Remover</button></div>`).join('');
+  document.getElementById('cronograma-edicao').innerHTML = buildTable('Atividades', ['Data/Hora', 'Atividade', 'Responsável', 'Ações'],
+    DB.cronograma.map(e => [formatarDataHora(e.data), e.titulo, e.responsavel, `<button class="btn-no btn-small" onclick="removerCronograma(${e.id})">Remover</button>`]),
+    'Cronograma vazio.');
 
-  document.getElementById('cardapio-edicao').innerHTML = DB.refeicoes.map(r => `<div class="card">${r.tipo} – ${r.data} <button class="btn-no btn-small" onclick="removerRefeicao(${r.id})">Remover</button></div>`).join('');
+  document.getElementById('cardapio-edicao').innerHTML = buildTable('Refeições', ['Data', 'Tipo', 'Cardápio', 'Ações'],
+    DB.refeicoes.map(r => [r.data, r.tipo, r.descricao, `<button class="btn-no btn-small" onclick="removerRefeicao(${r.id})">Remover</button>`]),
+    'Nenhuma refeição planejada.');
 
-  document.getElementById('compras-edicao').innerHTML = `
-    <h4>Solicitações</h4>${DB.solicitacoes.map(s=>`<div class="card">${s.item} (${s.qtd}) <button class="btn-no btn-small" onclick="removerSolicitacao(${s.id})">Remover</button></div>`).join('')}
-    <h4>Aprovações</h4>${DB.aprovacoes.map(a=>`<div class="card">${a.item} – R$ ${a.valor.toFixed(2)} <button class="btn-no btn-small" onclick="removerAprovacao(${a.id})">Remover</button></div>`).join('')}
-    <h4>Pedidos</h4>${DB.pedidos.map(p=>`<div class="card">${p.item} – ${p.fornecedor} <button class="btn-no btn-small" onclick="removerPedido(${p.id})">Remover</button></div>`).join('')}
-  `;
+  document.getElementById('compras-edicao').innerHTML = [
+    buildTable('Solicitações', ['Item', 'Qtd', 'Centro', 'Ações'],
+      DB.solicitacoes.map(s => [s.item, s.qtd, s.centro, `<button class="btn-no btn-small" onclick="removerSolicitacao(${s.id})">Remover</button>`]),
+      'Sem solicitações.'),
+    buildTable('Aprovações', ['Item', 'Qtd', 'Valor', 'Ações'],
+      DB.aprovacoes.map(a => [a.item, a.qtd, `R$ ${a.valor.toFixed(2)}`, `<button class="btn-no btn-small" onclick="removerAprovacao(${a.id})">Remover</button>`]),
+      'Sem aprovações.'),
+    buildTable('Pedidos', ['Item', 'Fornecedor', 'Ações'],
+      DB.pedidos.map(p => [p.item, p.fornecedor, `<button class="btn-no btn-small" onclick="removerPedido(${p.id})">Remover</button>`]),
+      'Sem pedidos registrados.')
+  ].join('');
 
-  document.getElementById('palestras-edicao').innerHTML = DB.palestras.map(p => `<div class="card">${p.tema} <button class="btn-no btn-small" onclick="removerPalestra(${p.id})">Remover</button></div>`).join('');
-  document.getElementById('kids-edicao').innerHTML = DB.kids.map(k => `<div class="card">${k.atividade} <button class="btn-no btn-small" onclick="removerKids(${k.id})">Remover</button></div>`).join('');
-  document.getElementById('financeiro-edicao').innerHTML = DB.financeiro.centros.map(c => `<div class="card">${c.nome} – R$ ${c.orcado.toFixed(2)} / ${c.realizado.toFixed(2)} <button class="btn-no btn-small" onclick="removerCentro(${c.id})">Remover</button></div>`).join('');
+  document.getElementById('palestras-edicao').innerHTML = buildTable('Palestras', ['Tema', 'Palestrante', 'Ações'],
+    DB.palestras.map(p => [p.tema, p.palestrante, `<button class="btn-no btn-small" onclick="removerPalestra(${p.id})">Remover</button>`]),
+    'Nenhuma palestra cadastrada.');
+
+  document.getElementById('kids-edicao').innerHTML = buildTable('Atividades Kids', ['Atividade', 'Responsável', 'Ações'],
+    DB.kids.map(k => [k.atividade, k.responsavel, `<button class="btn-no btn-small" onclick="removerKids(${k.id})">Remover</button>`]),
+    'Sem atividades kids.');
+
+  document.getElementById('financeiro-edicao').innerHTML = buildTable('Centros de custo', ['Centro', 'Orçado', 'Realizado', 'Ações'],
+    DB.financeiro.centros.map(c => [c.nome, `R$ ${c.orcado.toFixed(2)}`, `R$ ${c.realizado.toFixed(2)}`, `<button class="btn-no btn-small" onclick="removerCentro(${c.id})">Remover</button>`]),
+    'Nenhum centro cadastrado.');
 }
 
 // =============================================
