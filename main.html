@@ -628,7 +628,6 @@ function vincularFamiliaAoQuarto(quartoId, familiaId) {
 
 function capacidadeQuarto(quarto) {
   if (!quarto) return 0;
-  if (quarto.capacidadeManual) return quarto.capacidadeManual;
   return tiposDeCama(quarto).reduce((total, tipo) => {
     if (tipo.tipo === 'Casal') return total + (tipo.quantidade || 0) * 2;
     if (tipo.tipo === 'Beliche') return total + (tipo.quantidade || 0) * (tipo.andares || 2);
@@ -844,25 +843,8 @@ function renderMapa() {
   renderPainelQuarto(DB.quartos.find(q => q.id === quartoSelecionadoId) || null);
 }
 
-function salvar() {
-  try {
-    localStorage.setItem('encontroDB', JSON.stringify(DB));
-  } catch (err) {
-    console.error('Não foi possível salvar os dados localmente', err);
-  }
-}
-function carregar() {
-  try {
-    const salvo = localStorage.getItem('encontroDB');
-    if (!salvo) return;
-    const dados = JSON.parse(salvo);
-    Object.keys(DB).forEach(chave => {
-      if (dados[chave] !== undefined) DB[chave] = dados[chave];
-    });
-  } catch (err) {
-    console.error('Não foi possível carregar os dados salvos', err);
-  }
-}
+function salvar() { /* Dados ficam apenas na sessão atual em formato JSON. */ }
+function carregar() { /* Sem persistência em disco. */ }
 carregar();
 
 // =============================================
