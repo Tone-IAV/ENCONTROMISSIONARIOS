@@ -39,6 +39,35 @@
   .table-group h3 { margin-bottom:0.5rem; color:#0f172a; }
   .nota-dependencia { background:#ecfeff; border:1px dashed #06b6d4; padding:0.8rem 1rem; border-radius:10px; margin-top:0.5rem; color:#0f172a; }
 
+  .mapa-wrapper { background:white; border-radius:14px; padding:1rem; box-shadow:0 4px 15px rgba(0,0,0,0.08); margin:1rem 0 2rem; }
+  .mapa-header { display:flex; justify-content:space-between; align-items:center; gap:1rem; margin-bottom:1rem; flex-wrap:wrap; }
+  .mapa-viewport { border:1px solid #e2e8f0; border-radius:12px; padding:0.5rem; overflow:auto; background:#f8fafc; }
+  .mapa-quartos { display:grid; grid-template-columns:repeat(5, 1fr); grid-auto-rows:120px; gap:0.75rem; transform-origin: top left; transition: transform .15s ease; }
+  .mapa-celula { border:2px dashed #e2e8f0; border-radius:10px; position:relative; background:#f8fafc; transition:border-color .2s, box-shadow .2s; }
+  .mapa-celula.drag-over { border-color:var(--s); box-shadow:0 0 0 3px rgba(59,130,246,0.15); }
+  .quarto-card { background:white; border-radius:12px; padding:0.75rem; box-shadow:0 4px 15px rgba(0,0,0,0.08); border:2px solid #e5e7eb; height:100%; display:flex; flex-direction:column; justify-content:space-between; cursor:grab; }
+  .quarto-card h4 { margin:0 0 0.3rem; color:#0f172a; font-size:1rem; }
+  .quarto-card small { color:#475569; display:block; margin-bottom:0.3rem; }
+  .quarto-card .ocupantes { font-size:0.9rem; line-height:1.35; }
+  .quarto-card.cheio { border-color:var(--no); background:#fff1f2; }
+  .quarto-card.disponivel { border-color:var(--ok); background:#f0fdf4; }
+  .quarto-card .vagas { font-weight:700; color:#0f172a; font-size:0.95rem; }
+  .mapa-rodape { margin-top:0.5rem; color:#475569; font-size:0.95rem; }
+  .tag-ocupante { display:inline-flex; align-items:center; gap:0.4rem; background:#e0f2fe; color:#0f172a; padding:0.3rem 0.6rem; border-radius:999px; margin:0.2rem 0.2rem 0 0; }
+  .tag-ocupante button { background:transparent; border:none; color:#0f172a; cursor:pointer; font-size:0.9rem; }
+  .tag-ocupante button:hover { color:var(--no); }
+  .mapa-zoom { display:flex; align-items:center; gap:0.5rem; background:#e0f2fe; padding:0.4rem 0.75rem; border-radius:10px; }
+  .mapa-zoom input[type="range"] { width:140px; }
+  .mapa-acoes { display:flex; gap:0.5rem; flex-wrap:wrap; align-items:center; }
+  .painel-quarto { border:2px solid #bfdbfe; background:#eff6ff; }
+  .painel-quarto h4 { margin-bottom:0.25rem; }
+  .painel-quarto .pill { background:#dbeafe; }
+  .tipo-cama-builder { background:#f8fafc; border:1px dashed #cbd5e1; padding:0.75rem; border-radius:10px; margin-top:0.5rem; }
+  .tipo-cama-row { display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:0.6rem; align-items:end; }
+  .tipos-cama-lista { display:flex; flex-wrap:wrap; gap:0.5rem; margin-top:0.5rem; }
+  .tipos-cama-lista .pill { background:#eef2ff; }
+  .quarto-card.selecionado { outline:3px solid var(--s); }
+
   .kpi { font-size:3.2rem; font-weight:900; color:var(--p); }
   .section-actions { display:flex; gap:0.75rem; flex-wrap:wrap; align-items:center; margin:1rem 0; }
   .btn-secondary { background:#0ea5e9; color:white; }
@@ -244,15 +273,80 @@
 <section id="alojamento" class="view">
   <div class="modo-leitura">
     <h2>Alojamentos</h2>
+    <p>Visualize a ocupação dos quartos e organize o mapa de planta baixa com arrastar e soltar.</p>
+    <div class="mapa-wrapper">
+      <div class="mapa-header">
+        <div>
+          <h3>Mapa de planta baixa (arraste os quadrados)</h3>
+          <small>Distribua os quartos em 5 colunas para simular a planta.</small>
+        </div>
+        <div class="mapa-acoes">
+          <button type="button" id="btnNovoNoMapa" class="btn-secondary">Adicionar quarto no mapa</button>
+          <div class="mapa-zoom">
+            <button type="button" id="zoomOut">-</button>
+            <input type="range" id="mapaZoomRange" min="50" max="150" value="100">
+            <button type="button" id="zoomIn">+</button>
+            <small id="mapaZoomLabel">100%</small>
+          </div>
+        </div>
+      </div>
+      <div class="mapa-viewport">
+        <div id="mapa-alojamento" class="mapa-quartos"></div>
+      </div>
+      <div class="mapa-rodape">Cada célula representa um espaço da planta. Arraste os quartos para reposicionar.</div>
+      <div id="painel-quarto" class="card painel-quarto hidden"></div>
+    </div>
     <div id="leitura-alojamento"></div>
   </div>
   <div class="modo-edicao">
     <h2>Gerenciar Quartos</h2>
-    <form id="formQuarto">
-      <input type="text" placeholder="Identificação do quarto" required>
-      <input type="number" placeholder="Capacidade" min="1" required>
-      <button type="submit" class="btn-salvar">Adicionar Quarto</button>
-    </form>
+    <p>Monte o mapa primeiro (arrastando os quadrados) e, em seguida, ajuste os quartos e vínculos pelos formulários abaixo.</p>
+    <div class="grid-3">
+      <div class="card">
+        <h3>Novo quadrado/quarto</h3>
+        <form id="formQuarto">
+          <input type="text" placeholder="Identificação do quarto" required>
+          <div class="tipo-cama-builder">
+            <div class="tipo-cama-row">
+              <div>
+                <label>Quantidade</label>
+                <input type="number" id="camaQuantidade" placeholder="Qtd" min="1">
+              </div>
+              <div>
+                <label>Tipo</label>
+                <select id="tipoCama">
+                  <option value="Casal">Cama de casal</option>
+                  <option value="Solteiro">Cama de solteiro</option>
+                  <option value="Beliche">Beliche</option>
+                </select>
+              </div>
+              <div id="campoAndares">
+                <label>Andares (beliche)</label>
+                <input type="number" id="andaresBeliche" placeholder="2" min="2" value="2">
+              </div>
+              <div>
+                <button type="button" class="btn-secondary" id="btnAdicionarTipo">Adicionar tipo</button>
+              </div>
+            </div>
+            <div class="tipos-cama-lista" id="tiposCamaLista"></div>
+            <small>Inclua todos os tipos de cama (um quarto pode ter beliche, casal e solteiro ao mesmo tempo).</small>
+          </div>
+          <div class="section-actions">
+            <button type="submit" class="btn-salvar" id="btnSalvarQuarto">Adicionar Quarto</button>
+            <button type="button" class="btn-cancelar hidden" id="btnCancelarEdicaoQuarto">Cancelar edição</button>
+          </div>
+        </form>
+      </div>
+      <div class="card">
+        <h3>Alocar participante</h3>
+        <form id="formAlocacao">
+          <select id="alocacaoQuarto" required></select>
+          <select id="alocacaoParticipante" required></select>
+          <button type="submit" class="btn-salvar">Vincular ao quarto</button>
+        </form>
+        <small>Capacidade considera o tipo da cama: casal = 2 vagas; solteiro = 1 vaga; beliche = andares x beliches.</small>
+      </div>
+    </div>
     <div id="edicao-alojamento"></div>
   </div>
 </section>
@@ -431,6 +525,90 @@ const DB = {
   financeiro: { orcado: 0, realizado: 0, centros: [] }
 };
 
+const MAP_ROWS = 4;
+const MAP_COLS = 5;
+let mapaZoom = 1;
+let quartoSelecionadoId = null;
+let quartoEditandoId = null;
+
+function posicaoParaIndex(row, col) { return row * MAP_COLS + col; }
+function indexParaPosicao(index) { return { row: Math.floor(index / MAP_COLS), col: index % MAP_COLS }; }
+function quartoNaPosicao(row, col, ignorarId) {
+  return DB.quartos.find(q => q.pos && q.pos.row === row && q.pos.col === col && q.id !== ignorarId);
+}
+function proximaPosicaoLivre() {
+  for (let r = 0; r < MAP_ROWS; r++) {
+    for (let c = 0; c < MAP_COLS; c++) {
+      if (!quartoNaPosicao(r, c)) return { row: r, col: c };
+    }
+  }
+  return null;
+}
+
+function capacidadeQuarto(quarto) {
+  if (!quarto) return 0;
+  return tiposDeCama(quarto).reduce((total, tipo) => {
+    if (tipo.tipo === 'Casal') return total + (tipo.quantidade || 0) * 2;
+    if (tipo.tipo === 'Beliche') return total + (tipo.quantidade || 0) * (tipo.andares || 2);
+    return total + (tipo.quantidade || 0);
+  }, 0);
+}
+
+function ocupacaoQuarto(quarto) {
+  if (!quarto || !quarto.ocupantes) return 0;
+  return quarto.ocupantes.reduce((total, familiaId) => {
+    const familia = DB.familias.find(f => f.id === familiaId);
+    return total + (familia ? familia.qtd : 0);
+  }, 0);
+}
+
+function descricaoTipoQuarto(quarto) {
+  const tipos = tiposDeCama(quarto);
+  if (!tipos.length) return '—';
+  return tipos.map(t => {
+    if (t.tipo === 'Beliche') return `${t.quantidade || 0} beliches (${t.andares || 2} andares)`;
+    if (t.tipo === 'Casal') return `${t.quantidade || 0} cama(s) de casal`;
+    return `${t.quantidade || 0} cama(s) de solteiro`;
+  }).join(' • ');
+}
+
+function vagasDisponiveis(quarto) {
+  return Math.max(capacidadeQuarto(quarto) - ocupacaoQuarto(quarto), 0);
+}
+
+function tiposDeCama(quarto) {
+  if (!quarto) return [];
+  if (Array.isArray(quarto.tiposCama) && quarto.tiposCama.length) return quarto.tiposCama;
+  if (quarto.tipo) return [{ tipo: quarto.tipo, quantidade: quarto.camas || 0, andares: quarto.andares }];
+  return [];
+}
+
+function renderPainelQuarto(quarto) {
+  const painel = document.getElementById('painel-quarto');
+  if (!painel) return;
+  if (!quarto) {
+    painel.innerHTML = '<p>Selecione um quarto no mapa para ver detalhes, editar ou remover.</p>';
+    painel.classList.add('hidden');
+    return;
+  }
+  painel.classList.remove('hidden');
+  const ocupantes = (quarto.ocupantes || []).map(id => {
+    const familia = DB.familias.find(f => f.id === id);
+    return familia ? `<span class="pill">${familia.nome} (${familia.qtd}p)</span>` : '<span class="pill">Removido</span>';
+  }).join('');
+  const camas = tiposDeCama(quarto).map(t => `<span class="pill">${t.quantidade} x ${t.tipo}${t.tipo === 'Beliche' ? ` (${t.andares || 2} andares)` : ''}</span>`).join('');
+  painel.innerHTML = `
+    <h4>${quarto.nome}</h4>
+    <p><strong>Capacidade:</strong> ${capacidadeQuarto(quarto)} vagas • <strong>Ocupação:</strong> ${ocupacaoQuarto(quarto)}</p>
+    <p><strong>Camas:</strong> ${camas || '—'}</p>
+    <p><strong>Ocupantes:</strong> ${ocupantes || 'Sem participantes vinculados.'}</p>
+    <div class="section-actions">
+      <button type="button" class="btn-secondary" onclick="entrarEdicaoQuarto(${quarto.id})">Editar quarto</button>
+      <button type="button" class="btn-no" onclick="removerQuarto(${quarto.id})">Remover do mapa</button>
+    </div>
+  `;
+}
+
 function salvar() { /* Dados ficam apenas na sessão atual em formato JSON. */ }
 function carregar() { /* Sem persistência em disco. */ }
 carregar();
@@ -450,6 +628,16 @@ document.querySelectorAll('.nav-link').forEach(l => {
     atualizarEdicao();
   });
 });
+
+function atualizarZoom(valor) {
+  mapaZoom = Math.min(1.5, Math.max(0.5, valor));
+  const container = document.getElementById('mapa-alojamento');
+  const label = document.getElementById('mapaZoomLabel');
+  const range = document.getElementById('mapaZoomRange');
+  if (container) container.style.transform = `scale(${mapaZoom})`;
+  if (label) label.textContent = `${Math.round(mapaZoom * 100)}%`;
+  if (range) range.value = Math.round(mapaZoom * 100);
+}
 
 // =============================================
 // CONTA E LOGS
@@ -648,7 +836,10 @@ function atualizarLeitura() {
   document.getElementById('paxTotal').textContent = total;
   document.getElementById('onibusTotal').textContent = DB.onibus.length;
   document.getElementById('voosTotal').textContent = DB.voos.length;
-  document.getElementById('quartosInfo').innerHTML = `${DB.quartos.length ? DB.quartos.filter(q => q.ocupado).length : 0} / ${DB.quartos.length}`;
+  const quartosOcupados = DB.quartos.filter(q => ocupacaoQuarto(q) > 0).length;
+  const capacidadeTotal = DB.quartos.reduce((s, q) => s + capacidadeQuarto(q), 0);
+  const vagasUsadas = DB.quartos.reduce((s, q) => s + ocupacaoQuarto(q), 0);
+  document.getElementById('quartosInfo').innerHTML = `${quartosOcupados} / ${DB.quartos.length} quartos • ${vagasUsadas}/${capacidadeTotal} vagas`;
   document.getElementById('orcado').textContent = DB.financeiro.orcado.toFixed(2).replace('.', ',');
   document.getElementById('realizado').textContent = DB.financeiro.realizado.toFixed(2).replace('.', ',');
 
@@ -692,8 +883,91 @@ function atualizarLeitura() {
       'Nenhum voo cadastrado.')
   ].join('');
 
-  document.getElementById('leitura-alojamento').innerHTML = buildTable('Quartos e ocupação', ['Quarto', 'Capacidade', 'Status'],
-    DB.quartos.map(q => [q.nome, q.capacidade, q.ocupado ? 'Ocupado' : 'Livre']),
+  const renderMapa = () => {
+    const container = document.getElementById('mapa-alojamento');
+    if (!container) return;
+    if (!DB.quartos.length) {
+      container.innerHTML = '<p>Nenhum quarto cadastrado.</p>';
+      return;
+    }
+
+    const quartoCard = q => {
+      const ocupantes = (q.ocupantes || []).map(id => {
+        const familia = DB.familias.find(f => f.id === id);
+        return familia ? `${familia.nome} (${familia.qtd}p)` : 'Participante removido';
+      }).join('<br>') || 'Nenhum participante vinculado';
+      const classe = vagasDisponiveis(q) > 0 ? 'disponivel' : 'cheio';
+      const selecionado = quartoSelecionadoId === q.id ? 'selecionado' : '';
+      return `<div class="quarto-card ${classe} ${selecionado}" draggable="true" data-id="${q.id}">
+        <div>
+          <h4>${q.nome}</h4>
+          <small>${descricaoTipoQuarto(q)} • ${capacidadeQuarto(q)} vagas</small>
+          <div class="ocupantes">${ocupantes}</div>
+        </div>
+        <div class="vagas">${ocupacaoQuarto(q)}/${capacidadeQuarto(q)} vagas usadas</div>
+      </div>`;
+    };
+
+    DB.quartos.forEach(q => {
+      if (!q.pos) {
+        const livre = proximaPosicaoLivre();
+        if (livre) q.pos = livre;
+      }
+    });
+
+    const celulas = Array.from({ length: MAP_ROWS * MAP_COLS }, (_, idx) => {
+      const { row, col } = indexParaPosicao(idx);
+      const quarto = quartoNaPosicao(row, col);
+      const card = quarto ? quartoCard(quarto) : '';
+      return `<div class="mapa-celula" data-idx="${idx}">${card}</div>`;
+    }).join('');
+
+    container.innerHTML = celulas;
+    atualizarZoom(mapaZoom);
+
+    container.querySelectorAll('.quarto-card').forEach(card => {
+      card.addEventListener('dragstart', e => {
+        e.dataTransfer.setData('text/quarto', card.dataset.id);
+      });
+      card.addEventListener('click', () => selecionarQuarto(Number(card.dataset.id)));
+    });
+
+    container.querySelectorAll('.mapa-celula').forEach(cell => {
+      cell.addEventListener('dragover', e => { e.preventDefault(); cell.classList.add('drag-over'); });
+      cell.addEventListener('dragleave', () => cell.classList.remove('drag-over'));
+      cell.addEventListener('drop', e => {
+        e.preventDefault();
+        cell.classList.remove('drag-over');
+        const id = Number(e.dataTransfer.getData('text/quarto'));
+        if (!id) return;
+        const { row, col } = indexParaPosicao(Number(cell.dataset.idx));
+        const quarto = DB.quartos.find(q => q.id === id);
+        if (!quarto) return;
+        const atual = quarto.pos || null;
+        const ocupanteDestino = quartoNaPosicao(row, col, id);
+        quarto.pos = { row, col };
+        if (ocupanteDestino) {
+          ocupanteDestino.pos = atual || proximaPosicaoLivre() || ocupanteDestino.pos;
+        }
+        atualizarLeitura();
+        atualizarEdicao();
+        salvar();
+      });
+    });
+
+    renderPainelQuarto(DB.quartos.find(q => q.id === quartoSelecionadoId) || null);
+  };
+
+  renderMapa();
+
+  document.getElementById('leitura-alojamento').innerHTML = buildTable('Quartos e ocupação', ['Quarto', 'Capacidade total', 'Tipo de cama', 'Ocupação'],
+    DB.quartos.map(q => {
+      const ocupantes = (q.ocupantes || []).map(id => {
+        const familia = DB.familias.find(f => f.id === id);
+        return familia ? `${familia.nome} (${familia.qtd}p)` : 'Participante removido';
+      }).join('<br>') || 'Sem participantes vinculados.';
+      return [q.nome, `${capacidadeQuarto(q)} vagas`, descricaoTipoQuarto(q), `${ocupacaoQuarto(q)}/${capacidadeQuarto(q)} pessoas<br><small>${ocupantes}</small>`];
+    }),
     'Nenhum quarto cadastrado.');
 
   const eventos = [...DB.cronograma].sort((a, b) => new Date(a.data) - new Date(b.data));
@@ -765,6 +1039,8 @@ function atualizarEdicao() {
   setSelectOptions('tarefaProjeto', DB.projetos, p => p.nome);
   setSelectOptions('aprovacaoSolicitacao', DB.solicitacoes, s => `${s.item} (${s.qtd} un)`);
   setSelectOptions('pedidoAprovado', DB.aprovacoes, a => `${a.item} - R$ ${a.valor.toFixed(2)}`);
+  setSelectOptions('alocacaoQuarto', DB.quartos, q => `${q.nome} • ${vagasDisponiveis(q)} vagas livres`);
+  setSelectOptions('alocacaoParticipante', DB.familias, f => `${f.nome} (${f.qtd} pessoas)`);
   const financeiroForm = document.getElementById('formFinanceiro');
   if (financeiroForm) {
     financeiroForm[0].value = DB.financeiro.orcado;
@@ -796,8 +1072,16 @@ function atualizarEdicao() {
       'Nenhum voo cadastrado.')
   ].join('');
 
-  document.getElementById('edicao-alojamento').innerHTML = buildTable('Quartos', ['Quarto', 'Capacidade', 'Status', 'Ações'],
-    DB.quartos.map(q => [q.nome, q.capacidade, q.ocupado ? 'Ocupado' : 'Livre', `<button class="btn-no btn-small" onclick="removerQuarto(${q.id})">Remover</button>`]),
+  document.getElementById('edicao-alojamento').innerHTML = buildTable('Quartos', ['Quarto', 'Camas e tipo', 'Ocupação', 'Ações'],
+    DB.quartos.map(q => {
+      const ocupantes = (q.ocupantes || []).map(id => {
+        const familia = DB.familias.find(f => f.id === id);
+        const nome = familia ? `${familia.nome} (${familia.qtd}p)` : 'Participante removido';
+        return `<span class="tag-ocupante">${nome}<button title="Remover" onclick="desvincularParticipante(${q.id}, ${id})">×</button></span>`;
+      }).join('');
+      const ocupacao = `${ocupacaoQuarto(q)}/${capacidadeQuarto(q)} pessoas` + (ocupantes ? `<div>${ocupantes}</div>` : '<div class="ocupantes">Sem participantes.</div>');
+      return [q.nome, `${descricaoTipoQuarto(q)}<br><small>${capacidadeQuarto(q)} vagas totais</small>`, ocupacao, `<button class="btn-no btn-small" onclick="removerQuarto(${q.id})">Remover</button>`];
+    }),
     'Nenhum quarto cadastrado.');
 
   document.getElementById('cronograma-edicao').innerHTML = buildTable('Atividades', ['Data/Hora', 'Atividade', 'Responsável', 'Ações'],
@@ -873,7 +1157,155 @@ document.getElementById('formTarefa').onsubmit = e => {
 document.getElementById('formOnibus').onsubmit = e => { e.preventDefault(); const i = e.target.elements; DB.onibus.push({id:Date.now(), cidade:i[0].value, qtd:+i[1].value, empresa:i[2].value, data:i[3].value}); e.target.reset(); atualizarLeitura(); atualizarEdicao(); salvar(); };
 document.getElementById('formVoo').onsubmit = e => { e.preventDefault(); const i = e.target.elements; DB.voos.push({id:Date.now(), passageiro:i[0].value, voo:i[1].value, data:i[2].value}); e.target.reset(); atualizarLeitura(); atualizarEdicao(); salvar(); };
 
-document.getElementById('formQuarto').onsubmit = e => { e.preventDefault(); const i = e.target.elements; DB.quartos.push({id:Date.now(), nome:i[0].value, capacidade:+i[1].value, ocupado:false}); e.target.reset(); atualizarLeitura(); atualizarEdicao(); salvar(); };
+document.getElementById('formQuarto').onsubmit = e => {
+  e.preventDefault();
+  const i = e.target.elements;
+  if (!tiposSelecionados.length) return alert('Inclua ao menos um tipo de cama para o quarto.');
+  if (quartoEditandoId) {
+    const quarto = DB.quartos.find(q => q.id === quartoEditandoId);
+    if (!quarto) return alert('Quarto não encontrado para edição.');
+    quarto.nome = i[0].value;
+    quarto.tiposCama = [...tiposSelecionados];
+    quartoSelecionadoId = quarto.id;
+    prepararFormularioParaNovo();
+  } else {
+    const pos = proximaPosicaoLivre();
+    if (!pos) return alert('Mapa cheio: não há mais células livres para novos quartos.');
+    const novoId = Date.now();
+    DB.quartos.push({ id: novoId, nome: i[0].value, tiposCama: [...tiposSelecionados], ocupantes: [], pos });
+    quartoSelecionadoId = novoId;
+    prepararFormularioParaNovo();
+  }
+  e.target.reset();
+  atualizarLeitura(); atualizarEdicao(); salvar();
+};
+
+document.getElementById('formAlocacao').onsubmit = e => {
+  e.preventDefault();
+  const quartoId = Number(document.getElementById('alocacaoQuarto').value);
+  const familiaId = Number(document.getElementById('alocacaoParticipante').value);
+  const quarto = DB.quartos.find(q => q.id === quartoId);
+  const familia = DB.familias.find(f => f.id === familiaId);
+  if (!quarto || !familia) return alert('Selecione um quarto e um participante válidos.');
+  if (!quarto.ocupantes) quarto.ocupantes = [];
+  if (quarto.ocupantes.includes(familiaId)) return alert('Esse participante já está vinculado ao quarto.');
+  if (ocupacaoQuarto(quarto) + familia.qtd > capacidadeQuarto(quarto)) return alert('Capacidade insuficiente para essa família neste quarto.');
+  quarto.ocupantes.push(familiaId);
+  e.target.reset();
+  atualizarLeitura(); atualizarEdicao(); salvar();
+};
+
+const tipoCamaSelect = document.getElementById('tipoCama');
+const andaresInput = document.getElementById('andaresBeliche');
+const campoAndares = document.getElementById('campoAndares');
+const btnAdicionarTipo = document.getElementById('btnAdicionarTipo');
+const tiposCamaLista = document.getElementById('tiposCamaLista');
+const nomeQuartoInput = document.querySelector('#formQuarto input[type="text"]');
+const btnSalvarQuarto = document.getElementById('btnSalvarQuarto');
+const btnCancelarEdicaoQuarto = document.getElementById('btnCancelarEdicaoQuarto');
+const btnNovoNoMapa = document.getElementById('btnNovoNoMapa');
+const quantidadeInput = document.getElementById('camaQuantidade');
+let tiposSelecionados = [];
+let toggleAndares = null;
+
+function renderTiposCamaUI() {
+  if (!tiposCamaLista) return;
+  tiposCamaLista.innerHTML = tiposSelecionados.length
+    ? tiposSelecionados.map((t, idx) => `<span class="pill">${t.quantidade} x ${t.tipo}${t.tipo === 'Beliche' ? ` (${t.andares || 2} andares)` : ''} <button type="button" class="btn-no btn-small" onclick="removerTipoCama(${idx})">×</button></span>`).join('')
+    : '<small>Adicione ao menos um tipo para liberar o cadastro.</small>';
+}
+
+window.removerTipoCama = idx => {
+  tiposSelecionados = tiposSelecionados.filter((_, i) => i !== idx);
+  renderTiposCamaUI();
+};
+
+function prepararFormularioParaNovo() {
+  quartoEditandoId = null;
+  if (btnSalvarQuarto) btnSalvarQuarto.textContent = 'Adicionar Quarto';
+  if (btnCancelarEdicaoQuarto) btnCancelarEdicaoQuarto.classList.add('hidden');
+  if (nomeQuartoInput) nomeQuartoInput.value = '';
+  tiposSelecionados = [];
+  renderTiposCamaUI();
+  if (typeof toggleAndares === 'function') toggleAndares();
+}
+
+function entrarEdicaoQuarto(id) {
+  const quarto = DB.quartos.find(q => q.id === id);
+  if (!quarto) return;
+  quartoSelecionadoId = id;
+  quartoEditandoId = id;
+  if (nomeQuartoInput) nomeQuartoInput.value = quarto.nome;
+  tiposSelecionados = [...tiposDeCama(quarto)];
+  renderTiposCamaUI();
+  if (btnSalvarQuarto) btnSalvarQuarto.textContent = 'Salvar alterações';
+  if (btnCancelarEdicaoQuarto) btnCancelarEdicaoQuarto.classList.remove('hidden');
+  atualizarLeitura();
+  const form = document.getElementById('formQuarto');
+  if (form) form.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function selecionarQuarto(id) {
+  quartoSelecionadoId = id;
+  renderPainelQuarto(DB.quartos.find(q => q.id === id) || null);
+  entrarEdicaoQuarto(id);
+}
+
+function removerQuarto(id) {
+  DB.quartos = DB.quartos.filter(q => q.id !== id);
+  if (quartoSelecionadoId === id) quartoSelecionadoId = null;
+  if (quartoEditandoId === id) prepararFormularioParaNovo();
+  renderPainelQuarto(null);
+  atualizarLeitura();
+  atualizarEdicao();
+  salvar();
+}
+
+if (btnCancelarEdicaoQuarto) btnCancelarEdicaoQuarto.addEventListener('click', () => {
+  prepararFormularioParaNovo();
+  renderPainelQuarto(quartoSelecionadoId ? DB.quartos.find(q => q.id === quartoSelecionadoId) : null);
+});
+
+if (btnNovoNoMapa) btnNovoNoMapa.addEventListener('click', () => {
+  quartoSelecionadoId = null;
+  prepararFormularioParaNovo();
+  renderPainelQuarto(null);
+  const form = document.getElementById('formQuarto');
+  if (form) form.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  if (nomeQuartoInput) nomeQuartoInput.focus();
+});
+
+function adicionarTipoCama() {
+  if (!quantidadeInput || !tipoCamaSelect) return;
+  const quantidade = Number(quantidadeInput.value || 0);
+  if (!quantidade) return alert('Informe a quantidade de camas.');
+  const tipo = tipoCamaSelect.value;
+  const andares = tipo === 'Beliche' ? Number(andaresInput.value || 2) : null;
+  tiposSelecionados.push({ tipo, quantidade, andares });
+  quantidadeInput.value = '';
+  renderTiposCamaUI();
+}
+
+if (tipoCamaSelect && andaresInput) {
+  toggleAndares = () => {
+    const isBeliche = tipoCamaSelect.value === 'Beliche';
+    if (campoAndares) campoAndares.style.display = isBeliche ? 'block' : 'none';
+    andaresInput.disabled = !isBeliche;
+  };
+  tipoCamaSelect.addEventListener('change', toggleAndares);
+  toggleAndares();
+}
+
+if (btnAdicionarTipo) btnAdicionarTipo.addEventListener('click', adicionarTipoCama);
+renderTiposCamaUI();
+
+const mapaZoomRange = document.getElementById('mapaZoomRange');
+const btnZoomIn = document.getElementById('zoomIn');
+const btnZoomOut = document.getElementById('zoomOut');
+if (mapaZoomRange) mapaZoomRange.addEventListener('input', e => atualizarZoom(Number(e.target.value) / 100));
+if (btnZoomIn) btnZoomIn.addEventListener('click', () => atualizarZoom(mapaZoom + 0.1));
+if (btnZoomOut) btnZoomOut.addEventListener('click', () => atualizarZoom(mapaZoom - 0.1));
+atualizarZoom(mapaZoom);
 
 document.getElementById('formCronograma').onsubmit = e => { e.preventDefault(); const i = e.target.elements; DB.cronograma.push({id:Date.now(), data:i[0].value, titulo:i[1].value, responsavel:i[2].value}); e.target.reset(); atualizarLeitura(); atualizarEdicao(); salvar(); };
 
@@ -892,6 +1324,12 @@ window.removerFamilia = id => { DB.familias = DB.familias.filter(f=>f.id!==id); 
 window.removerEquipe = id => { DB.equipes = DB.equipes.filter(e=>e.id!==id); DB.projetos = DB.projetos.filter(p=>p.equipeId!==id); DB.tarefas = DB.tarefas.filter(t=>DB.projetos.some(p=>p.id===t.projetoId)); atualizarLeitura(); atualizarEdicao(); salvar(); };
 window.removerOnibus = id => { DB.onibus = DB.onibus.filter(o=>o.id!==id); atualizarLeitura(); atualizarEdicao(); salvar(); };
 window.removerVoo = id => { DB.voos = DB.voos.filter(v=>v.id!==id); atualizarLeitura(); atualizarEdicao(); salvar(); };
+window.desvincularParticipante = (quartoId, familiaId) => {
+  const quarto = DB.quartos.find(q => q.id === quartoId);
+  if (!quarto || !quarto.ocupantes) return;
+  quarto.ocupantes = quarto.ocupantes.filter(id => id !== familiaId);
+  atualizarLeitura(); atualizarEdicao(); salvar();
+};
 window.removerQuarto = id => { DB.quartos = DB.quartos.filter(q=>q.id!==id); atualizarLeitura(); atualizarEdicao(); salvar(); };
 window.removerCronograma = id => { DB.cronograma = DB.cronograma.filter(c=>c.id!==id); atualizarLeitura(); atualizarEdicao(); salvar(); };
 window.removerRefeicao = id => { DB.refeicoes = DB.refeicoes.filter(r=>r.id!==id); atualizarLeitura(); atualizarEdicao(); salvar(); };
