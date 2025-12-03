@@ -19,7 +19,7 @@
   .view.active { display:block; }
 
   .modo-leitura { background:#fff; border-radius:12px; padding:2rem; box-shadow:0 6px 25px rgba(0,0,0,0.1); margin-bottom:2rem; }
-  .modo-edicao { display:none; background:#f0f9ff; border:2px dashed #0ea5e9; border-radius:12px; padding:2rem; margin-bottom:2rem; }
+  .modo-edicao { background:#f0f9ff; border:2px dashed #0ea5e9; border-radius:12px; padding:2rem; margin-bottom:2rem; }
 
   .card { background:white; border-radius:10px; padding:1.5rem; box-shadow:0 4px 15px rgba(0,0,0,0.08); margin-bottom:1rem; }
   .grid-3 { display:grid; gap:1.5rem; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); }
@@ -40,19 +40,22 @@
   .nota-dependencia { background:#ecfeff; border:1px dashed #06b6d4; padding:0.8rem 1rem; border-radius:10px; margin-top:0.5rem; color:#0f172a; }
 
   .kpi { font-size:3.2rem; font-weight:900; color:var(--p); }
-  .toggle-modo { position:fixed; top:100px; right:20px; z-index:9999; background:var(--p); color:white; padding:1rem 1.5rem; border-radius:50px; font-weight:bold; box-shadow:0 4px 20px rgba(0,0,0,0.3); }
+  .section-actions { display:flex; gap:0.75rem; flex-wrap:wrap; align-items:center; margin:1rem 0; }
+  .btn-secondary { background:#0ea5e9; color:white; }
+  .pill { display:inline-flex; align-items:center; gap:0.5rem; padding:0.6rem 1rem; background:#e0f2fe; border-radius:999px; font-size:0.95rem; }
 </style>
 </head>
 <body>
 
 <header>
   <h1>Gestão do Grande Encontro de Missionários</h1>
-  <p>700–1.500 pessoas • Duas visualizações: Leitura e Edição</p>
+  <p>700–1.500 pessoas • Visualização e edição contínuas em cada módulo</p>
 </header>
 
 <nav>
   <ul>
-    <li><a href="#dashboard" class="nav-link active">Dashboard</a></li>
+    <li><a href="#conta" class="nav-link active">Conta</a></li>
+    <li><a href="#dashboard" class="nav-link">Dashboard</a></li>
     <li><a href="#equipes" class="nav-link">Equipes & Projetos</a></li>
     <li><a href="#participantes" class="nav-link">Participantes</a></li>
     <li><a href="#transporte" class="nav-link">Transporte</a></li>
@@ -66,14 +69,53 @@
   </ul>
 </nav>
 
-<!-- BOTÃO FLUTUANTE MODO EDIÇÃO -->
-<button class="toggle-modo" onclick="toggleModo()">MODO EDIÇÃO</button>
-
 <div class="container">
 <main>
 
+<!-- CONTA -->
+<section id="conta" class="view active">
+  <div class="card">
+    <h2>Conta do Usuário</h2>
+    <p>Cadastre um usuário para acessar as edições. Todas as ações são registradas em log em formato JSON e os dados são mantidos somente durante a sessão atual.</p>
+    <div class="grid-3">
+      <div class="card">
+        <h3>Novo cadastro</h3>
+        <form id="formCadastro">
+          <input type="text" placeholder="Nome completo" required>
+          <input type="email" placeholder="E-mail" required>
+          <input type="text" placeholder="Usuário" required>
+          <input type="password" placeholder="Senha" required>
+          <button type="submit" class="btn-salvar">Registrar</button>
+        </form>
+      </div>
+      <div class="card">
+        <h3>Login</h3>
+        <form id="formLogin">
+          <input type="text" placeholder="Usuário" required>
+          <input type="password" placeholder="Senha" required>
+          <button type="submit" class="btn-secondary">Entrar</button>
+          <button type="button" id="btnLogout" class="btn-no" style="display:none;margin-top:0.5rem;">Sair</button>
+        </form>
+      </div>
+      <div class="card">
+        <h3>Dados da sessão</h3>
+        <div id="sessaoUsuario" class="pill">Nenhum usuário autenticado</div>
+        <div id="perfilSelecionado"></div>
+      </div>
+    </div>
+  </div>
+  <div class="modo-edicao">
+    <h3>Usuários cadastrados</h3>
+    <div id="usuariosLista"></div>
+  </div>
+  <div class="modo-leitura">
+    <h3>Log de alterações</h3>
+    <div id="logAlteracoes"></div>
+  </div>
+</section>
+
 <!-- DASHBOARD -->
-<section id="dashboard" class="view active">
+<section id="dashboard" class="view">
   <div class="modo-leitura">
     <h2>Dashboard Executivo</h2>
     <div class="grid-3">
@@ -89,7 +131,6 @@
   <div class="modo-edicao">
     <h2>Editar Dashboard</h2>
     <p>Os dados são atualizados automaticamente com base nos cadastros.</p>
-    <button onclick="toggleModo()" class="btn-cancelar">Voltar à Visualização</button>
   </div>
 </section>
 
@@ -140,7 +181,6 @@
       </div>
     </div>
     <div id="equipes-edicao"></div>
-    <button onclick="toggleModo()" class="btn-cancelar">Fechar Edição</button>
   </div>
 </section>
 
@@ -162,7 +202,6 @@
       <button type="submit" class="btn-salvar">Salvar Família</button>
     </form>
     <div id="lista-participantes-edicao"></div>
-    <button onclick="toggleModo()" class="btn-cancelar">Fechar Edição</button>
   </div>
 </section>
 
@@ -188,7 +227,6 @@
       <button type="submit" class="btn-salvar">Adicionar Voo</button>
     </form>
     <div id="edicao-transporte"></div>
-    <button onclick="toggleModo()" class="btn-cancelar">Fechar</button>
   </div>
 </section>
 
@@ -206,7 +244,6 @@
       <button type="submit" class="btn-salvar">Adicionar Quarto</button>
     </form>
     <div id="edicao-alojamento"></div>
-    <button onclick="toggleModo()" class="btn-cancelar">Fechar</button>
   </div>
 </section>
 
@@ -225,7 +262,6 @@
       <button type="submit" class="btn-salvar">Salvar Atividade</button>
     </form>
     <div id="cronograma-edicao"></div>
-    <button onclick="toggleModo()" class="btn-cancelar">Fechar</button>
   </div>
 </section>
 
@@ -248,7 +284,6 @@
       <button type="submit" class="btn-salvar">Salvar Refeição</button>
     </form>
     <div id="cardapio-edicao"></div>
-    <button onclick="toggleModo()" class="btn-cancelar">Fechar</button>
   </div>
 </section>
 
@@ -288,7 +323,6 @@
       </div>
     </div>
     <div id="compras-edicao"></div>
-    <button onclick="toggleModo()" class="btn-cancelar">Fechar</button>
   </div>
 </section>
 
@@ -307,7 +341,6 @@
       <button type="submit" class="btn-salvar">Salvar</button>
     </form>
     <div id="palestras-edicao"></div>
-    <button onclick="toggleModo()" class="btn-cancelar">Fechar</button>
   </div>
 </section>
 
@@ -326,7 +359,6 @@
       <button type="submit" class="btn-salvar">Salvar</button>
     </form>
     <div id="kids-edicao"></div>
-    <button onclick="toggleModo()" class="btn-cancelar">Fechar</button>
   </div>
 </section>
 
@@ -358,7 +390,6 @@
       </div>
     </div>
     <div id="financeiro-edicao"></div>
-    <button onclick="toggleModo()" class="btn-cancelar">Fechar</button>
   </div>
 </section>
 
@@ -370,6 +401,9 @@
 // DADOS + PERSISTÊNCIA
 // =============================================
 const DB = {
+  usuarios: [],
+  logs: [],
+  sessao: null,
   familias: [],
   onibus: [],
   voos: [],
@@ -387,23 +421,9 @@ const DB = {
   financeiro: { orcado: 0, realizado: 0, centros: [] }
 };
 
-function salvar() { localStorage.setItem('encontro2025_duplo', JSON.stringify(DB)); }
-function carregar() { Object.assign(DB, JSON.parse(localStorage.getItem('encontro2025_duplo') || '{}')); }
+function salvar() { /* Dados ficam apenas na sessão atual em formato JSON. */ }
+function carregar() { /* Sem persistência em disco. */ }
 carregar();
-
-// =============================================
-// MODO LEITURA / EDIÇÃO GLOBAL
-// =============================================
-let modoEdicao = false;
-function toggleModo() {
-  modoEdicao = !modoEdicao;
-  document.querySelectorAll('.modo-leitura').forEach(el => el.style.display = modoEdicao ? 'none' : 'block');
-  document.querySelectorAll('.modo-edicao').forEach(el => el.style.display = modoEdicao ? 'block' : 'none');
-  document.querySelector('.toggle-modo').textContent = modoEdicao ? 'VOLTAR À VISUALIZAÇÃO' : 'MODO EDIÇÃO';
-  document.querySelector('.toggle-modo').style.background = modoEdicao ? '#ef4444' : '#1e40af';
-  if (modoEdicao) atualizarEdicao();
-  else atualizarLeitura();
-}
 
 // =============================================
 // NAVEGAÇÃO
@@ -415,9 +435,136 @@ document.querySelectorAll('.nav-link').forEach(l => {
     l.classList.add('active');
     document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
     document.querySelector(l.getAttribute('href')).classList.add('active');
-    modoEdicao ? atualizarEdicao() : atualizarLeitura();
+    atualizarContaUI();
+    atualizarLeitura();
+    atualizarEdicao();
   });
 });
+
+// =============================================
+// CONTA E LOGS
+// =============================================
+let usuarioEditando = null;
+
+function registrarLog(acao, detalhe) {
+  const entrada = {
+    id: Date.now(),
+    usuario: DB.sessao ? DB.sessao.usuario : 'anônimo',
+    acao,
+    detalhe,
+    data: new Date().toISOString()
+  };
+  DB.logs.unshift(entrada);
+  renderLogs();
+}
+
+function renderLogs() {
+  const alvo = document.getElementById('logAlteracoes');
+  if (!alvo) return;
+  if (!DB.logs.length) {
+    alvo.innerHTML = '<p>Nenhuma ação registrada nesta sessão.</p>';
+    return;
+  }
+  alvo.innerHTML = DB.logs.map(log => `<pre>${JSON.stringify(log, null, 2)}</pre>`).join('');
+}
+
+function renderUsuarios() {
+  const alvo = document.getElementById('usuariosLista');
+  if (!alvo) return;
+  if (!DB.usuarios.length) {
+    alvo.innerHTML = '<p>Nenhum usuário cadastrado.</p>';
+    return;
+  }
+  const linhas = DB.usuarios.map(u => [
+    u.nome,
+    u.email,
+    u.usuario,
+    `<button class="btn-editar btn-small" onclick="editarUsuario(${u.id})">Editar</button> <button class="btn-no btn-small" onclick="excluirUsuario(${u.id})">Excluir</button>`
+  ]);
+  const headers = ['Nome', 'E-mail', 'Usuário', 'Ações'];
+  const corpo = linhas.map(r => `<tr>${r.map(c => `<td>${c}</td>`).join('')}</tr>`).join('');
+  alvo.innerHTML = `<table><thead><tr>${headers.map(h => `<th>${h}</th>`).join('')}</tr></thead><tbody>${corpo}</tbody></table>`;
+}
+
+function atualizarSessaoVisual() {
+  const sessao = document.getElementById('sessaoUsuario');
+  const perfil = document.getElementById('perfilSelecionado');
+  const btnLogout = document.getElementById('btnLogout');
+  if (DB.sessao) {
+    sessao.textContent = `Logado como ${DB.sessao.nome}`;
+    perfil.innerHTML = `<p><strong>E-mail:</strong> ${DB.sessao.email}<br><strong>Usuário:</strong> ${DB.sessao.usuario}</p>`;
+    btnLogout.style.display = 'block';
+  } else {
+    sessao.textContent = 'Nenhum usuário autenticado';
+    perfil.textContent = '';
+    btnLogout.style.display = 'none';
+  }
+}
+
+function atualizarContaUI() {
+  atualizarSessaoVisual();
+  renderUsuarios();
+  renderLogs();
+}
+
+window.editarUsuario = id => {
+  const usuario = DB.usuarios.find(u => u.id === id);
+  if (!usuario) return;
+  usuarioEditando = usuario.id;
+  const form = document.getElementById('formCadastro');
+  form[0].value = usuario.nome;
+  form[1].value = usuario.email;
+  form[2].value = usuario.usuario;
+  form[3].value = usuario.senha;
+  form.querySelector('button[type="submit"]').textContent = 'Atualizar dados';
+};
+
+window.excluirUsuario = id => {
+  const usuario = DB.usuarios.find(u => u.id === id);
+  DB.usuarios = DB.usuarios.filter(u => u.id !== id);
+  if (DB.sessao && DB.sessao.id === id) {
+    DB.sessao = null;
+  }
+  registrarLog('excluir_usuario', { usuario: usuario ? usuario.usuario : id });
+  usuarioEditando = null;
+  atualizarContaUI();
+};
+
+document.getElementById('formCadastro').onsubmit = e => {
+  e.preventDefault();
+  const [nome, email, usuario, senha] = [e.target[0].value, e.target[1].value, e.target[2].value, e.target[3].value];
+  if (usuarioEditando) {
+    const atual = DB.usuarios.find(u => u.id === usuarioEditando);
+    if (atual) {
+      atual.nome = nome; atual.email = email; atual.usuario = usuario; atual.senha = senha;
+      registrarLog('editar_usuario', { usuario });
+    }
+  } else {
+    DB.usuarios.push({ id: Date.now(), nome, email, usuario, senha });
+    registrarLog('criar_usuario', { usuario });
+  }
+  usuarioEditando = null;
+  e.target.reset();
+  e.target.querySelector('button[type="submit"]').textContent = 'Registrar';
+  atualizarContaUI();
+};
+
+document.getElementById('formLogin').onsubmit = e => {
+  e.preventDefault();
+  const [usuario, senha] = [e.target[0].value, e.target[1].value];
+  const encontrado = DB.usuarios.find(u => u.usuario === usuario && u.senha === senha);
+  if (!encontrado) return alert('Usuário ou senha inválidos.');
+  DB.sessao = { id: encontrado.id, nome: encontrado.nome, email: encontrado.email, usuario: encontrado.usuario };
+  registrarLog('login', { usuario });
+  atualizarContaUI();
+};
+
+document.getElementById('btnLogout').onclick = () => {
+  if (!DB.sessao) return;
+  registrarLog('logout', { usuario: DB.sessao.usuario });
+  DB.sessao = null;
+  atualizarContaUI();
+};
 
 // =============================================
 // ATUALIZAR TELAS
@@ -688,8 +835,9 @@ window.removerCentro = id => { DB.financeiro.centros = DB.financeiro.centros.fil
 // =============================================
 // INICIALIZAÇÃO
 // =============================================
+atualizarContaUI();
 atualizarLeitura();
-alert("SISTEMA COM DUAS VISUALIZAÇÕES PRONTO!\n\n• Modo Leitura (padrão)\n• Clique no botão laranja → MODO EDIÇÃO\n\nPerfeito para apresentar e para trabalhar!\n\nDeus abençoe o encontro!");
+atualizarEdicao();
 </script>
 </body>
 </html>
