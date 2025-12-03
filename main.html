@@ -39,34 +39,47 @@
   .table-group h3 { margin-bottom:0.5rem; color:#0f172a; }
   .nota-dependencia { background:#ecfeff; border:1px dashed #06b6d4; padding:0.8rem 1rem; border-radius:10px; margin-top:0.5rem; color:#0f172a; }
 
-  .mapa-wrapper { background:white; border-radius:14px; padding:1rem; box-shadow:0 4px 15px rgba(0,0,0,0.08); margin:1rem 0 2rem; }
-  .mapa-header { display:flex; justify-content:space-between; align-items:center; gap:1rem; margin-bottom:1rem; flex-wrap:wrap; }
-  .mapa-viewport { border:1px solid #e2e8f0; border-radius:12px; padding:0.5rem; overflow:auto; background:#f8fafc; }
-  .mapa-quartos { display:grid; grid-template-columns:repeat(5, 1fr); grid-auto-rows:120px; gap:0.75rem; transform-origin: top left; transition: transform .15s ease; }
-  .mapa-celula { border:2px dashed #e2e8f0; border-radius:10px; position:relative; background:#f8fafc; transition:border-color .2s, box-shadow .2s; }
-  .mapa-celula.drag-over { border-color:var(--s); box-shadow:0 0 0 3px rgba(59,130,246,0.15); }
-  .quarto-card { background:white; border-radius:12px; padding:0.75rem; box-shadow:0 4px 15px rgba(0,0,0,0.08); border:2px solid #e5e7eb; height:100%; display:flex; flex-direction:column; justify-content:space-between; cursor:grab; }
-  .quarto-card h4 { margin:0 0 0.3rem; color:#0f172a; font-size:1rem; }
-  .quarto-card small { color:#475569; display:block; margin-bottom:0.3rem; }
-  .quarto-card .ocupantes { font-size:0.9rem; line-height:1.35; }
-  .quarto-card.cheio { border-color:var(--no); background:#fff1f2; }
-  .quarto-card.disponivel { border-color:var(--ok); background:#f0fdf4; }
-  .quarto-card .vagas { font-weight:700; color:#0f172a; font-size:0.95rem; }
-  .mapa-rodape { margin-top:0.5rem; color:#475569; font-size:0.95rem; }
-  .tag-ocupante { display:inline-flex; align-items:center; gap:0.4rem; background:#e0f2fe; color:#0f172a; padding:0.3rem 0.6rem; border-radius:999px; margin:0.2rem 0.2rem 0 0; }
-  .tag-ocupante button { background:transparent; border:none; color:#0f172a; cursor:pointer; font-size:0.9rem; }
-  .tag-ocupante button:hover { color:var(--no); }
-  .mapa-zoom { display:flex; align-items:center; gap:0.5rem; background:#e0f2fe; padding:0.4rem 0.75rem; border-radius:10px; }
-  .mapa-zoom input[type="range"] { width:140px; }
-  .mapa-acoes { display:flex; gap:0.5rem; flex-wrap:wrap; align-items:center; }
-  .painel-quarto { border:2px solid #bfdbfe; background:#eff6ff; }
-  .painel-quarto h4 { margin-bottom:0.25rem; }
-  .painel-quarto .pill { background:#dbeafe; }
-  .tipo-cama-builder { background:#f8fafc; border:1px dashed #cbd5e1; padding:0.75rem; border-radius:10px; margin-top:0.5rem; }
-  .tipo-cama-row { display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:0.6rem; align-items:end; }
-  .tipos-cama-lista { display:flex; flex-wrap:wrap; gap:0.5rem; margin-top:0.5rem; }
-  .tipos-cama-lista .pill { background:#eef2ff; }
-  .quarto-card.selecionado { outline:3px solid var(--s); }
+    .mapa-wrapper { background:white; border-radius:14px; padding:1rem; box-shadow:0 4px 15px rgba(0,0,0,0.08); margin:1rem 0 2rem; }
+    .mapa-header { display:flex; justify-content:space-between; align-items:center; gap:1rem; margin-bottom:1rem; flex-wrap:wrap; }
+    .mapa-viewport { border:1px solid #e2e8f0; border-radius:12px; padding:0.5rem; overflow:auto; background:#f8fafc; min-height:520px; }
+    .mapa-rodape { margin-top:0.5rem; color:#475569; font-size:0.95rem; }
+    .mapa-zoom { display:flex; align-items:center; gap:0.5rem; background:#e0f2fe; padding:0.4rem 0.75rem; border-radius:10px; }
+    .mapa-zoom input[type="range"] { width:140px; }
+    .mapa-acoes { display:flex; gap:0.5rem; flex-wrap:wrap; align-items:center; }
+    .painel-quarto { border:2px solid #bfdbfe; background:#eff6ff; }
+    .painel-quarto h4 { margin-bottom:0.25rem; }
+    .painel-quarto .pill { background:#dbeafe; }
+    .tipo-cama-builder { background:#f8fafc; border:1px dashed #cbd5e1; padding:0.75rem; border-radius:10px; margin-top:0.5rem; }
+    .tipo-cama-row { display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:0.6rem; align-items:end; }
+    .tipos-cama-lista { display:flex; flex-wrap:wrap; gap:0.5rem; margin-top:0.5rem; }
+    .tipos-cama-lista .pill { background:#eef2ff; }
+    .quarto-card.selecionado { outline:3px solid var(--s); }
+
+    .mapa-planta { display:flex; gap:1rem; flex-wrap:wrap; }
+    .painel-familias { min-width:280px; flex:1; background:#f8fafc; border:1px solid #e2e8f0; border-radius:12px; padding:1rem; height:100%; }
+    .lista-familias { display:flex; flex-direction:column; gap:0.5rem; margin-top:0.75rem; max-height:420px; overflow:auto; }
+    .familia-chip { padding:0.65rem 0.9rem; background:white; border:1px dashed #94a3b8; border-radius:10px; cursor:grab; display:flex; justify-content:space-between; align-items:center; }
+    .familia-chip small { color:#475569; }
+    .familia-chip:hover { border-color:var(--s); }
+    .planta-editor { flex:2; min-width:620px; }
+    .planta-canvas { position:relative; min-width:1200px; min-height:720px; background-image:linear-gradient(90deg, rgba(0,0,0,0.04) 1px, transparent 1px), linear-gradient(180deg, rgba(0,0,0,0.04) 1px, transparent 1px); background-size:32px 32px; border:1px dashed #cbd5e1; border-radius:12px; transform-origin: top left; transition: transform .15s ease; }
+    .planta-canvas-inner { position:relative; width:1600px; height:1000px; transform-origin: top left; transition: transform .15s ease; }
+    .planta-shape { position:absolute; border-radius:12px; padding:0.75rem; box-shadow:0 10px 30px rgba(15,23,42,0.12); border:2px solid #e2e8f0; background:white; cursor:grab; transition:border-color .2s, box-shadow .2s; }
+    .planta-shape:hover { border-color:var(--s); box-shadow:0 10px 30px rgba(59,130,246,0.15); }
+    .planta-shape.arrastando { opacity:0.8; }
+    .shape-espaco { background:#f1f5f9; border-style:dashed; }
+    .shape-espaco h4 { margin-bottom:0.25rem; }
+    .shape-quarto h4 { margin-bottom:0.25rem; }
+    .shape-quarto .ocupantes { margin-top:0.4rem; display:flex; flex-wrap:wrap; gap:0.35rem; font-size:0.9rem; }
+    .shape-quarto .ocupantes span { background:#e0f2fe; padding:0.25rem 0.5rem; border-radius:999px; }
+    .shape-quarto .status { font-weight:700; color:#0f172a; font-size:0.95rem; }
+    .shape-quarto.disponivel { border-color:var(--ok); background:#f0fdf4; }
+    .shape-quarto.cheio { border-color:var(--no); background:#fff1f2; }
+    .shape-quarto.drop-target { outline:3px solid #3b82f6; }
+    .shape-quarto.selecionado { outline:3px solid #2563eb; box-shadow:0 0 0 3px rgba(37,99,235,0.25); }
+    .controle-desenho { display:flex; gap:0.5rem; align-items:center; flex-wrap:wrap; }
+    .btn-ghost { background:transparent; color:#0f172a; border:1px dashed #cbd5e1; }
+    .btn-ghost.active { border-color:#3b82f6; color:#1d4ed8; background:#e0f2fe; }
 
   .kpi { font-size:3.2rem; font-weight:900; color:var(--p); }
   .section-actions { display:flex; gap:0.75rem; flex-wrap:wrap; align-items:center; margin:1rem 0; }
@@ -273,15 +286,19 @@
 <section id="alojamento" class="view">
   <div class="modo-leitura">
     <h2>Alojamentos</h2>
-    <p>Visualize a ocupação dos quartos e organize o mapa de planta baixa com arrastar e soltar.</p>
+    <p>Visualize a ocupação dos quartos e desenhe a planta com blocos proporcionais, zoom e arrastar/soltar.</p>
     <div class="mapa-wrapper">
       <div class="mapa-header">
         <div>
-          <h3>Mapa de planta baixa (arraste os quadrados)</h3>
-          <small>Distribua os quartos em 5 colunas para simular a planta.</small>
+          <h3>Mapa de planta baixa desenhado</h3>
+          <small>Desenhe espaços irregulares e quartos grandes, reposicionando com liberdade.</small>
         </div>
         <div class="mapa-acoes">
-          <button type="button" id="btnNovoNoMapa" class="btn-secondary">Adicionar quarto no mapa</button>
+          <div class="controle-desenho">
+            <button type="button" id="btnDesenharEspaco" class="btn-ghost">Desenhar espaço</button>
+            <button type="button" id="btnDesenharQuarto" class="btn-secondary">Desenhar quarto</button>
+            <button type="button" id="btnFinalizarDesenho" class="btn-ghost">Concluir desenho</button>
+          </div>
           <div class="mapa-zoom">
             <button type="button" id="zoomOut">-</button>
             <input type="range" id="mapaZoomRange" min="50" max="150" value="100">
@@ -290,10 +307,21 @@
           </div>
         </div>
       </div>
-      <div class="mapa-viewport">
-        <div id="mapa-alojamento" class="mapa-quartos"></div>
+      <div class="mapa-planta">
+        <aside class="painel-familias card">
+          <h4>Famílias / participantes</h4>
+          <p>Arraste o cartão para dentro de um quarto desenhado.</p>
+          <div id="listaFamiliasDrag" class="lista-familias"></div>
+        </aside>
+        <div class="planta-editor">
+          <div class="mapa-viewport" id="mapaViewport">
+            <div class="planta-canvas">
+              <div id="mapa-alojamento" class="planta-canvas-inner"></div>
+            </div>
+          </div>
+          <div class="mapa-rodape">Clique e arraste para desenhar novas formas. Use o zoom para trabalhar em detalhes e arraste quartos e espaços para reposicioná-los.</div>
+        </div>
       </div>
-      <div class="mapa-rodape">Cada célula representa um espaço da planta. Arraste os quartos para reposicionar.</div>
       <div id="painel-quarto" class="card painel-quarto hidden"></div>
     </div>
     <div id="leitura-alojamento"></div>
@@ -515,6 +543,7 @@ const DB = {
   projetos: [],
   tarefas: [],
   quartos: [],
+  espacos: [],
   cronograma: [],
   refeicoes: [],
   solicitacoes: [],
@@ -525,24 +554,76 @@ const DB = {
   financeiro: { orcado: 0, realizado: 0, centros: [] }
 };
 
-const MAP_ROWS = 4;
-const MAP_COLS = 5;
+const coresEspaco = ['#e0f2fe', '#ede9fe', '#dcfce7', '#fef9c3'];
 let mapaZoom = 1;
 let quartoSelecionadoId = null;
 let quartoEditandoId = null;
+let modoDesenho = null;
+let inicioDesenho = null;
+let previewDesenho = null;
 
-function posicaoParaIndex(row, col) { return row * MAP_COLS + col; }
-function indexParaPosicao(index) { return { row: Math.floor(index / MAP_COLS), col: index % MAP_COLS }; }
-function quartoNaPosicao(row, col, ignorarId) {
-  return DB.quartos.find(q => q.pos && q.pos.row === row && q.pos.col === col && q.id !== ignorarId);
+function layoutPadraoQuarto(idx = 0) {
+  const coluna = idx % 4;
+  const linha = Math.floor(idx / 4);
+  return {
+    x: 60 + coluna * 220,
+    y: 40 + linha * 180,
+    width: 200,
+    height: 120
+  };
 }
-function proximaPosicaoLivre() {
-  for (let r = 0; r < MAP_ROWS; r++) {
-    for (let c = 0; c < MAP_COLS; c++) {
-      if (!quartoNaPosicao(r, c)) return { row: r, col: c };
-    }
-  }
-  return null;
+
+function garantirLayout(quarto, idx = 0) {
+  if (!quarto.layout) quarto.layout = layoutPadraoQuarto(idx);
+  quarto.layout.width = Math.max(quarto.layout.width || 0, 140);
+  quarto.layout.height = Math.max(quarto.layout.height || 0, 90);
+}
+
+function registrarArrasto(elemento, onUpdate) {
+  elemento.addEventListener('mousedown', e => {
+    if (modoDesenho || e.button !== 0) return;
+    const start = {
+      x: e.clientX,
+      y: e.clientY,
+      left: parseFloat(elemento.style.left) || 0,
+      top: parseFloat(elemento.style.top) || 0
+    };
+    elemento.classList.add('arrastando');
+
+    const mover = ev => {
+      const dx = (ev.clientX - start.x) / mapaZoom;
+      const dy = (ev.clientY - start.y) / mapaZoom;
+      const novoX = Math.max(0, start.left + dx);
+      const novoY = Math.max(0, start.top + dy);
+      onUpdate(novoX, novoY);
+      elemento.style.left = `${novoX}px`;
+      elemento.style.top = `${novoY}px`;
+    };
+
+    const soltar = () => {
+      document.removeEventListener('mousemove', mover);
+      document.removeEventListener('mouseup', soltar);
+      elemento.classList.remove('arrastando');
+      salvar();
+    };
+
+    document.addEventListener('mousemove', mover);
+    document.addEventListener('mouseup', soltar);
+  });
+}
+
+function vincularFamiliaAoQuarto(quartoId, familiaId) {
+  const quarto = DB.quartos.find(q => q.id === quartoId);
+  const familia = DB.familias.find(f => f.id === familiaId);
+  if (!quarto || !familia) return;
+  if (!quarto.ocupantes) quarto.ocupantes = [];
+  if (quarto.ocupantes.includes(familiaId)) return alert('Essa família já está no quarto.');
+  if (ocupacaoQuarto(quarto) + familia.qtd > capacidadeQuarto(quarto)) return alert('Capacidade insuficiente para essa família.');
+  quarto.ocupantes.push(familiaId);
+  quartoSelecionadoId = quartoId;
+  atualizarLeitura();
+  atualizarEdicao();
+  salvar();
 }
 
 function capacidadeQuarto(quarto) {
@@ -607,6 +688,159 @@ function renderPainelQuarto(quarto) {
       <button type="button" class="btn-no" onclick="removerQuarto(${quarto.id})">Remover do mapa</button>
     </div>
   `;
+}
+
+function renderFamiliasDrag() {
+  const lista = document.getElementById('listaFamiliasDrag');
+  if (!lista) return;
+  if (!DB.familias.length) {
+    lista.innerHTML = '<small>Nenhuma família cadastrada. Use a aba Participantes para adicionar.</small>';
+    return;
+  }
+  lista.innerHTML = DB.familias.map(f => `
+    <div class="familia-chip" draggable="true" data-id="${f.id}">
+      <span>${f.nome}</span>
+      <small>${f.qtd}p</small>
+    </div>
+  `).join('');
+  lista.querySelectorAll('.familia-chip').forEach(chip => {
+    chip.addEventListener('dragstart', e => {
+      e.dataTransfer.setData('text/familia', chip.dataset.id);
+    });
+  });
+}
+
+function criarShapeEspaco(espaco, idx) {
+  const el = document.createElement('div');
+  el.className = 'planta-shape shape-espaco';
+  const cor = espaco.cor || coresEspaco[idx % coresEspaco.length];
+  el.style.background = cor;
+  el.style.borderColor = cor;
+  el.style.left = `${espaco.x || 0}px`;
+  el.style.top = `${espaco.y || 0}px`;
+  el.style.width = `${espaco.width || 180}px`;
+  el.style.height = `${espaco.height || 140}px`;
+  el.innerHTML = `<h4>${espaco.nome || 'Espaço'}</h4><small>Área livre para acomodar vários quartos</small>`;
+  registrarArrasto(el, (x, y) => { espaco.x = x; espaco.y = y; });
+  return el;
+}
+
+function criarShapeQuarto(quarto, idx) {
+  garantirLayout(quarto, idx);
+  const el = document.createElement('div');
+  const capacidade = capacidadeQuarto(quarto);
+  const ocupacao = ocupacaoQuarto(quarto);
+  const classe = vagasDisponiveis(quarto) > 0 ? 'disponivel' : 'cheio';
+  const selecionado = quartoSelecionadoId === quarto.id ? 'selecionado' : '';
+  el.className = `planta-shape shape-quarto ${classe} ${selecionado}`;
+  el.style.left = `${quarto.layout.x}px`;
+  el.style.top = `${quarto.layout.y}px`;
+  el.style.width = `${quarto.layout.width}px`;
+  el.style.height = `${quarto.layout.height}px`;
+  const ocupantes = (quarto.ocupantes || []).map(id => {
+    const familia = DB.familias.find(f => f.id === id);
+    return familia ? `<span>${familia.nome} (${familia.qtd}p)</span>` : '';
+  }).join('');
+  el.innerHTML = `
+    <h4>${quarto.nome}</h4>
+    <small>${descricaoTipoQuarto(quarto)}</small>
+    <div class="status">${ocupacao}/${capacidade} vagas usadas</div>
+    <div class="ocupantes">${ocupantes || '<small>Arraste uma família para cá</small>'}</div>
+  `;
+  el.addEventListener('click', () => selecionarQuarto(quarto.id));
+  el.addEventListener('dragover', e => { e.preventDefault(); el.classList.add('drop-target'); });
+  el.addEventListener('dragleave', () => el.classList.remove('drop-target'));
+  el.addEventListener('drop', e => {
+    e.preventDefault();
+    el.classList.remove('drop-target');
+    const familiaId = Number(e.dataTransfer.getData('text/familia'));
+    if (familiaId) vincularFamiliaAoQuarto(quarto.id, familiaId);
+  });
+  registrarArrasto(el, (x, y) => { quarto.layout.x = x; quarto.layout.y = y; });
+  return el;
+}
+
+function prepararCanvasDesenho(canvas) {
+  if (!canvas || canvas.dataset.desenho === '1') return;
+  canvas.dataset.desenho = '1';
+  const criarPreview = () => {
+    previewDesenho = document.createElement('div');
+    previewDesenho.className = 'planta-shape shape-espaco';
+    previewDesenho.style.opacity = '0.45';
+    previewDesenho.style.pointerEvents = 'none';
+    canvas.appendChild(previewDesenho);
+  };
+  const limparPreview = () => {
+    if (previewDesenho && previewDesenho.parentNode) previewDesenho.parentNode.removeChild(previewDesenho);
+    previewDesenho = null;
+  };
+  const posCanvas = e => {
+    const rect = canvas.getBoundingClientRect();
+    return {
+      x: (e.clientX - rect.left) / mapaZoom,
+      y: (e.clientY - rect.top) / mapaZoom
+    };
+  };
+  canvas.addEventListener('mousedown', e => {
+    if (!modoDesenho || e.target.closest('.planta-shape')) return;
+    inicioDesenho = posCanvas(e);
+    criarPreview();
+    previewDesenho.style.left = `${inicioDesenho.x}px`;
+    previewDesenho.style.top = `${inicioDesenho.y}px`;
+    previewDesenho.style.width = '0px';
+    previewDesenho.style.height = '0px';
+  });
+  canvas.addEventListener('mousemove', e => {
+    if (!inicioDesenho || !previewDesenho) return;
+    const pos = posCanvas(e);
+    const x = Math.min(pos.x, inicioDesenho.x);
+    const y = Math.min(pos.y, inicioDesenho.y);
+    const w = Math.abs(pos.x - inicioDesenho.x);
+    const h = Math.abs(pos.y - inicioDesenho.y);
+    previewDesenho.style.left = `${x}px`;
+    previewDesenho.style.top = `${y}px`;
+    previewDesenho.style.width = `${w}px`;
+    previewDesenho.style.height = `${h}px`;
+  });
+  canvas.addEventListener('mouseup', e => {
+    if (!inicioDesenho) return;
+    const pos = posCanvas(e);
+    const x = Math.min(pos.x, inicioDesenho.x);
+    const y = Math.min(pos.y, inicioDesenho.y);
+    const width = Math.abs(pos.x - inicioDesenho.x);
+    const height = Math.abs(pos.y - inicioDesenho.y);
+    inicioDesenho = null;
+    limparPreview();
+    if (width < 30 || height < 30 || !modoDesenho) return;
+    if (modoDesenho === 'espaco') {
+      DB.espacos.push({ id: Date.now(), nome: `Espaço ${DB.espacos.length + 1}`, x, y, width, height, cor: coresEspaco[DB.espacos.length % coresEspaco.length] });
+    } else if (modoDesenho === 'quarto') {
+      const novoId = Date.now();
+      DB.quartos.push({ id: novoId, nome: `Quarto desenhado ${DB.quartos.length + 1}`, tiposCama: [{ tipo: 'Solteiro', quantidade: 2 }], ocupantes: [], layout: { x, y, width, height } });
+      quartoSelecionadoId = novoId;
+    }
+    renderMapa();
+    atualizarEdicao();
+    salvar();
+  });
+}
+
+function renderMapa() {
+  const canvas = document.getElementById('mapa-alojamento');
+  if (!canvas) return;
+  renderFamiliasDrag();
+  canvas.innerHTML = '';
+  if (!DB.espacos.length && !DB.quartos.length) {
+    const vazio = document.createElement('div');
+    vazio.style.padding = '1rem';
+    vazio.innerHTML = '<small>Desenhe um espaço ou um quarto para iniciar o mapa.</small>';
+    canvas.appendChild(vazio);
+  }
+  (DB.espacos || []).forEach((e, idx) => canvas.appendChild(criarShapeEspaco(e, idx)));
+  DB.quartos.forEach((q, idx) => canvas.appendChild(criarShapeQuarto(q, idx)));
+  prepararCanvasDesenho(canvas);
+  atualizarZoom(mapaZoom);
+  renderPainelQuarto(DB.quartos.find(q => q.id === quartoSelecionadoId) || null);
 }
 
 function salvar() { /* Dados ficam apenas na sessão atual em formato JSON. */ }
@@ -883,81 +1117,6 @@ function atualizarLeitura() {
       'Nenhum voo cadastrado.')
   ].join('');
 
-  const renderMapa = () => {
-    const container = document.getElementById('mapa-alojamento');
-    if (!container) return;
-    if (!DB.quartos.length) {
-      container.innerHTML = '<p>Nenhum quarto cadastrado.</p>';
-      return;
-    }
-
-    const quartoCard = q => {
-      const ocupantes = (q.ocupantes || []).map(id => {
-        const familia = DB.familias.find(f => f.id === id);
-        return familia ? `${familia.nome} (${familia.qtd}p)` : 'Participante removido';
-      }).join('<br>') || 'Nenhum participante vinculado';
-      const classe = vagasDisponiveis(q) > 0 ? 'disponivel' : 'cheio';
-      const selecionado = quartoSelecionadoId === q.id ? 'selecionado' : '';
-      return `<div class="quarto-card ${classe} ${selecionado}" draggable="true" data-id="${q.id}">
-        <div>
-          <h4>${q.nome}</h4>
-          <small>${descricaoTipoQuarto(q)} • ${capacidadeQuarto(q)} vagas</small>
-          <div class="ocupantes">${ocupantes}</div>
-        </div>
-        <div class="vagas">${ocupacaoQuarto(q)}/${capacidadeQuarto(q)} vagas usadas</div>
-      </div>`;
-    };
-
-    DB.quartos.forEach(q => {
-      if (!q.pos) {
-        const livre = proximaPosicaoLivre();
-        if (livre) q.pos = livre;
-      }
-    });
-
-    const celulas = Array.from({ length: MAP_ROWS * MAP_COLS }, (_, idx) => {
-      const { row, col } = indexParaPosicao(idx);
-      const quarto = quartoNaPosicao(row, col);
-      const card = quarto ? quartoCard(quarto) : '';
-      return `<div class="mapa-celula" data-idx="${idx}">${card}</div>`;
-    }).join('');
-
-    container.innerHTML = celulas;
-    atualizarZoom(mapaZoom);
-
-    container.querySelectorAll('.quarto-card').forEach(card => {
-      card.addEventListener('dragstart', e => {
-        e.dataTransfer.setData('text/quarto', card.dataset.id);
-      });
-      card.addEventListener('click', () => selecionarQuarto(Number(card.dataset.id)));
-    });
-
-    container.querySelectorAll('.mapa-celula').forEach(cell => {
-      cell.addEventListener('dragover', e => { e.preventDefault(); cell.classList.add('drag-over'); });
-      cell.addEventListener('dragleave', () => cell.classList.remove('drag-over'));
-      cell.addEventListener('drop', e => {
-        e.preventDefault();
-        cell.classList.remove('drag-over');
-        const id = Number(e.dataTransfer.getData('text/quarto'));
-        if (!id) return;
-        const { row, col } = indexParaPosicao(Number(cell.dataset.idx));
-        const quarto = DB.quartos.find(q => q.id === id);
-        if (!quarto) return;
-        const atual = quarto.pos || null;
-        const ocupanteDestino = quartoNaPosicao(row, col, id);
-        quarto.pos = { row, col };
-        if (ocupanteDestino) {
-          ocupanteDestino.pos = atual || proximaPosicaoLivre() || ocupanteDestino.pos;
-        }
-        atualizarLeitura();
-        atualizarEdicao();
-        salvar();
-      });
-    });
-
-    renderPainelQuarto(DB.quartos.find(q => q.id === quartoSelecionadoId) || null);
-  };
-
   renderMapa();
 
   document.getElementById('leitura-alojamento').innerHTML = buildTable('Quartos e ocupação', ['Quarto', 'Capacidade total', 'Tipo de cama', 'Ocupação'],
@@ -1169,10 +1328,8 @@ document.getElementById('formQuarto').onsubmit = e => {
     quartoSelecionadoId = quarto.id;
     prepararFormularioParaNovo();
   } else {
-    const pos = proximaPosicaoLivre();
-    if (!pos) return alert('Mapa cheio: não há mais células livres para novos quartos.');
     const novoId = Date.now();
-    DB.quartos.push({ id: novoId, nome: i[0].value, tiposCama: [...tiposSelecionados], ocupantes: [], pos });
+    DB.quartos.push({ id: novoId, nome: i[0].value, tiposCama: [...tiposSelecionados], ocupantes: [], layout: layoutPadraoQuarto(DB.quartos.length) });
     quartoSelecionadoId = novoId;
     prepararFormularioParaNovo();
   }
@@ -1203,7 +1360,9 @@ const tiposCamaLista = document.getElementById('tiposCamaLista');
 const nomeQuartoInput = document.querySelector('#formQuarto input[type="text"]');
 const btnSalvarQuarto = document.getElementById('btnSalvarQuarto');
 const btnCancelarEdicaoQuarto = document.getElementById('btnCancelarEdicaoQuarto');
-const btnNovoNoMapa = document.getElementById('btnNovoNoMapa');
+const btnDesenharEspaco = document.getElementById('btnDesenharEspaco');
+const btnDesenharQuarto = document.getElementById('btnDesenharQuarto');
+const btnFinalizarDesenho = document.getElementById('btnFinalizarDesenho');
 const quantidadeInput = document.getElementById('camaQuantidade');
 let tiposSelecionados = [];
 let toggleAndares = null;
@@ -1219,6 +1378,16 @@ window.removerTipoCama = idx => {
   tiposSelecionados = tiposSelecionados.filter((_, i) => i !== idx);
   renderTiposCamaUI();
 };
+
+function definirModoDesenho(tipo) {
+  modoDesenho = tipo;
+  if (btnDesenharEspaco) btnDesenharEspaco.classList.toggle('active', tipo === 'espaco');
+  if (btnDesenharQuarto) btnDesenharQuarto.classList.toggle('active', tipo === 'quarto');
+}
+
+if (btnDesenharEspaco) btnDesenharEspaco.addEventListener('click', () => definirModoDesenho(modoDesenho === 'espaco' ? null : 'espaco'));
+if (btnDesenharQuarto) btnDesenharQuarto.addEventListener('click', () => definirModoDesenho(modoDesenho === 'quarto' ? null : 'quarto'));
+if (btnFinalizarDesenho) btnFinalizarDesenho.addEventListener('click', () => definirModoDesenho(null));
 
 function prepararFormularioParaNovo() {
   quartoEditandoId = null;
@@ -1264,15 +1433,6 @@ function removerQuarto(id) {
 if (btnCancelarEdicaoQuarto) btnCancelarEdicaoQuarto.addEventListener('click', () => {
   prepararFormularioParaNovo();
   renderPainelQuarto(quartoSelecionadoId ? DB.quartos.find(q => q.id === quartoSelecionadoId) : null);
-});
-
-if (btnNovoNoMapa) btnNovoNoMapa.addEventListener('click', () => {
-  quartoSelecionadoId = null;
-  prepararFormularioParaNovo();
-  renderPainelQuarto(null);
-  const form = document.getElementById('formQuarto');
-  if (form) form.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  if (nomeQuartoInput) nomeQuartoInput.focus();
 });
 
 function adicionarTipoCama() {
