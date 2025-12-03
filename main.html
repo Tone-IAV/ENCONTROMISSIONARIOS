@@ -86,6 +86,47 @@
   .btn-secondary { background:#0ea5e9; color:white; }
   .pill { display:inline-flex; align-items:center; gap:0.5rem; padding:0.6rem 1rem; background:#e0f2fe; border-radius:999px; font-size:0.95rem; }
   .hidden { display:none !important; }
+
+  /* Quartos integrados (importado de quartos.html) */
+  #quartos-integrados { margin-top:1.25rem; border:1px solid #e2e8f0; border-radius:14px; background:white; box-shadow:0 8px 30px rgba(15,23,42,0.08); }
+  #quartos-integrados header { display:flex; justify-content:space-between; align-items:center; gap:1rem; padding:1rem 1.25rem; background:#0f172a; color:white; border-radius:14px 14px 0 0; }
+  #quartos-integrados header h3 { font-size:1.05rem; }
+  #quartos-integrados header span { color:#cbd5e1; font-size:0.9rem; }
+  #quartos-integrados .badge { background:#1f2937; border-radius:999px; padding:0.2rem 0.75rem; font-size:0.75rem; color:#d1d5db; }
+  .qa-layout { display:grid; grid-template-columns:280px 1fr 320px; gap:1rem; padding:1rem; }
+  .qa-panel { border:1px solid #e2e8f0; border-radius:12px; padding:0.85rem; background:#f8fafc; display:flex; flex-direction:column; gap:0.65rem; min-height:0; }
+  .qa-panel h4 { font-size:0.95rem; display:flex; align-items:center; justify-content:space-between; }
+  .qa-panel small { color:#475569; }
+  .qa-stack { display:flex; flex-direction:column; gap:0.45rem; }
+  .qa-row { display:flex; gap:0.4rem; align-items:center; }
+  .qa-row.wrap { flex-wrap:wrap; }
+  .qa-input { width:100%; padding:0.55rem 0.7rem; border-radius:10px; border:1px solid #d6e0ea; font-size:0.9rem; }
+  .qa-input:focus { outline:2px solid #dbeafe; border-color:#2563eb; }
+  .qa-btn { border:none; border-radius:999px; padding:0.5rem 0.95rem; font-weight:700; cursor:pointer; display:inline-flex; align-items:center; gap:0.25rem; }
+  .qa-btn.primary { background:#2563eb; color:white; }
+  .qa-btn.secondary { background:#dbeafe; color:#1d4ed8; }
+  .qa-btn.danger { background:#fee2e2; color:#b91c1c; }
+  .qa-btn.small { padding:0.35rem 0.7rem; font-size:0.82rem; }
+  .qa-space-list { display:flex; flex-direction:column; gap:0.35rem; max-height:220px; overflow:auto; }
+  .qa-space { border:1px solid #e2e8f0; padding:0.5rem; border-radius:10px; background:#fff; display:flex; gap:0.45rem; align-items:center; cursor:pointer; }
+  .qa-space.active { border-color:#2563eb; background:#eef2ff; }
+  .qa-space-color { width:14px; height:14px; border-radius:4px; flex-shrink:0; }
+  .qa-canvas { position:relative; flex:1; border:1px dashed #cbd5e1; border-radius:12px; background-image:linear-gradient(90deg, #e5e7eb 1px, transparent 1px), linear-gradient(180deg, #e5e7eb 1px, transparent 1px); background-size:26px 26px; overflow:auto; min-height:420px; }
+  .qa-canvas-inner { position:relative; width:1400px; height:900px; }
+  .qa-label { position:sticky; top:0; left:0; padding:0.35rem 0.6rem; font-size:0.82rem; background:rgba(15,23,42,0.9); color:white; border-bottom-right-radius:10px; z-index:2; }
+  .qa-room { position:absolute; min-width:110px; min-height:70px; padding:0.45rem; background:#e5e7eb; border:1px solid #94a3b8; border-radius:10px; box-shadow:0 2px 6px rgba(15,23,42,0.18); display:flex; flex-direction:column; gap:0.18rem; cursor:grab; font-size:0.82rem; }
+  .qa-room.selected { outline:2px solid #2563eb; box-shadow:0 0 0 3px rgba(37,99,235,0.18); }
+  .qa-room .qa-room-head { display:flex; align-items:center; gap:0.35rem; font-weight:700; }
+  .qa-room .qa-room-tag { padding:0.1rem 0.5rem; border-radius:999px; background:#fff; font-size:0.72rem; }
+  .qa-room .qa-room-info { color:#475569; font-size:0.78rem; }
+  .qa-room.drop-target { outline:2px dashed #2563eb; }
+  .qa-family-search { position:sticky; top:0; background:#f8fafc; padding-bottom:0.35rem; z-index:2; }
+  .qa-family-list { flex:1; overflow:auto; display:flex; flex-direction:column; gap:0.35rem; }
+  .qa-family { border:1px solid #e2e8f0; border-radius:10px; padding:0.45rem 0.55rem; background:#fff; display:flex; flex-direction:column; gap:0.2rem; cursor:grab; }
+  .qa-family.assigned { opacity:0.6; }
+  .qa-family small { color:#475569; }
+  .qa-details { border-top:1px solid #e2e8f0; padding-top:0.45rem; display:flex; flex-direction:column; gap:0.35rem; font-size:0.88rem; }
+  .qa-chip { border-radius:999px; background:#e5e7eb; padding:0.15rem 0.55rem; font-size:0.78rem; }
 </style>
 </head>
 <body>
@@ -323,6 +364,63 @@
         </div>
       </div>
       <div id="painel-quarto" class="card painel-quarto hidden"></div>
+    </div>
+
+    <div id="quartos-integrados">
+      <header>
+        <div>
+          <h3>Distribuição de Quartos (protótipo integrado)</h3>
+          <span>Conteúdo do quartos.html agora conectado às famílias cadastradas.</span>
+        </div>
+        <div class="badge">Mapa rápido</div>
+      </header>
+      <div class="qa-layout">
+        <section class="qa-panel" id="qaSpacesPanel">
+          <div class="qa-stack">
+            <h4>Espaços / prédios <small>Monte blocos para organizar os quartos.</small></h4>
+            <div class="qa-row">
+              <input id="qaSpaceName" type="text" class="qa-input" placeholder="Nome do espaço" />
+              <input id="qaSpaceColor" type="color" value="#2563eb" class="qa-input" style="width:70px; padding:0;" />
+            </div>
+            <button id="qaAddSpaceBtn" class="qa-btn primary">+ Adicionar espaço</button>
+            <div class="qa-space-list" id="qaSpaceList"></div>
+          </div>
+
+          <div class="qa-stack">
+            <h4>Quartos do espaço <small>Presets ou criação manual.</small></h4>
+            <div class="qa-row wrap">
+              <button class="qa-btn secondary small" data-qa-preset="casal">Casal (2)</button>
+              <button class="qa-btn secondary small" data-qa-preset="pequena">Família pequena (4)</button>
+              <button class="qa-btn secondary small" data-qa-preset="media">Família média (6)</button>
+              <button class="qa-btn secondary small" data-qa-preset="grande">Beliches grande (8)</button>
+            </div>
+            <div class="qa-row wrap">
+              <input id="qaRoomName" type="text" class="qa-input" placeholder="Nome / nº do quarto" style="flex:1" />
+              <input id="qaRoomCapacity" type="number" class="qa-input" min="1" value="4" style="width:90px" />
+            </div>
+            <small>Capacidade define a soma de camas; beliches usam 2 andares por padrão.</small>
+            <button id="qaAddRoomBtn" class="qa-btn primary">+ Adicionar quarto</button>
+          </div>
+        </section>
+
+        <section class="qa-panel" id="qaCanvasPanel">
+          <h4>Mapa do espaço selecionado <small>Arraste cartões para montar a planta.</small></h4>
+          <div class="qa-canvas" id="qaCanvas">
+            <div class="qa-label" id="qaCanvasLabel">Nenhum espaço selecionado</div>
+            <div class="qa-canvas-inner" id="qaCanvasInner"></div>
+          </div>
+        </section>
+
+        <section class="qa-panel" id="qaFamiliesPanel">
+          <h4>Famílias / participantes <small>Arraste para um quarto.</small></h4>
+          <div class="qa-family-search qa-stack">
+            <input type="text" id="qaFamilySearch" class="qa-input" placeholder="Buscar família" />
+            <span class="muted" id="qaFamilyCount"></span>
+          </div>
+          <div class="qa-family-list" id="qaFamilyList"></div>
+          <div class="qa-details" id="qaRoomDetails"></div>
+        </section>
+      </div>
     </div>
     <div id="leitura-alojamento"></div>
   </div>
@@ -688,6 +786,281 @@ function renderPainelQuarto(quarto) {
       <button type="button" class="btn-no" onclick="removerQuarto(${quarto.id})">Remover do mapa</button>
     </div>
   `;
+}
+
+// =============================================
+// QUARTOS AVANÇADOS (quartos.html integrado)
+// =============================================
+const uiQuartos = { espacoAtivo: null, quartoAtivo: null };
+
+function gerarIdQuartoEspaco() { return Date.now() + Math.floor(Math.random() * 1000); }
+function tiposDeCamaPorPreset(preset, capacidade = 1) {
+  if (preset === 'casal') return [{ tipo: 'Casal', quantidade: 1 }];
+  if (preset === 'pequena') return [{ tipo: 'Beliche', quantidade: 2, andares: 2 }];
+  if (preset === 'media') return [{ tipo: 'Beliche', quantidade: 3, andares: 2 }];
+  if (preset === 'grande') return [{ tipo: 'Beliche', quantidade: 4, andares: 2 }];
+  return [{ tipo: 'Solteiro', quantidade: capacidade, andares: 1 }];
+}
+
+function criarEspacoIntegrado(nome, cor) {
+  const espaco = { id: gerarIdQuartoEspaco(), nome, cor, x: 30 + DB.espacos.length * 12, y: 30 + DB.espacos.length * 12, width: 200, height: 140 };
+  DB.espacos.push(espaco);
+  uiQuartos.espacoAtivo = espaco.id;
+  return espaco.id;
+}
+
+function criarQuartoIntegrado(espacoId, nome, capacidade, preset) {
+  const layout = layoutPadraoQuarto(DB.quartos.length);
+  const quarto = {
+    id: gerarIdQuartoEspaco(),
+    nome,
+    espacoId,
+    tiposCama: tiposDeCamaPorPreset(preset, capacidade),
+    ocupantes: [],
+    layout
+  };
+  DB.quartos.push(quarto);
+  uiQuartos.quartoAtivo = quarto.id;
+  return quarto;
+}
+
+function quartosDoEspaco(id) { return DB.quartos.filter(q => q.espacoId === id); }
+function familiaEstaAlocada(id) { return DB.quartos.some(q => (q.ocupantes || []).includes(id)); }
+
+function renderEspacosIntegrados() {
+  const lista = document.getElementById('qaSpaceList');
+  if (!lista) return;
+  lista.innerHTML = '';
+  if (!DB.espacos.length) {
+    lista.innerHTML = '<small class="muted">Nenhum espaço criado.</small>';
+    return;
+  }
+  DB.espacos.forEach(espaco => {
+    const card = document.createElement('div');
+    card.className = 'qa-space' + (uiQuartos.espacoAtivo === espaco.id ? ' active' : '');
+    card.innerHTML = `
+      <span class="qa-space-color" style="background:${espaco.cor || '#94a3b8'}"></span>
+      <span class="space-name">${espaco.nome}</span>
+      <small>${quartosDoEspaco(espaco.id).length} quarto(s)</small>
+    `;
+    card.addEventListener('click', () => {
+      uiQuartos.espacoAtivo = espaco.id;
+      uiQuartos.quartoAtivo = null;
+      renderQuartosIntegrados();
+    });
+    lista.appendChild(card);
+  });
+}
+
+function renderCanvasIntegrado() {
+  const canvas = document.getElementById('qaCanvasInner');
+  const label = document.getElementById('qaCanvasLabel');
+  if (!canvas || !label) return;
+  canvas.innerHTML = '';
+  const espaco = DB.espacos.find(e => e.id === uiQuartos.espacoAtivo);
+  if (!espaco) {
+    label.textContent = 'Nenhum espaço selecionado';
+    return;
+  }
+  label.textContent = `Espaço: ${espaco.nome}`;
+
+  const quartos = quartosDoEspaco(espaco.id);
+  quartos.forEach((quarto, idx) => {
+    garantirLayout(quarto, idx);
+    const div = document.createElement('div');
+    const ocupacao = ocupacaoQuarto(quarto);
+    const capacidade = capacidadeQuarto(quarto);
+    const familias = (quarto.ocupantes || []).map(id => {
+      const familia = DB.familias.find(f => f.id === id);
+      return familia ? familia.nome : 'Removido';
+    }).filter(Boolean);
+    div.className = 'qa-room' + (uiQuartos.quartoAtivo === quarto.id ? ' selected' : '');
+    div.style.left = `${quarto.layout.x}px`;
+    div.style.top = `${quarto.layout.y}px`;
+    div.style.width = `${quarto.layout.width}px`;
+    div.style.height = `${quarto.layout.height}px`;
+    div.innerHTML = `
+      <div class="qa-room-head">
+        <span>${quarto.nome}</span>
+        <span class="qa-room-tag">${ocupacao}/${capacidade}</span>
+      </div>
+      <div class="qa-room-info">${descricaoTipoQuarto(quarto)}</div>
+      <div class="qa-room-info">${familias.length ? familias.join(', ') : 'Arraste uma família'}</div>
+    `;
+
+    div.addEventListener('click', e => {
+      e.stopPropagation();
+      uiQuartos.quartoAtivo = quarto.id;
+      renderQuartosIntegrados();
+    });
+
+    div.addEventListener('dragover', e => { e.preventDefault(); div.classList.add('drop-target'); });
+    div.addEventListener('dragleave', () => div.classList.remove('drop-target'));
+    div.addEventListener('drop', e => {
+      e.preventDefault();
+      div.classList.remove('drop-target');
+      const familiaId = Number(e.dataTransfer.getData('text/familia'));
+      if (familiaId) vincularFamiliaAoQuarto(quarto.id, familiaId);
+      renderQuartosIntegrados();
+    });
+
+    let arrastando = false; let inicio = null;
+    div.addEventListener('mousedown', e => {
+      if (e.button !== 0) return;
+      arrastando = true;
+      inicio = { x: e.clientX, y: e.clientY, left: quarto.layout.x, top: quarto.layout.y };
+      const mover = ev => {
+        if (!arrastando) return;
+        const dx = ev.clientX - inicio.x;
+        const dy = ev.clientY - inicio.y;
+        quarto.layout.x = Math.max(10, inicio.left + dx);
+        quarto.layout.y = Math.max(20, inicio.top + dy);
+        div.style.left = `${quarto.layout.x}px`;
+        div.style.top = `${quarto.layout.y}px`;
+      };
+      const soltar = () => {
+        arrastando = false;
+        document.removeEventListener('mousemove', mover);
+        document.removeEventListener('mouseup', soltar);
+        salvar();
+      };
+      document.addEventListener('mousemove', mover);
+      document.addEventListener('mouseup', soltar);
+    });
+
+    canvas.appendChild(div);
+  });
+
+  canvas.addEventListener('click', () => {
+    uiQuartos.quartoAtivo = null;
+    renderQuartosIntegrados();
+  }, { once: true });
+}
+
+function renderFamiliasIntegradas() {
+  const lista = document.getElementById('qaFamilyList');
+  const contador = document.getElementById('qaFamilyCount');
+  if (!lista) return;
+  const termo = (document.getElementById('qaFamilySearch')?.value || '').toLowerCase();
+  const filtradas = DB.familias.filter(f => f.nome.toLowerCase().includes(termo));
+  if (contador) contador.textContent = `${filtradas.length} família(s)`;
+  lista.innerHTML = '';
+  if (!filtradas.length) {
+    lista.innerHTML = '<p class="muted">Nenhuma família encontrada.</p>';
+    return;
+  }
+  filtradas.forEach(f => {
+    const card = document.createElement('div');
+    const alocada = familiaEstaAlocada(f.id);
+    card.className = 'qa-family' + (alocada ? ' assigned' : '');
+    card.draggable = true;
+    card.innerHTML = `
+      <span>${f.nome}</span>
+      <small>${f.qtd} pessoa(s) • ${f.cidade || '—'}</small>
+      <small class="muted">${alocada ? 'Já alocada' : 'Arraste para um quarto'}</small>
+    `;
+    card.addEventListener('dragstart', e => {
+      e.dataTransfer.setData('text/familia', f.id);
+    });
+    lista.appendChild(card);
+  });
+}
+
+function renderDetalhesIntegrados() {
+  const container = document.getElementById('qaRoomDetails');
+  if (!container) return;
+  const quarto = DB.quartos.find(q => q.id === uiQuartos.quartoAtivo);
+  if (!quarto || quarto.espacoId !== uiQuartos.espacoAtivo) {
+    container.innerHTML = '<p class="muted">Selecione um quarto no mapa para ver detalhes.</p>';
+    return;
+  }
+  const capacidade = capacidadeQuarto(quarto);
+  const ocupacao = ocupacaoQuarto(quarto);
+  const familias = (quarto.ocupantes || []).map(id => DB.familias.find(f => f.id === id)).filter(Boolean);
+  container.innerHTML = `
+    <div class="qa-stack">
+      <div><strong>${quarto.nome}</strong> • ${descricaoTipoQuarto(quarto)}</div>
+      <div class="qa-row"><span class="qa-chip">Capacidade ${capacidade}</span><span class="qa-chip">Ocupação ${ocupacao}</span></div>
+      <div class="qa-stack">
+        <strong>Famílias alocadas</strong>
+        ${familias.length ? '<ul>' + familias.map(f => `<li class="qa-row" style="justify-content:space-between;">${f.nome} (${f.qtd}) <button class="qa-btn danger small" data-qa-remove-family="${f.id}">remover</button></li>`).join('') + '</ul>' : '<p class="muted">Nenhuma família neste quarto.</p>'}
+        ${familias.length ? '<button class="qa-btn danger small" id="qaClearRoom">Remover todas</button>' : ''}
+      </div>
+    </div>
+  `;
+
+  container.querySelectorAll('[data-qa-remove-family]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const fid = Number(btn.dataset.qaRemoveFamily);
+      quarto.ocupantes = (quarto.ocupantes || []).filter(id => id !== fid);
+      atualizarLeitura(); atualizarEdicao(); salvar();
+    });
+  });
+  const limpar = document.getElementById('qaClearRoom');
+  if (limpar) limpar.addEventListener('click', () => { quarto.ocupantes = []; atualizarLeitura(); atualizarEdicao(); salvar(); });
+}
+
+function renderQuartosIntegrados() {
+  const canvasPainel = document.getElementById('qaCanvasPanel');
+  if (!canvasPainel) return;
+  if (!uiQuartos.espacoAtivo && DB.espacos.length) uiQuartos.espacoAtivo = DB.espacos[0].id;
+  renderEspacosIntegrados();
+  renderCanvasIntegrado();
+  renderFamiliasIntegradas();
+  renderDetalhesIntegrados();
+}
+
+function seedQuartosIntegrados() {
+  if (DB.espacos.length || DB.quartos.length) return;
+  const esp1 = criarEspacoIntegrado('Monte das Oliveiras', '#dc2626');
+  const esp2 = criarEspacoIntegrado('Alojamento Azul', '#2563eb');
+  criarQuartoIntegrado(esp1, '32', 4, 'pequena');
+  criarQuartoIntegrado(esp1, '33', 6, 'media');
+  criarQuartoIntegrado(esp1, '34', 4, 'pequena');
+  criarQuartoIntegrado(esp1, '35', 8, 'grande');
+  criarQuartoIntegrado(esp2, '101', 4, 'pequena');
+  criarQuartoIntegrado(esp2, '102', 2, 'casal');
+}
+
+function inicializarQuartosIntegrados() {
+  const btnEspaco = document.getElementById('qaAddSpaceBtn');
+  if (!btnEspaco) return;
+  seedQuartosIntegrados();
+  btnEspaco.addEventListener('click', () => {
+    const nome = document.getElementById('qaSpaceName').value.trim();
+    const cor = document.getElementById('qaSpaceColor').value;
+    if (!nome) return alert('Dê um nome ao espaço.');
+    criarEspacoIntegrado(nome, cor);
+    document.getElementById('qaSpaceName').value = '';
+    salvar();
+    renderQuartosIntegrados();
+  });
+
+  document.querySelectorAll('[data-qa-preset]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      if (!uiQuartos.espacoAtivo) return alert('Crie e selecione um espaço.');
+      const espaco = DB.espacos.find(e => e.id === uiQuartos.espacoAtivo);
+      const nome = 'Q' + (quartosDoEspaco(espaco.id).length + 1);
+      criarQuartoIntegrado(espaco.id, nome, 0, btn.dataset.qaPreset);
+      salvar();
+      renderQuartosIntegrados();
+    });
+  });
+
+  const btnQuarto = document.getElementById('qaAddRoomBtn');
+  if (btnQuarto) btnQuarto.addEventListener('click', () => {
+    if (!uiQuartos.espacoAtivo) return alert('Selecione um espaço primeiro.');
+    const nome = document.getElementById('qaRoomName').value.trim() || 'Quarto ' + (DB.quartos.length + 1);
+    const capacidade = Number(document.getElementById('qaRoomCapacity').value || 1);
+    criarQuartoIntegrado(uiQuartos.espacoAtivo, nome, capacidade, null);
+    document.getElementById('qaRoomName').value = '';
+    salvar();
+    renderQuartosIntegrados();
+  });
+
+  const busca = document.getElementById('qaFamilySearch');
+  if (busca) busca.addEventListener('input', () => renderFamiliasIntegradas());
+  renderQuartosIntegrados();
 }
 
 function renderFamiliasDrag() {
@@ -1117,9 +1490,10 @@ function atualizarLeitura() {
       'Nenhum voo cadastrado.')
   ].join('');
 
-  renderMapa();
+    renderMapa();
+    renderQuartosIntegrados();
 
-  document.getElementById('leitura-alojamento').innerHTML = buildTable('Quartos e ocupação', ['Quarto', 'Capacidade total', 'Tipo de cama', 'Ocupação'],
+    document.getElementById('leitura-alojamento').innerHTML = buildTable('Quartos e ocupação', ['Quarto', 'Capacidade total', 'Tipo de cama', 'Ocupação'],
     DB.quartos.map(q => {
       const ocupantes = (q.ocupantes || []).map(id => {
         const familia = DB.familias.find(f => f.id === id);
@@ -1274,6 +1648,8 @@ function atualizarEdicao() {
   document.getElementById('financeiro-edicao').innerHTML = buildTable('Centros de custo', ['Centro', 'Orçado', 'Realizado', 'Ações'],
     DB.financeiro.centros.map(c => [c.nome, `R$ ${c.orcado.toFixed(2)}`, `R$ ${c.realizado.toFixed(2)}`, `<button class="btn-no btn-small" onclick="removerCentro(${c.id})">Remover</button>`]),
     'Nenhum centro cadastrado.');
+
+  renderQuartosIntegrados();
 }
 
 // =============================================
@@ -1503,6 +1879,7 @@ window.removerCentro = id => { DB.financeiro.centros = DB.financeiro.centros.fil
 // =============================================
 // INICIALIZAÇÃO
 // =============================================
+inicializarQuartosIntegrados();
 atualizarContaUI();
 atualizarLeitura();
 atualizarEdicao();
