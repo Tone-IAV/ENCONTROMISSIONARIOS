@@ -23,11 +23,6 @@
 
   .card { background:white; border-radius:10px; padding:1.5rem; box-shadow:0 4px 15px rgba(0,0,0,0.08); margin-bottom:1rem; }
   .grid-3 { display:grid; gap:1.5rem; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); }
-  .section-grid { display:grid; gap:1rem; grid-template-columns:repeat(auto-fit,minmax(320px,1fr)); align-items:start; }
-  .card-full { grid-column:1 / -1; }
-  .stacked { display:flex; flex-direction:column; gap:0.75rem; }
-  .field-row { display:grid; gap:0.75rem; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); }
-  .caption { color:#475569; font-size:0.95rem; }
 
   button { padding:0.8rem 1.4rem; border:none; border-radius:8px; cursor:pointer; font-weight:bold; }
   .btn-editar { background:#f59e0b; color:white; }
@@ -91,11 +86,6 @@
   .btn-secondary { background:#0ea5e9; color:white; }
   .pill { display:inline-flex; align-items:center; gap:0.5rem; padding:0.6rem 1rem; background:#e0f2fe; border-radius:999px; font-size:0.95rem; }
   .hidden { display:none !important; }
-  .subnav { display:flex; gap:0.5rem; flex-wrap:wrap; margin:1rem 0 1.25rem; }
-  .subtab { border:1px solid #cbd5e1; background:#e2e8f0; color:#0f172a; padding:0.55rem 0.9rem; border-radius:10px; cursor:pointer; font-weight:700; }
-  .subtab.active { background:#1e3a8a; color:white; border-color:#1e3a8a; }
-  .subview { display:none; }
-  .subview.active { display:block; }
 
   /* Quartos integrados (importado de quartos.html) */
   #quartos-integrados { margin-top:1.25rem; border:1px solid #e2e8f0; border-radius:14px; background:white; box-shadow:0 8px 30px rgba(15,23,42,0.08); }
@@ -321,288 +311,19 @@
   </div>
 
   <div class="modo-edicao">
-    <h2>Cadastros de participantes</h2>
-    <p class="caption">Organize famílias missionárias, equipe de apoio, palestrantes, convidados e pastores com perguntas sob demanda.</p>
-
-    <div class="subnav" aria-label="Abas de participantes">
-      <button type="button" class="subtab active" data-subview="sub-missionarios">Família missionária</button>
-      <button type="button" class="subtab" data-subview="sub-equipe">Equipe / Staff</button>
-      <button type="button" class="subtab" data-subview="sub-preletores">Preletores</button>
-      <button type="button" class="subtab" data-subview="sub-convidados">Convidados</button>
-      <button type="button" class="subtab" data-subview="sub-pastores">Pastores</button>
-      <button type="button" class="subtab" data-subview="sub-complementar">Campos complementares</button>
-      <button type="button" class="subtab" data-subview="sub-listas">Listagens</button>
-    </div>
-
-    <div class="section-grid subview active" id="sub-missionarios">
-      <div class="card card-full">
-        <h3>Família missionária</h3>
-        <p class="caption">Somente os campos necessários são exibidos. Confirme se há cônjuge e filhos antes de abrir os blocos.</p>
-        <form id="formMissionario" class="stacked">
-          <div class="field-row">
-            <input name="base" type="text" placeholder="Base missionária" required>
-            <input name="responsavel" type="text" placeholder="Nome completo do responsável" required>
-          </div>
-          <div class="field-row">
-            <label>Data de nascimento
-              <input name="nascimentoResponsavel" type="date" required>
-            </label>
-            <label>RG
-              <input name="rgResponsavel" type="text" placeholder="Documento" required>
-            </label>
-            <label>CPF
-              <input name="cpfResponsavel" type="text" placeholder="CPF" required>
-            </label>
-          </div>
-          <div class="field-row">
-            <label>Tamanho de camisa
-              <select name="camisaResponsavel" required>
-                <option value="">Selecione</option>
-                <option>P</option><option>M</option><option>G</option><option>GG</option><option>XG</option>
-              </select>
-            </label>
-            <label>Estado
-              <select name="estado" required>
-                <option value="">UF</option>
-                <option>AC</option><option>AL</option><option>AM</option><option>BA</option><option>CE</option>
-                <option>DF</option><option>ES</option><option>GO</option><option>MA</option><option>MG</option>
-                <option>MS</option><option>MT</option><option>PA</option><option>PB</option><option>PE</option>
-                <option>PI</option><option>PR</option><option>RJ</option><option>RN</option><option>RO</option>
-                <option>RR</option><option>RS</option><option>SC</option><option>SE</option><option>SP</option><option>TO</option>
-              </select>
-            </label>
-            <label>Município
-              <input name="municipio" type="text" placeholder="Cidade" required>
-            </label>
-          </div>
-          <div class="field-row">
-            <label>Casado?
-              <select id="casado" name="casado" required>
-                <option value="nao">Não</option>
-                <option value="sim">Sim</option>
-              </select>
-            </label>
-            <label>Filhos?
-              <select id="temFilhos" name="temFilhos" required>
-                <option value="nao">Não</option>
-                <option value="sim">Sim</option>
-              </select>
-            </label>
-          </div>
-
-          <div id="blocoConjuge" class="stacked hidden">
-            <h4>Cônjuge</h4>
-            <div class="field-row">
-              <input name="conjugeNome" type="text" placeholder="Nome completo do cônjuge">
-              <label>Data de nascimento
-                <input name="conjugeNascimento" type="date">
-              </label>
-              <label>RG
-                <input name="conjugeRg" type="text" placeholder="Documento">
-              </label>
-              <label>CPF
-                <input name="conjugeCpf" type="text" placeholder="CPF">
-              </label>
-            </div>
-            <label>Tamanho de camisa
-              <select name="conjugeCamisa">
-                <option value="">Selecione</option>
-                <option>P</option><option>M</option><option>G</option><option>GG</option><option>XG</option>
-              </select>
-            </label>
-          </div>
-
-          <div id="blocoFilhos" class="stacked hidden">
-            <div class="field-row">
-              <label>Quantos filhos irão para o evento?
-                <input id="quantosFilhos" name="quantosFilhos" type="number" min="1" value="1">
-              </label>
-            </div>
-            <div id="filhosContainer" class="stacked"></div>
-          </div>
-
-          <button type="submit" class="btn-salvar">Salvar família missionária</button>
-        </form>
-      </div>
-    </div>
-
-    <div class="section-grid subview" id="sub-equipe">
-      <div class="card">
-        <h3>Equipe / Staff</h3>
-        <form id="formEquipePessoa" class="stacked">
-          <input name="base" type="text" placeholder="Base / área" required>
-          <input name="nome" type="text" placeholder="Nome completo" required>
-          <div class="field-row">
-            <label>Data de nascimento
-              <input name="nascimento" type="date" required>
-            </label>
-            <label>RG
-              <input name="rg" type="text" placeholder="Documento" required>
-            </label>
-            <label>CPF
-              <input name="cpf" type="text" placeholder="CPF" required>
-            </label>
-          </div>
-          <label>Tamanho de camisa
-            <select name="camisa" required>
-              <option value="">Selecione</option>
-              <option>P</option><option>M</option><option>G</option><option>GG</option><option>XG</option>
-            </select>
-          </label>
-          <button type="submit" class="btn-salvar">Adicionar membro de equipe</button>
-        </form>
-      </div>
-    </div>
-
-    <div class="section-grid subview" id="sub-preletores">
-      <div class="card">
-        <h3>Preletores / Palestrantes</h3>
-        <form id="formPreletor" class="stacked">
-          <input name="nome" type="text" placeholder="Nome completo" required>
-          <label>Tamanho de camisa
-            <select name="camisa" required>
-              <option value="">Selecione</option>
-              <option>P</option><option>M</option><option>G</option><option>GG</option><option>XG</option>
-            </select>
-          </label>
-          <input name="tempo" type="text" placeholder="Tempo no evento (ex: 2 dias)" required>
-          <button type="submit" class="btn-salvar">Salvar palestrante</button>
-        </form>
-      </div>
-    </div>
-
-    <div class="section-grid subview" id="sub-convidados">
-      <div class="card">
-        <h3>Convidados</h3>
-        <form id="formConvidado" class="stacked">
-          <input name="nome" type="text" placeholder="Nome completo" required>
-          <label>Tamanho de camisa
-            <select name="camisa" required>
-              <option value="">Selecione</option>
-              <option>P</option><option>M</option><option>G</option><option>GG</option><option>XG</option>
-            </select>
-          </label>
-          <input name="tempo" type="text" placeholder="Tempo no evento (ex: 1 dia ou 1 refeição)">
-          <button type="submit" class="btn-salvar">Salvar convidado</button>
-        </form>
-      </div>
-    </div>
-
-    <div class="section-grid subview" id="sub-pastores">
-      <div class="card card-full">
-        <h3>Pastores das igrejas enviadoras</h3>
-        <form id="formPastor" class="stacked">
-          <div class="field-row">
-            <input name="igreja" type="text" placeholder="Igreja" required>
-            <label>UF
-              <select name="uf" required>
-                <option value="">UF</option>
-                <option>AC</option><option>AL</option><option>AM</option><option>BA</option><option>CE</option>
-                <option>DF</option><option>ES</option><option>GO</option><option>MA</option><option>MG</option>
-                <option>MS</option><option>MT</option><option>PA</option><option>PB</option><option>PE</option>
-                <option>PI</option><option>PR</option><option>RJ</option><option>RN</option><option>RO</option>
-                <option>RR</option><option>RS</option><option>SC</option><option>SE</option><option>SP</option><option>TO</option>
-              </select>
-            </label>
-            <input name="municipio" type="text" placeholder="Município" required>
-          </div>
-          <div class="field-row">
-            <input name="nome" type="text" placeholder="Nome completo" required>
-            <label>Telefone 1
-              <input name="tel1" type="tel" placeholder="(DDD)">
-            </label>
-            <label>Telefone 2
-              <input name="tel2" type="tel" placeholder="Opcional">
-            </label>
-          </div>
-          <div class="field-row">
-            <label>Data de nascimento
-              <input name="nascimento" type="date">
-            </label>
-            <label>RG
-              <input name="rg" type="text" placeholder="Documento">
-            </label>
-            <label>CPF
-              <input name="cpf" type="text" placeholder="CPF">
-            </label>
-          </div>
-          <div class="field-row">
-            <label>Tamanho de camisa
-              <select name="camisa" required>
-                <option value="">Selecione</option>
-                <option>P</option><option>M</option><option>G</option><option>GG</option><option>XG</option>
-              </select>
-            </label>
-            <label>Casado?
-              <select name="casado" id="pastorCasado">
-                <option value="nao">Não</option>
-                <option value="sim">Sim</option>
-              </select>
-            </label>
-          </div>
-          <div id="blocoConjugePastor" class="stacked hidden">
-            <h4>Cônjuge</h4>
-            <div class="field-row">
-              <input name="conjugeNome" type="text" placeholder="Nome completo do cônjuge">
-              <label>Data de nascimento
-                <input name="conjugeNascimento" type="date">
-              </label>
-              <label>RG
-                <input name="conjugeRg" type="text" placeholder="Documento">
-              </label>
-              <label>CPF
-                <input name="conjugeCpf" type="text" placeholder="CPF">
-              </label>
-            </div>
-            <label>Tamanho de camisa
-              <select name="conjugeCamisa">
-                <option value="">Selecione</option>
-                <option>P</option><option>M</option><option>G</option><option>GG</option><option>XG</option>
-              </select>
-            </label>
-          </div>
-          <button type="submit" class="btn-salvar">Salvar pastor</button>
-        </form>
-      </div>
-    </div>
-
-    <div class="section-grid subview" id="sub-complementar">
-      <div class="card card-full">
-        <h3>Campos personalizados (formulário complementar)</h3>
-        <p class="caption">Adicione perguntas de cuidado válidas para qualquer cadastro e registre respostas por participante ou família.</p>
-        <form id="formCampoPersonalizado" class="stacked">
-          <div class="field-row">
-            <input name="pergunta" type="text" placeholder="Nova pergunta" required>
-            <select name="tipo" required>
-              <option value="texto">Resposta em texto</option>
-              <option value="simnao">Sim/Não</option>
-              <option value="longo">Texto longo</option>
-            </select>
-            <input name="ajuda" type="text" placeholder="Observação (opcional)">
-          </div>
-          <button type="submit" class="btn-salvar">Adicionar campo personalizado</button>
-        </form>
-
-        <div id="listaCamposPersonalizados" class="stacked"></div>
-
-        <form id="formRespostasPersonalizadas" class="stacked">
-          <input name="referencia" type="text" placeholder="Para qual cadastro? Ex: Família Silva" required>
-          <div id="respostasDinamicas" class="stacked"></div>
-          <button type="submit" class="btn-salvar">Salvar formulário complementar</button>
-        </form>
-        <div id="listaRespostasPersonalizadas"></div>
-      </div>
-    </div>
-
-    <div class="section-grid subview" id="sub-listas">
-      <div class="card card-full">
-        <h3>Listagens rápidas</h3>
-        <p class="caption">Visualize e limpe cadastros sem rolagem excessiva.</p>
-        <div id="lista-participantes-edicao"></div>
-      </div>
-    </div>
+    <h2>Cadastrar Nova Família</h2>
+    <form id="formFamilia">
+      <input type="text" placeholder="Responsável" required>
+      <input type="number" placeholder="Quantas pessoas" min="1" value="1" required>
+      <input type="text" placeholder="Cidade/Estado" required>
+      <input type="tel" placeholder="WhatsApp">
+      <select><option>Ônibus</option><option>Voo</option><option>Carro próprio</option></select>
+      <button type="submit" class="btn-salvar">Salvar Família</button>
+    </form>
+    <div id="lista-participantes-edicao"></div>
   </div>
 </section>
+
 <!-- TRANSPORTE -->
 <section id="transporte" class="view">
   <div class="modo-leitura">
@@ -851,11 +572,6 @@ const DB = {
   logs: [],
   sessao: null,
   familias: [],
-  missionarios: [],
-  equipePessoas: [],
-  preletores: [],
-  convidados: [],
-  pastores: [],
   onibus: [],
   voos: [],
   equipes: [],
@@ -870,12 +586,6 @@ const DB = {
   pedidos: [],
   palestras: [],
   kids: [],
-  camposPersonalizados: [
-    { id: 1, pergunta: 'Você ou alguém da sua família possui algum tipo de alergia?', tipo: 'texto', ajuda: 'Qual tipo de alergia?' },
-    { id: 2, pergunta: 'Você ou alguém da sua família possui alguma restrição alimentar?', tipo: 'longo', ajuda: 'Liste as restrições alimentares.' },
-    { id: 3, pergunta: 'Você ou alguém da sua família faz uso de algum medicamento?', tipo: 'longo', ajuda: 'Quais medicamentos e horários?' }
-  ],
-  respostasPersonalizadas: [],
   financeiro: { orcado: 0, realizado: 0, centros: [] }
 };
 
@@ -1013,67 +723,6 @@ function renderPainelQuarto(quarto) {
       <button type="button" class="btn-no" onclick="removerQuarto(${quarto.id})">Remover do mapa</button>
     </div>
   `;
-}
-
-function renderCamposFilhos(qtd = 0) {
-  const container = document.getElementById('filhosContainer');
-  if (!container) return;
-  container.innerHTML = '';
-  const total = Math.max(Number(qtd) || 0, 0);
-  const opcoesCamisa = '<option value="">Selecione</option><option>P</option><option>M</option><option>G</option><option>GG</option><option>XG</option>';
-  for (let i = 0; i < total; i++) {
-    const bloco = document.createElement('div');
-    bloco.className = 'field-row';
-    bloco.innerHTML = `
-      <div class="stacked" style="gap:0.35rem;">
-        <strong>Filho ${i + 1}</strong>
-        <input name="filho_nome_${i}" type="text" placeholder="Nome completo do filho ${i + 1}" required>
-      </div>
-      <label>Data de nascimento
-        <input name="filho_nascimento_${i}" type="date" required>
-      </label>
-      <label>RG
-        <input name="filho_rg_${i}" type="text" placeholder="Documento">
-      </label>
-      <label>CPF
-        <input name="filho_cpf_${i}" type="text" placeholder="CPF">
-      </label>
-      <label>Tamanho de camisa
-        <select name="filho_camisa_${i}">${opcoesCamisa}</select>
-      </label>`;
-    container.appendChild(bloco);
-  }
-}
-
-function toggleBlocosFamilia() {
-  const casado = document.getElementById('casado');
-  const blocoConjuge = document.getElementById('blocoConjuge');
-  const temFilhos = document.getElementById('temFilhos');
-  const blocoFilhos = document.getElementById('blocoFilhos');
-  const qtdFilhos = document.getElementById('quantosFilhos');
-  const casadoSelecionado = casado && casado.value === 'sim';
-  if (blocoConjuge) blocoConjuge.classList.toggle('hidden', !casadoSelecionado);
-  const mostrarFilhos = casadoSelecionado && temFilhos && temFilhos.value === 'sim';
-  if (blocoFilhos) blocoFilhos.classList.toggle('hidden', !mostrarFilhos);
-  if (mostrarFilhos) {
-    renderCamposFilhos(qtdFilhos ? qtdFilhos.value : 0);
-  } else {
-    renderCamposFilhos(0);
-  }
-}
-
-function toggleConjugePastor() {
-  const select = document.getElementById('pastorCasado');
-  const bloco = document.getElementById('blocoConjugePastor');
-  if (!select || !bloco) return;
-  bloco.classList.toggle('hidden', select.value !== 'sim');
-}
-
-function limparFamiliaDeQuartos(id) {
-  DB.quartos.forEach(q => {
-    if (!q.ocupantes) return;
-    q.ocupantes = q.ocupantes.filter(ocupanteId => ocupanteId !== id);
-  });
 }
 
 // =============================================
@@ -1524,22 +1173,6 @@ document.querySelectorAll('.nav-link').forEach(l => {
   });
 });
 
-function inicializarSubtabs() {
-  const tabs = Array.from(document.querySelectorAll('[data-subview]'));
-  const subviews = Array.from(document.querySelectorAll('.subview'));
-  if (!tabs.length || !subviews.length) return;
-  const ativar = alvo => {
-    subviews.forEach(view => view.classList.toggle('active', view.id === alvo));
-    tabs.forEach(tab => tab.classList.toggle('active', tab.dataset.subview === alvo));
-  };
-  tabs.forEach(tab => tab.addEventListener('click', () => {
-    ativar(tab.dataset.subview);
-    const area = document.getElementById('participantes');
-    if (area) window.scrollTo({ top: area.offsetTop - 24, behavior: 'smooth' });
-  }));
-  ativar(tabs[0].dataset.subview);
-}
-
 function atualizarZoom(valor) {
   mapaZoom = Math.min(1.5, Math.max(0.5, valor));
   const container = document.getElementById('mapa-alojamento');
@@ -1743,13 +1376,7 @@ function formatarDataHora(valor) {
 }
 
 function atualizarLeitura() {
-  const totalMissionarios = DB.missionarios.reduce((s, f) => s + (f.totalPessoas || f.qtd || 0), 0);
-  const totalEquipe = DB.equipePessoas.length;
-  const totalPreletores = DB.preletores.length;
-  const totalConvidados = DB.convidados.length;
-  const totalPastores = DB.pastores.reduce((s, p) => s + 1 + (p.conjuge ? 1 : 0), 0);
-  const total = totalMissionarios + totalEquipe + totalPreletores + totalConvidados + totalPastores;
-
+  const total = DB.familias.reduce((s, f) => s + f.qtd, 0);
   document.getElementById('paxTotal').textContent = total;
   document.getElementById('onibusTotal').textContent = DB.onibus.length;
   document.getElementById('voosTotal').textContent = DB.voos.length;
@@ -1774,31 +1401,10 @@ function atualizarLeitura() {
       </div>`;
   };
 
-  const familiasLeitura = buildTable('Famílias missionárias', ['Base', 'Responsável', 'Pessoas', 'Cidade/Estado'],
-    DB.missionarios.map(f => [f.base, f.responsavel.nome, `${f.totalPessoas} (${(f.filhos || []).length} filhos)`, `${f.municipio}/${f.estado}`]),
-    'Nenhuma família missionária cadastrada.');
-
-  const equipeLeitura = buildTable('Equipe / Staff', ['Base', 'Nome', 'Documentos'],
-    DB.equipePessoas.map(e => [e.base, e.nome, `${e.rg || 'RG não informado'}<br><small>${e.cpf}</small>`]),
-    'Nenhum membro de equipe cadastrado.');
-
-  const preletoresLeitura = buildTable('Preletores / Palestrantes', ['Nome', 'Camisa', 'Tempo no evento'],
-    DB.preletores.map(p => [p.nome, p.camisa, p.tempo]),
-    'Nenhum preletor cadastrado.');
-
-  const convidadosLeitura = buildTable('Convidados', ['Nome', 'Camisa', 'Tempo no evento'],
-    DB.convidados.map(c => [c.nome, c.camisa || '—', c.tempo || 'Tempo não informado']),
-    'Nenhum convidado cadastrado.');
-
-  const pastoresLeitura = buildTable('Pastores das igrejas enviadoras', ['Igreja', 'Pastor', 'Cidade/UF', 'Cônjuge'],
-    DB.pastores.map(p => [p.igreja, p.nome, `${p.municipio}/${p.uf}`, p.casado && p.conjuge ? p.conjuge.nome || 'Cônjuge sem nome' : 'Sem cônjuge informado']),
-    'Nenhum pastor cadastrado.');
-
-  const respostasLeitura = buildTable('Formulário complementar', ['Referência', 'Respostas'],
-    DB.respostasPersonalizadas.map(r => [r.referencia, r.respostas.map(resp => `<strong>${resp.pergunta}:</strong> ${resp.resposta || '—'}`).join('<br>')]),
-    'Nenhuma resposta complementar.');
-
-  document.getElementById('lista-participantes-leitura').innerHTML = [familiasLeitura, equipeLeitura, preletoresLeitura, convidadosLeitura, pastoresLeitura, respostasLeitura].join('');
+  document.getElementById('lista-participantes-leitura').innerHTML =
+    buildTable('Famílias inscritas', ['Responsável', 'Pessoas', 'Cidade/Estado'],
+      DB.familias.map(f => [f.nome, `${f.qtd}`, f.cidade]),
+      'Nenhum participante cadastrado.');
 
   document.getElementById('equipes-lista').innerHTML = [
     buildTable('Equipes', ['Equipe', 'Responsável', 'Membros'],
@@ -1910,48 +1516,9 @@ function atualizarEdicao() {
     financeiroForm[1].value = DB.financeiro.realizado;
   }
 
-  const listaCampos = document.getElementById('listaCamposPersonalizados');
-  const respostasDinamicas = document.getElementById('respostasDinamicas');
-  const listaRespostasPersonalizadas = document.getElementById('listaRespostasPersonalizadas');
-
-  const camposHTML = buildTable('Campos personalizados', ['Pergunta', 'Tipo', 'Observação', 'Ações'],
-    DB.camposPersonalizados.map(c => [c.pergunta, c.tipo, c.ajuda || '—', `<button class="btn-no btn-small" onclick="removerCampoPersonalizado(${c.id})">Remover</button>`]),
-    'Nenhuma pergunta adicionada.');
-  if (listaCampos) listaCampos.innerHTML = camposHTML;
-
-  if (respostasDinamicas) {
-    respostasDinamicas.innerHTML = DB.camposPersonalizados.map(c => {
-      const ajuda = c.ajuda ? `<small>${c.ajuda}</small>` : '';
-      let campo = `<input name="campo_${c.id}" type="text" placeholder="${c.ajuda || ''}">`;
-      if (c.tipo === 'simnao') campo = `<select name="campo_${c.id}"><option value="">Selecione</option><option>Sim</option><option>Não</option></select>`;
-      if (c.tipo === 'longo') campo = `<textarea name="campo_${c.id}" rows="2" placeholder="${c.ajuda || ''}"></textarea>`;
-      return `<label>${c.pergunta}<br>${ajuda}${campo}</label>`;
-    }).join('');
-  }
-
-  if (listaRespostasPersonalizadas) {
-    listaRespostasPersonalizadas.innerHTML = buildTable('Respostas complementares', ['Referência', 'Respostas', 'Ações'],
-      DB.respostasPersonalizadas.map(r => [r.referencia, r.respostas.map(resp => `<strong>${resp.pergunta}:</strong> ${resp.resposta || '—'}`).join('<br>'), `<button class="btn-no btn-small" onclick="removerRespostaPersonalizada(${r.id})">Remover</button>`]),
-      'Nenhuma resposta salva.');
-  }
-
-  document.getElementById('lista-participantes-edicao').innerHTML = [
-    buildTable('Famílias missionárias', ['Base', 'Responsável', 'Pessoas', 'Cidade/UF', 'Ações'],
-      DB.missionarios.map(f => [f.base, f.responsavel.nome, f.totalPessoas, `${f.municipio}/${f.estado}`, `<button class="btn-no btn-small" onclick="removerMissionario(${f.id})">Remover</button>`]),
-      'Nenhuma família missionária cadastrada.'),
-    buildTable('Equipe / Staff', ['Base', 'Nome', 'Documentos', 'Ações'],
-      DB.equipePessoas.map(e => [e.base, e.nome, `${e.rg}<br><small>${e.cpf}</small>`, `<button class="btn-no btn-small" onclick="removerEquipePessoa(${e.id})">Remover</button>`]),
-      'Nenhum membro de equipe cadastrado.'),
-    buildTable('Preletores', ['Nome', 'Camisa', 'Tempo', 'Ações'],
-      DB.preletores.map(p => [p.nome, p.camisa, p.tempo, `<button class="btn-no btn-small" onclick="removerPreletor(${p.id})">Remover</button>`]),
-      'Nenhum preletor cadastrado.'),
-    buildTable('Convidados', ['Nome', 'Camisa', 'Tempo', 'Ações'],
-      DB.convidados.map(c => [c.nome, c.camisa, c.tempo || '—', `<button class="btn-no btn-small" onclick="removerConvidado(${c.id})">Remover</button>`]),
-      'Nenhum convidado cadastrado.'),
-    buildTable('Pastores', ['Igreja', 'Pastor', 'Cidade/UF', 'Cônjuge', 'Ações'],
-      DB.pastores.map(p => [p.igreja, p.nome, `${p.municipio}/${p.uf}`, p.casado && p.conjuge ? p.conjuge.nome || '—' : 'Sem cônjuge', `<button class="btn-no btn-small" onclick="removerPastor(${p.id})">Remover</button>`]),
-      'Nenhum pastor cadastrado.')
-  ].join('');
+  document.getElementById('lista-participantes-edicao').innerHTML = buildTable('Famílias', ['Responsável', 'Pessoas', 'Cidade', 'Ações'],
+    DB.familias.map(f => [f.nome, f.qtd, f.cidade, `<button class="btn-no btn-small" onclick="removerFamilia(${f.id})">Remover</button>`]),
+    'Nenhum participante cadastrado.');
 
   document.getElementById('equipes-edicao').innerHTML = [
     buildTable('Equipes', ['Equipe', 'Responsável', 'Membros', 'Ações'],
@@ -2027,150 +1594,10 @@ function atualizarEdicao() {
 // =============================================
 // CADASTROS (exemplo participantes e transporte)
 // =============================================
-const casadoSelect = document.getElementById('casado');
-const temFilhosSelect = document.getElementById('temFilhos');
-const quantosFilhosInput = document.getElementById('quantosFilhos');
-if (casadoSelect) casadoSelect.addEventListener('change', toggleBlocosFamilia);
-if (temFilhosSelect) temFilhosSelect.addEventListener('change', toggleBlocosFamilia);
-if (quantosFilhosInput) quantosFilhosInput.addEventListener('input', () => toggleBlocosFamilia());
-toggleBlocosFamilia();
-
-const pastorCasadoSelect = document.getElementById('pastorCasado');
-if (pastorCasadoSelect) {
-  pastorCasadoSelect.addEventListener('change', toggleConjugePastor);
-  toggleConjugePastor();
-}
-
-const formMissionario = document.getElementById('formMissionario');
-if (formMissionario) formMissionario.onsubmit = e => {
+document.getElementById('formFamilia').onsubmit = e => {
   e.preventDefault();
-  const fd = new FormData(e.target);
-  const casado = fd.get('casado') === 'sim';
-  const temFilhos = fd.get('temFilhos') === 'sim';
-  const filhosQtd = casado && temFilhos ? Math.max(Number(fd.get('quantosFilhos')) || 0, 0) : 0;
-  const filhos = [];
-  for (let i = 0; i < filhosQtd; i++) {
-    filhos.push({
-      nome: fd.get(`filho_nome_${i}`) || `Filho ${i + 1}`,
-      nascimento: fd.get(`filho_nascimento_${i}`),
-      rg: fd.get(`filho_rg_${i}`),
-      cpf: fd.get(`filho_cpf_${i}`),
-      camisa: fd.get(`filho_camisa_${i}`)
-    });
-  }
-  const familiaId = Date.now();
-  const familia = {
-    id: familiaId,
-    base: fd.get('base'),
-    responsavel: {
-      nome: fd.get('responsavel'),
-      nascimento: fd.get('nascimentoResponsavel'),
-      rg: fd.get('rgResponsavel'),
-      cpf: fd.get('cpfResponsavel'),
-      camisa: fd.get('camisaResponsavel')
-    },
-    estado: fd.get('estado'),
-    municipio: fd.get('municipio'),
-    casado,
-    conjuge: casado ? {
-      nome: fd.get('conjugeNome'),
-      nascimento: fd.get('conjugeNascimento'),
-      rg: fd.get('conjugeRg'),
-      cpf: fd.get('conjugeCpf'),
-      camisa: fd.get('conjugeCamisa')
-    } : null,
-    filhos,
-    totalPessoas: 1 + (casado ? 1 : 0) + filhos.length
-  };
-  DB.missionarios.push(familia);
-  DB.familias.push({ id: familiaId, nome: familia.responsavel.nome, qtd: familia.totalPessoas, cidade: `${familia.municipio}/${familia.estado}`, base: familia.base, tipo: 'missionario' });
-  e.target.reset();
-  toggleBlocosFamilia();
-  atualizarLeitura(); atualizarEdicao(); salvar();
-};
-
-const formEquipePessoa = document.getElementById('formEquipePessoa');
-if (formEquipePessoa) formEquipePessoa.onsubmit = e => {
-  e.preventDefault();
-  const fd = new FormData(e.target);
-  DB.equipePessoas.push({
-    id: Date.now(),
-    base: fd.get('base'),
-    nome: fd.get('nome'),
-    nascimento: fd.get('nascimento'),
-    rg: fd.get('rg'),
-    cpf: fd.get('cpf'),
-    camisa: fd.get('camisa')
-  });
-  e.target.reset();
-  atualizarLeitura(); atualizarEdicao(); salvar();
-};
-
-const formPreletor = document.getElementById('formPreletor');
-if (formPreletor) formPreletor.onsubmit = e => {
-  e.preventDefault();
-  const fd = new FormData(e.target);
-  DB.preletores.push({ id: Date.now(), nome: fd.get('nome'), camisa: fd.get('camisa'), tempo: fd.get('tempo') });
-  e.target.reset();
-  atualizarLeitura(); atualizarEdicao(); salvar();
-};
-
-const formConvidado = document.getElementById('formConvidado');
-if (formConvidado) formConvidado.onsubmit = e => {
-  e.preventDefault();
-  const fd = new FormData(e.target);
-  DB.convidados.push({ id: Date.now(), nome: fd.get('nome'), camisa: fd.get('camisa'), tempo: fd.get('tempo') });
-  e.target.reset();
-  atualizarLeitura(); atualizarEdicao(); salvar();
-};
-
-const formPastor = document.getElementById('formPastor');
-if (formPastor) formPastor.onsubmit = e => {
-  e.preventDefault();
-  const fd = new FormData(e.target);
-  const casadoPastor = fd.get('casado') === 'sim';
-  const conjuge = casadoPastor ? {
-    nome: fd.get('conjugeNome'),
-    nascimento: fd.get('conjugeNascimento'),
-    rg: fd.get('conjugeRg'),
-    cpf: fd.get('conjugeCpf'),
-    camisa: fd.get('conjugeCamisa')
-  } : null;
-  DB.pastores.push({
-    id: Date.now(),
-    igreja: fd.get('igreja'),
-    uf: fd.get('uf'),
-    municipio: fd.get('municipio'),
-    nome: fd.get('nome'),
-    tel1: fd.get('tel1'),
-    tel2: fd.get('tel2'),
-    nascimento: fd.get('nascimento'),
-    rg: fd.get('rg'),
-    cpf: fd.get('cpf'),
-    camisa: fd.get('camisa'),
-    casado: casadoPastor,
-    conjuge
-  });
-  e.target.reset();
-  toggleConjugePastor();
-  atualizarLeitura(); atualizarEdicao(); salvar();
-};
-
-const formCampoPersonalizado = document.getElementById('formCampoPersonalizado');
-if (formCampoPersonalizado) formCampoPersonalizado.onsubmit = e => {
-  e.preventDefault();
-  const fd = new FormData(e.target);
-  DB.camposPersonalizados.push({ id: Date.now(), pergunta: fd.get('pergunta'), tipo: fd.get('tipo'), ajuda: fd.get('ajuda') });
-  e.target.reset();
-  atualizarLeitura(); atualizarEdicao(); salvar();
-};
-
-const formRespostasPersonalizadas = document.getElementById('formRespostasPersonalizadas');
-if (formRespostasPersonalizadas) formRespostasPersonalizadas.onsubmit = e => {
-  e.preventDefault();
-  const fd = new FormData(e.target);
-  const respostas = DB.camposPersonalizados.map(c => ({ campoId: c.id, pergunta: c.pergunta, resposta: fd.get(`campo_${c.id}`) || '' }));
-  DB.respostasPersonalizadas.push({ id: Date.now(), referencia: fd.get('referencia'), respostas });
+  const [nome, qtd, cidade] = [e.target[0].value, +e.target[1].value, e.target[2].value];
+  DB.familias.push({ id: Date.now(), nome, qtd, cidade });
   e.target.reset();
   atualizarLeitura(); atualizarEdicao(); salvar();
 };
@@ -2255,15 +1682,8 @@ document.getElementById('formKids').onsubmit = e => { e.preventDefault(); const 
 document.getElementById('formFinanceiro').onsubmit = e => { e.preventDefault(); const i = e.target.elements; DB.financeiro.orcado = +i[0].value; DB.financeiro.realizado = +i[1].value; atualizarLeitura(); atualizarEdicao(); salvar(); };
 document.getElementById('formCentro').onsubmit = e => { e.preventDefault(); const i = e.target.elements; DB.financeiro.centros.push({id:Date.now(), nome:i[0].value, orcado:+i[1].value, realizado:+i[2].value}); e.target.reset(); atualizarLeitura(); atualizarEdicao(); salvar(); };
 
-window.removerFamilia = id => { limparFamiliaDeQuartos(id); DB.familias = DB.familias.filter(f=>f.id!==id); DB.missionarios = DB.missionarios.filter(f=>f.id!==id); atualizarLeitura(); atualizarEdicao(); salvar(); };
-window.removerMissionario = id => { limparFamiliaDeQuartos(id); DB.missionarios = DB.missionarios.filter(f=>f.id!==id); DB.familias = DB.familias.filter(f=>f.id!==id); atualizarLeitura(); atualizarEdicao(); salvar(); };
-window.removerEquipePessoa = id => { DB.equipePessoas = DB.equipePessoas.filter(p=>p.id!==id); atualizarLeitura(); atualizarEdicao(); salvar(); };
-window.removerPreletor = id => { DB.preletores = DB.preletores.filter(p=>p.id!==id); atualizarLeitura(); atualizarEdicao(); salvar(); };
-window.removerConvidado = id => { DB.convidados = DB.convidados.filter(c=>c.id!==id); atualizarLeitura(); atualizarEdicao(); salvar(); };
-window.removerPastor = id => { DB.pastores = DB.pastores.filter(p=>p.id!==id); atualizarLeitura(); atualizarEdicao(); salvar(); };
-window.removerCampoPersonalizado = id => { DB.camposPersonalizados = DB.camposPersonalizados.filter(c=>c.id!==id); atualizarLeitura(); atualizarEdicao(); salvar(); };
-window.removerRespostaPersonalizada = id => { DB.respostasPersonalizadas = DB.respostasPersonalizadas.filter(r=>r.id!==id); atualizarLeitura(); atualizarEdicao(); salvar(); };
-window.removerEquipe = id => { DB.equipes = DB.equipes.filter(e=>e.id!==id); DB.projetos = DB.projetos.filter(p=>p.equipeId!==id); DB.tarefas = DB.tarefas.filter(t=>DB.projetos.some(p=>p.id===t.projetoId)); atualizarLeitura(); atualizarEdicao(); salvar();};
+window.removerFamilia = id => { DB.familias = DB.familias.filter(f=>f.id!==id); atualizarLeitura(); atualizarEdicao(); salvar(); };
+window.removerEquipe = id => { DB.equipes = DB.equipes.filter(e=>e.id!==id); DB.projetos = DB.projetos.filter(p=>p.equipeId!==id); DB.tarefas = DB.tarefas.filter(t=>DB.projetos.some(p=>p.id===t.projetoId)); atualizarLeitura(); atualizarEdicao(); salvar(); };
 window.removerOnibus = id => { DB.onibus = DB.onibus.filter(o=>o.id!==id); atualizarLeitura(); atualizarEdicao(); salvar(); };
 window.removerVoo = id => { DB.voos = DB.voos.filter(v=>v.id!==id); atualizarLeitura(); atualizarEdicao(); salvar(); };
 window.desvincularParticipante = (quartoId, familiaId) => {
@@ -2286,7 +1706,6 @@ window.removerCentro = id => { DB.financeiro.centros = DB.financeiro.centros.fil
 // INICIALIZAÇÃO
 // =============================================
 inicializarQuartosIntegrados();
-inicializarSubtabs();
 atualizarContaUI();
 atualizarLeitura();
 atualizarEdicao();
