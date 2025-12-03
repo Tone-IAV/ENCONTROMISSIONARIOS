@@ -38,6 +38,17 @@
   .table-group { background:white; border-radius:12px; padding:1rem 1.2rem; box-shadow:0 4px 12px rgba(0,0,0,0.05); margin:1rem 0; }
   .table-group h3 { margin-bottom:0.5rem; color:#0f172a; }
   .nota-dependencia { background:#ecfeff; border:1px dashed #06b6d4; padding:0.8rem 1rem; border-radius:10px; margin-top:0.5rem; color:#0f172a; }
+  .badge { display:inline-block; padding:0.25rem 0.6rem; border-radius:999px; font-size:0.8rem; font-weight:700; }
+  .status-planejado { background:#e0f2fe; color:#1d4ed8; }
+  .status-andamento { background:#ecfeff; color:#0ea5e9; }
+  .status-risco { background:#fef9c3; color:#b45309; }
+  .status-bloqueado { background:#fee2e2; color:#b91c1c; }
+  .status-concluido { background:#dcfce7; color:#15803d; }
+  .status-backlog { background:#f8fafc; color:#475569; }
+  .status-fazendo { background:#e0f2fe; color:#1d4ed8; }
+  .status-pronto { background:#dcfce7; color:#15803d; }
+  .pill { background:#0ea5e91a; color:#0369a1; padding:0.4rem 0.7rem; border-radius:8px; font-weight:600; font-size:0.9rem; }
+  .muted { color:#475569; font-size:0.9rem; }
 
   .kpi { font-size:3.2rem; font-weight:900; color:var(--p); }
   .section-actions { display:flex; gap:0.75rem; flex-wrap:wrap; align-items:center; margin:1rem 0; }
@@ -156,36 +167,64 @@
       <div class="card">
         <h3>Nova Equipe</h3>
         <form id="formEquipe">
-          <input type="text" placeholder="Nome da equipe" required>
-          <input type="text" placeholder="Responsável" required>
-          <textarea placeholder="Membros (separados por vírgula)"></textarea>
+          <input name="nomeEquipe" type="text" placeholder="Nome da equipe" required>
+          <select id="equipeResponsavel" name="responsavelEquipe" required></select>
+          <textarea name="membrosEquipe" placeholder="Membros (separados por vírgula)"></textarea>
+          <input name="objetivoEquipe" type="text" placeholder="Objetivo / Escopo principal" required>
           <button type="submit" class="btn-salvar">Salvar Equipe</button>
         </form>
       </div>
       <div class="card">
         <h3>Novo Projeto</h3>
         <form id="formProjeto">
-          <input type="text" placeholder="Nome do projeto" required>
-          <select id="projetoEquipe" required></select>
-          <input type="date" required>
-          <select>
-            <option value="pendente">Pendente</option>
-            <option value="andamento">Em andamento</option>
-            <option value="concluido">Concluído</option>
-          </select>
+          <input name="nomeProjeto" type="text" placeholder="Nome do projeto" required>
+          <select id="projetoEquipe" name="equipeProjeto" required></select>
+          <select id="projetoResponsavel" name="responsavelProjeto" required></select>
+          <div class="grid-3" style="gap:0.5rem; grid-template-columns:repeat(auto-fit,minmax(200px,1fr));">
+            <input name="inicioProjeto" type="date" placeholder="Início" required>
+            <input name="prazoProjeto" type="date" placeholder="Prazo" required>
+            <select name="statusProjeto" required>
+              <option value="planejado">Planejado</option>
+              <option value="andamento">Em andamento</option>
+              <option value="risco">Em risco</option>
+              <option value="bloqueado">Bloqueado</option>
+              <option value="concluido">Concluído</option>
+            </select>
+            <select name="prioridadeProjeto" required>
+              <option value="baixa">Prioridade baixa</option>
+              <option value="media">Prioridade média</option>
+              <option value="alta">Prioridade alta</option>
+              <option value="critica">Crítica</option>
+            </select>
+            <input name="custoPrevisto" type="number" placeholder="Custo previsto" min="0" step="0.01" required>
+            <input name="custoReal" type="number" placeholder="Custo real" min="0" step="0.01" value="0">
+          </div>
+          <textarea name="entregaveisProjeto" placeholder="Entregáveis principais / Escopo"></textarea>
           <button type="submit" class="btn-salvar">Salvar Projeto</button>
         </form>
       </div>
       <div class="card">
         <h3>Nova Tarefa (Kanban)</h3>
         <form id="formTarefa">
-          <input type="text" placeholder="Título da tarefa" required>
-          <select id="tarefaProjeto" required></select>
-          <select>
-            <option value="backlog">Backlog</option>
-            <option value="fazendo">Fazendo</option>
-            <option value="pronto">Pronto</option>
-          </select>
+          <input name="tituloTarefa" type="text" placeholder="Título da tarefa" required>
+          <select id="tarefaProjeto" name="projetoTarefa" required></select>
+          <select id="tarefaResponsavel" name="responsavelTarefa" required></select>
+          <div class="grid-3" style="gap:0.5rem; grid-template-columns:repeat(auto-fit,minmax(180px,1fr));">
+            <input name="prazoTarefa" type="date" required>
+            <select name="statusTarefa" required>
+              <option value="backlog">Backlog</option>
+              <option value="fazendo">Fazendo</option>
+              <option value="bloqueado">Bloqueado</option>
+              <option value="pronto">Pronto</option>
+            </select>
+            <select name="prioridadeTarefa" required>
+              <option value="baixa">Baixa</option>
+              <option value="media">Média</option>
+              <option value="alta">Alta</option>
+              <option value="critica">Crítica</option>
+            </select>
+            <input name="custoTarefa" type="number" placeholder="Custo estimado" min="0" step="0.01">
+          </div>
           <button type="submit" class="btn-salvar">Adicionar Tarefa</button>
         </form>
       </div>
@@ -643,6 +682,42 @@ function formatarDataHora(valor) {
   return new Date(valor).toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' });
 }
 
+const LABEL_STATUS = {
+  planejado: 'Planejado',
+  andamento: 'Em andamento',
+  risco: 'Em risco',
+  bloqueado: 'Bloqueado',
+  concluido: 'Concluído',
+  backlog: 'Backlog',
+  fazendo: 'Fazendo',
+  pronto: 'Pronto'
+};
+
+function formatarData(valor) {
+  return valor ? new Date(valor).toLocaleDateString('pt-BR') : '—';
+}
+
+function formatarMoeda(valor) {
+  return `R$ ${Number(valor || 0).toFixed(2)}`;
+}
+
+function nomeUsuario(id) {
+  const user = DB.usuarios.find(u => u.id === Number(id));
+  return user ? `${user.nome} (@${user.usuario})` : '—';
+}
+
+function statusBadge(status) {
+  const label = LABEL_STATUS[status] || status;
+  return `<span class="badge status-${status}">${label}</span>`;
+}
+
+function progressoProjeto(projetoId) {
+  const tarefas = DB.tarefas.filter(t => t.projetoId === projetoId);
+  if (!tarefas.length) return '0%';
+  const feitas = tarefas.filter(t => t.status === 'pronto').length;
+  return `${Math.round((feitas / tarefas.length) * 100)}%`;
+}
+
 function atualizarLeitura() {
   const total = DB.familias.reduce((s, f) => s + f.qtd, 0);
   document.getElementById('paxTotal').textContent = total;
@@ -671,15 +746,45 @@ function atualizarLeitura() {
       DB.familias.map(f => [f.nome, `${f.qtd}`, f.cidade]),
       'Nenhum participante cadastrado.');
 
-  document.getElementById('equipes-lista').innerHTML = [
-    buildTable('Equipes', ['Equipe', 'Responsável', 'Membros'],
-      DB.equipes.map(eq => [eq.nome, eq.responsavel, eq.membros || '—']),
+  const totalProjetos = DB.projetos.length;
+  const projetosCriticos = DB.projetos.filter(p => ['risco', 'bloqueado'].includes(p.status)).length;
+  const tarefasAtrasadas = DB.tarefas.filter(t => t.prazo && new Date(t.prazo) < new Date() && t.status !== 'pronto').length;
+  const custoPrevistoTotal = DB.projetos.reduce((s, p) => s + (p.custoPrevisto || 0), 0);
+  const custoRealTotal = DB.projetos.reduce((s, p) => s + (p.custoReal || 0), 0);
+
+  const painelProjetos = `
+    <div class="grid-3">
+      <div class="card"><h3>Projetos ativos</h3><div class="kpi">${totalProjetos}</div><div class="muted">${projetosCriticos} com risco/bloqueio</div></div>
+      <div class="card"><h3>Tarefas atrasadas</h3><div class="kpi">${tarefasAtrasadas}</div><div class="muted">Priorize follow-up imediato</div></div>
+      <div class="card"><h3>Orçamento (previsto x real)</h3><div class="kpi">${formatarMoeda(custoPrevistoTotal)}</div><div class="muted">Realizado: ${formatarMoeda(custoRealTotal)}</div></div>
+    </div>`;
+
+  document.getElementById('equipes-lista').innerHTML = painelProjetos + [
+    buildTable('Equipes', ['Equipe', 'Responsável', 'Objetivo', 'Membros'],
+      DB.equipes.map(eq => [eq.nome, nomeUsuario(eq.responsavelId), eq.objetivo || '—', eq.membros || '—']),
       'Nenhuma equipe cadastrada.'),
-    buildTable('Projetos por equipe', ['Projeto', 'Equipe', 'Prazo', 'Status'],
-      DB.projetos.map(p => [p.nome, (DB.equipes.find(e => e.id === p.equipeId) || {}).nome || '—', p.prazo || '—', p.status]),
+    buildTable('Projetos por equipe', ['Projeto', 'Equipe', 'Responsável', 'Status', 'Início', 'Prazo', 'Progresso', 'Custo (prev/real)'],
+      DB.projetos.map(p => [
+        p.nome,
+        (DB.equipes.find(e => e.id === p.equipeId) || {}).nome || '—',
+        nomeUsuario(p.responsavelId),
+        statusBadge(p.status),
+        formatarData(p.inicio),
+        formatarData(p.prazo),
+        progressoProjeto(p.id),
+        `${formatarMoeda(p.custoPrevisto)} / ${formatarMoeda(p.custoReal)}`
+      ]),
       'Nenhum projeto cadastrado.'),
-    buildTable('Tarefas (Kanban)', ['Tarefa', 'Projeto', 'Status'],
-      DB.tarefas.map(t => [t.titulo, (DB.projetos.find(p => p.id === t.projetoId) || {}).nome || '—', t.status]),
+    buildTable('Tarefas (Kanban)', ['Tarefa', 'Projeto', 'Responsável', 'Prazo', 'Status', 'Prioridade', 'Custo'],
+      DB.tarefas.map(t => [
+        t.titulo,
+        (DB.projetos.find(p => p.id === t.projetoId) || {}).nome || '—',
+        nomeUsuario(t.responsavelId),
+        formatarData(t.prazo),
+        statusBadge(t.status),
+        (t.prioridade || '—').toUpperCase(),
+        t.custo ? formatarMoeda(t.custo) : '—'
+      ]),
       'Nenhuma tarefa registrada.')
   ].join('');
 
@@ -740,9 +845,13 @@ function atualizarLeitura() {
   `;
 }
 
-function setSelectOptions(selectId, items, labelFn) {
+function setSelectOptions(selectId, items, labelFn, vazioLabel = 'Cadastre itens primeiro') {
   const select = document.getElementById(selectId);
   if (!select) return;
+  if (!items.length) {
+    select.innerHTML = `<option value="" disabled selected>${vazioLabel}</option>`;
+    return;
+  }
   select.innerHTML = '<option value="" disabled selected>Selecione</option>' + items.map(i => `<option value="${i.id}">${labelFn(i)}</option>`).join('');
 }
 
@@ -761,8 +870,11 @@ function atualizarEdicao() {
       </div>`;
   };
 
-  setSelectOptions('projetoEquipe', DB.equipes, e => e.nome);
-  setSelectOptions('tarefaProjeto', DB.projetos, p => p.nome);
+  setSelectOptions('equipeResponsavel', DB.usuarios, u => `${u.nome} (@${u.usuario})`, 'Cadastre usuários em Conta & Segurança');
+  setSelectOptions('projetoResponsavel', DB.usuarios, u => `${u.nome} (@${u.usuario})`, 'Cadastre usuários em Conta & Segurança');
+  setSelectOptions('tarefaResponsavel', DB.usuarios, u => `${u.nome} (@${u.usuario})`, 'Cadastre usuários em Conta & Segurança');
+  setSelectOptions('projetoEquipe', DB.equipes, e => e.nome, 'Crie uma equipe primeiro');
+  setSelectOptions('tarefaProjeto', DB.projetos, p => p.nome, 'Cadastre um projeto primeiro');
   setSelectOptions('aprovacaoSolicitacao', DB.solicitacoes, s => `${s.item} (${s.qtd} un)`);
   setSelectOptions('pedidoAprovado', DB.aprovacoes, a => `${a.item} - R$ ${a.valor.toFixed(2)}`);
   const financeiroForm = document.getElementById('formFinanceiro');
@@ -776,14 +888,30 @@ function atualizarEdicao() {
     'Nenhum participante cadastrado.');
 
   document.getElementById('equipes-edicao').innerHTML = [
-    buildTable('Equipes', ['Equipe', 'Responsável', 'Membros', 'Ações'],
-      DB.equipes.map(eq => [eq.nome, eq.responsavel, eq.membros || '—', `<button class="btn-no btn-small" onclick="removerEquipe(${eq.id})">Excluir</button>`]),
+    buildTable('Equipes', ['Equipe', 'Responsável', 'Objetivo', 'Membros', 'Ações'],
+      DB.equipes.map(eq => [eq.nome, nomeUsuario(eq.responsavelId), eq.objetivo || '—', eq.membros || '—', `<button class="btn-no btn-small" onclick="removerEquipe(${eq.id})">Excluir</button>`]),
       'Nenhuma equipe cadastrada.'),
-    buildTable('Projetos', ['Projeto', 'Equipe', 'Status'],
-      DB.projetos.map(p => [p.nome, (DB.equipes.find(e => e.id === p.equipeId) || {}).nome || '—', p.status]),
+    buildTable('Projetos', ['Projeto', 'Equipe', 'Responsável', 'Prazo', 'Status', 'Custo', 'Ações'],
+      DB.projetos.map(p => [
+        p.nome,
+        (DB.equipes.find(e => e.id === p.equipeId) || {}).nome || '—',
+        nomeUsuario(p.responsavelId),
+        formatarData(p.prazo),
+        statusBadge(p.status),
+        `${formatarMoeda(p.custoPrevisto)} / ${formatarMoeda(p.custoReal)}`,
+        `<button class="btn-no btn-small" onclick="removerProjeto(${p.id})">Excluir</button>`
+      ]),
       'Nenhum projeto cadastrado.'),
-    buildTable('Tarefas', ['Tarefa', 'Projeto', 'Status'],
-      DB.tarefas.map(t => [t.titulo, (DB.projetos.find(p => p.id === t.projetoId) || {}).nome || '—', t.status]),
+    buildTable('Tarefas', ['Tarefa', 'Projeto', 'Responsável', 'Prazo', 'Status', 'Custo', 'Ações'],
+      DB.tarefas.map(t => [
+        t.titulo,
+        (DB.projetos.find(p => p.id === t.projetoId) || {}).nome || '—',
+        nomeUsuario(t.responsavelId),
+        formatarData(t.prazo),
+        statusBadge(t.status),
+        t.custo ? formatarMoeda(t.custo) : '—',
+        `<button class="btn-no btn-small" onclick="removerTarefa(${t.id})">Excluir</button>`
+      ]),
       'Nenhuma tarefa registrada.')
   ].join('');
 
@@ -846,26 +974,61 @@ document.getElementById('formFamilia').onsubmit = e => {
 
 document.getElementById('formEquipe').onsubmit = e => {
   e.preventDefault();
-  const [nome, responsavel, membros] = [e.target[0].value, e.target[1].value, e.target[2].value];
-  DB.equipes.push({ id: Date.now(), nome, responsavel, membros });
+  const data = new FormData(e.target);
+  const responsavelId = data.get('responsavelEquipe');
+  if (!responsavelId) return alert('Vincule a equipe a um usuário responsável.');
+  DB.equipes.push({
+    id: Date.now(),
+    nome: data.get('nomeEquipe'),
+    responsavelId: Number(responsavelId),
+    membros: data.get('membrosEquipe'),
+    objetivo: data.get('objetivoEquipe')
+  });
   e.target.reset();
   atualizarLeitura(); atualizarEdicao(); salvar();
 };
 
 document.getElementById('formProjeto').onsubmit = e => {
   e.preventDefault();
-  const [nome, equipeId, prazo, status] = [e.target[0].value, e.target[1].value, e.target[2].value, e.target[3].value];
+  const data = new FormData(e.target);
+  const equipeId = data.get('equipeProjeto');
+  const responsavelId = data.get('responsavelProjeto');
   if (!equipeId) return alert('Selecione uma equipe para vincular o projeto.');
-  DB.projetos.push({ id: Date.now(), nome, equipeId: Number(equipeId), prazo, status });
+  if (!responsavelId) return alert('Defina um responsável (usuário) para o projeto.');
+  DB.projetos.push({
+    id: Date.now(),
+    nome: data.get('nomeProjeto'),
+    equipeId: Number(equipeId),
+    responsavelId: Number(responsavelId),
+    inicio: data.get('inicioProjeto'),
+    prazo: data.get('prazoProjeto'),
+    status: data.get('statusProjeto'),
+    prioridade: data.get('prioridadeProjeto'),
+    custoPrevisto: Number(data.get('custoPrevisto') || 0),
+    custoReal: Number(data.get('custoReal') || 0),
+    entregaveis: data.get('entregaveisProjeto')
+  });
   e.target.reset();
   atualizarLeitura(); atualizarEdicao(); salvar();
 };
 
 document.getElementById('formTarefa').onsubmit = e => {
   e.preventDefault();
-  const [titulo, projetoId, status] = [e.target[0].value, e.target[1].value, e.target[2].value];
+  const data = new FormData(e.target);
+  const projetoId = data.get('projetoTarefa');
+  const responsavelId = data.get('responsavelTarefa');
   if (!projetoId) return alert('Selecione um projeto para a tarefa.');
-  DB.tarefas.push({ id: Date.now(), titulo, projetoId: Number(projetoId), status });
+  if (!responsavelId) return alert('Atribua a tarefa a um usuário responsável.');
+  DB.tarefas.push({
+    id: Date.now(),
+    titulo: data.get('tituloTarefa'),
+    projetoId: Number(projetoId),
+    responsavelId: Number(responsavelId),
+    prazo: data.get('prazoTarefa'),
+    status: data.get('statusTarefa'),
+    prioridade: data.get('prioridadeTarefa'),
+    custo: Number(data.get('custoTarefa') || 0)
+  });
   e.target.reset();
   atualizarLeitura(); atualizarEdicao(); salvar();
 };
@@ -890,6 +1053,8 @@ document.getElementById('formCentro').onsubmit = e => { e.preventDefault(); cons
 
 window.removerFamilia = id => { DB.familias = DB.familias.filter(f=>f.id!==id); atualizarLeitura(); atualizarEdicao(); salvar(); };
 window.removerEquipe = id => { DB.equipes = DB.equipes.filter(e=>e.id!==id); DB.projetos = DB.projetos.filter(p=>p.equipeId!==id); DB.tarefas = DB.tarefas.filter(t=>DB.projetos.some(p=>p.id===t.projetoId)); atualizarLeitura(); atualizarEdicao(); salvar(); };
+window.removerProjeto = id => { DB.projetos = DB.projetos.filter(p=>p.id!==id); DB.tarefas = DB.tarefas.filter(t=>t.projetoId!==id); atualizarLeitura(); atualizarEdicao(); salvar(); };
+window.removerTarefa = id => { DB.tarefas = DB.tarefas.filter(t=>t.id!==id); atualizarLeitura(); atualizarEdicao(); salvar(); };
 window.removerOnibus = id => { DB.onibus = DB.onibus.filter(o=>o.id!==id); atualizarLeitura(); atualizarEdicao(); salvar(); };
 window.removerVoo = id => { DB.voos = DB.voos.filter(v=>v.id!==id); atualizarLeitura(); atualizarEdicao(); salvar(); };
 window.removerQuarto = id => { DB.quartos = DB.quartos.filter(q=>q.id!==id); atualizarLeitura(); atualizarEdicao(); salvar(); };
