@@ -602,13 +602,43 @@
         <h3>Novo Projeto</h3>
         <form id="formProjeto">
           <input name="nomeProjeto" type="text" placeholder="Nome do projeto" required>
-          <select id="projetoEquipe" name="projetoEquipe" required></select>
-          <input name="prazoProjeto" type="date" lang="pt-BR" required>
-          <select name="statusProjeto">
-            <option value="pendente">Pendente</option>
-            <option value="andamento">Em andamento</option>
-            <option value="concluido">Concluído</option>
-          </select>
+
+          <label>Equipe responsável
+            <select id="projetoEquipe" name="projetoEquipe"></select>
+          </label>
+
+          <label>Responsável principal
+            <select id="projetoResponsavel" name="projetoResponsavel"></select>
+          </label>
+
+          <div class="field-row">
+            <label>Data de início
+              <input name="inicioProjeto" type="date" required>
+            </label>
+            <label>Data de término
+              <input name="fimProjeto" type="date" required>
+            </label>
+          </div>
+
+          <label>Status inicial
+            <select name="statusProjeto">
+              <option value="planejado">Planejado</option>
+              <option value="andamento">Em andamento</option>
+              <option value="concluido">Concluído</option>
+              <option value="atrasado">Atrasado</option>
+            </select>
+          </label>
+
+          <label>Orçamento previsto
+            <input name="orcamentoProjeto" type="number" min="0" step="0.01" placeholder="0,00">
+          </label>
+
+          <textarea name="descricaoProjeto" placeholder="Descrição detalhada do projeto"></textarea>
+
+          <label>Imagem de capa
+            <input type="file" name="capaProjeto" accept="image/*">
+          </label>
+
           <button type="submit" class="btn-salvar">Salvar Projeto</button>
         </form>
       </div>
@@ -1212,6 +1242,7 @@ const DB = {
   familias: [],
   missionarios: [],
   equipePessoas: [],
+  pessoas: [],
   preletores: [],
   convidados: [],
   pastores: [],
@@ -1230,6 +1261,7 @@ const DB = {
   palestras: [],
   kids: [],
   anexos: [],
+  arquivos: [],
   custosProjetos: [],
   marcos: [],
   notificacoesProjetos: [],
@@ -1242,6 +1274,8 @@ const DB = {
   respostasPersonalizadas: [],
   financeiro: { orcado: 0, realizado: 0, centros: [] }
 };
+
+DB.arquivos = DB.anexos;
 
 function formatarDataBr(valor) {
   if (!valor) return '—';
@@ -1510,32 +1544,42 @@ function renderCamposFilhos(qtd = 0) {
   }
 }
 
+// ==============================
+// KANBAN - DRAG & DROP
+// ==============================
 function habilitarKanbanDrag() {
   const board = document.getElementById('kanbanBoard');
   if (!board) return;
-  const itens = board.querySelectorAll('.kanban-item');
-  itens.forEach(card => {
+
+  board.querySelectorAll('.kanban-item').forEach(card => {
+    card.draggable = true;
+
     card.addEventListener('dragstart', e => {
-      e.dataTransfer.setData('text/plain', card.dataset.id);
+      e.dataTransfer.setData('id', card.dataset.id);
       card.classList.add('arrastando');
     });
+
     card.addEventListener('dragend', () => card.classList.remove('arrastando'));
   });
 
   board.querySelectorAll('.kanban-col').forEach(col => {
-    col.addEventListener('dragover', e => { e.preventDefault(); col.classList.add('drop-target'); });
+    col.addEventListener('dragover', e => {
+      e.preventDefault();
+      col.classList.add('drop-target');
+    });
+
     col.addEventListener('dragleave', () => col.classList.remove('drop-target'));
+
     col.addEventListener('drop', e => {
       e.preventDefault();
       col.classList.remove('drop-target');
-      const id = Number(e.dataTransfer.getData('text/plain'));
+
+      const id = Number(e.dataTransfer.getData('id'));
       const tarefa = DB.tarefas.find(t => t.id === id);
-      if (!tarefa) return;
       tarefa.status = col.dataset.status;
-      registrarLog('mover_tarefa', { tarefa: tarefa.titulo, status: tarefa.status });
-      renderAnaliseMacroProjetos();
-      renderPainelProjetos();
+
       salvar();
+      renderPainelProjetos();
     });
   });
 }
@@ -2035,26 +2079,9 @@ function inicializarSubtabs() {
   ativar(tabs[0].dataset.subview);
 }
 
-function inicializarTabsProjetos() {
-  const tabs = Array.from(document.querySelectorAll('[data-projeto-tab]'));
-  const views = Array.from(document.querySelectorAll('.projeto-view'));
-  if (!tabs.length || !views.length) return;
-  const ativar = alvo => {
-    views.forEach(v => v.classList.toggle('active', v.id === `tab-${alvo}`));
-    tabs.forEach(t => t.classList.toggle('active', t.dataset.projetoTab === alvo));
-  };
-  tabs.forEach(tab => tab.addEventListener('click', () => ativar(tab.dataset.projetoTab)));
-  ativar(tabs[0].dataset.projetoTab);
-
-  const selectProjeto = document.getElementById('projetoSelect');
-  if (selectProjeto) {
-    selectProjeto.addEventListener('change', () => {
-      projetoSelecionadoId = Number(selectProjeto.value);
-      atualizarLeitura();
-    });
-  }
-}
-
+// ==============================
+// EQUIPES - FUNÇÕES
+// ==============================
 function inicializarPaineisEquipes() {
   const toggle = document.getElementById('equipesPainelToggle');
   const panes = Array.from(document.querySelectorAll('.equipes-pane'));
@@ -2086,6 +2113,88 @@ function inicializarPainelEditorEquipes() {
   });
 
   aplicar(aberto);
+}
+
+function renderEquipesTabela() {
+  const alvo = document.getElementById('equipesTabela');
+  if (!alvo) return;
+  const linhas = DB.equipes.map(eq => {
+    const projetosEquipe = DB.projetos.filter(p => p.equipeId === eq.id);
+    const tarefasEquipe = DB.tarefas.filter(t => projetosEquipe.some(p => p.id === t.projetoId));
+    const proximas = tarefasEquipe.filter(t => t.prazo).sort((a, b) => (parseDataLivre(a.prazo)?.getTime() || 0) - (parseDataLivre(b.prazo)?.getTime() || 0))[0];
+    return `<tr><td><strong>${eq.nome}</strong><br><small>${eq.responsavel}</small></td><td>${eq.membros || 'Sem membros'}</td><td>${projetosEquipe.length} projetos</td><td>${tarefasEquipe.length} tarefas</td><td>${proximas ? formatarDataBr(proximas.prazo) : 'Sem prazo'}</td></tr>`;
+  }).join('');
+  alvo.innerHTML = `
+    <h3>Equipes e responsabilidade</h3>
+    <p class="caption">Organize a hierarquia: primeiro equipes, depois projetos e tarefas.</p>
+    <div class="table-scroll">
+      <table class="macro-table">
+        <thead><tr><th>Equipe</th><th>Membros</th><th>Projetos</th><th>Tarefas</th><th>Próximo prazo</th></tr></thead>
+        <tbody>${linhas || '<tr><td colspan="5">Cadastre equipes para visualizar a tabela.</td></tr>'}</tbody>
+      </table>
+    </div>`;
+}
+
+// ==============================
+// PROJETOS - FUNÇÕES
+// ==============================
+function inicializarTabsProjetos() {
+  const tabs = Array.from(document.querySelectorAll('[data-projeto-tab]'));
+  const views = Array.from(document.querySelectorAll('.projeto-view'));
+  if (!tabs.length || !views.length) return;
+  const ativar = alvo => {
+    views.forEach(v => v.classList.toggle('active', v.id === `tab-${alvo}`));
+    tabs.forEach(t => t.classList.toggle('active', t.dataset.projetoTab === alvo));
+  };
+  tabs.forEach(tab => tab.addEventListener('click', () => ativar(tab.dataset.projetoTab)));
+  ativar(tabs[0].dataset.projetoTab);
+
+  const selectProjeto = document.getElementById('projetoSelect');
+  if (selectProjeto) {
+    selectProjeto.addEventListener('change', () => {
+      projetoSelecionadoId = Number(selectProjeto.value);
+      atualizarLeitura();
+    });
+  }
+}
+
+function obterProjetoAtual() {
+  if (!DB.projetos.length) return null;
+  if (!projetoSelecionadoId || !DB.projetos.some(p => p.id === projetoSelecionadoId)) {
+    projetoSelecionadoId = DB.projetos[0].id;
+  }
+  return DB.projetos.find(p => p.id === projetoSelecionadoId) || null;
+}
+
+function indicadorStatus(status) {
+  if (status === 'concluido') return { label: 'Concluído', classe: 'status-concluido' };
+  if (status === 'andamento') return { label: 'Em andamento', classe: 'status-andamento' };
+  if (status === 'planejado') return { label: 'Planejado', classe: '' };
+  if (status === 'atrasado') return { label: 'Atrasado', classe: 'status-atrasado' };
+  if (status === 'pendente') return { label: 'Pendente', classe: '' };
+  return { label: status || 'Sem status', classe: '' };
+}
+
+function selecionarProjeto(id) {
+  projetoSelecionadoId = id;
+  const select = document.getElementById('projetoSelect');
+  if (select) select.value = String(id);
+  renderPainelProjetos();
+}
+
+function calcularIndicadoresProjeto(projeto) {
+  const tarefas = DB.tarefas.filter(t => t.projetoId === projeto.id);
+  const concluidas = tarefas.filter(t => t.status === 'pronto').length;
+  const progresso = tarefas.length ? Math.round((concluidas / tarefas.length) * 100) : 0;
+  const pendentes = tarefas.filter(t => t.status !== 'pronto').length;
+  const proximas = tarefas
+    .filter(t => t.prazo)
+    .sort((a, b) => (parseDataLivre(a.prazo)?.getTime() || 0) - (parseDataLivre(b.prazo)?.getTime() || 0))
+    .slice(0, 2);
+  const custos = DB.custosProjetos.filter(c => c.projetoId === projeto.id);
+  const orcado = custos.reduce((s, c) => s + c.previsto, 0);
+  const realizado = custos.reduce((s, c) => s + c.realizado, 0);
+  return { tarefas, concluidas, progresso, pendentes, proximas, orcado, realizado };
 }
 
 function inicializarTabelaParticipantes() {
@@ -2670,6 +2779,9 @@ function selecionarProjeto(id) {
   renderPainelProjetos();
 }
 
+// ==============================
+// TAREFAS - FUNÇÕES
+// ==============================
 function renderListaTarefas(tarefas, projetoId) {
   if (!tarefas.length) return '<div class="card">Nenhuma tarefa cadastrada para este projeto.</div>';
   const linhas = tarefas.map(t => {
@@ -2860,24 +2972,51 @@ function renderGanttGeral() {
   alvo.innerHTML = faixa.conteudo;
 }
 
-function renderEquipesTabela() {
-  const alvo = document.getElementById('equipesTabela');
-  if (!alvo) return;
-  const linhas = DB.equipes.map(eq => {
-    const projetosEquipe = DB.projetos.filter(p => p.equipeId === eq.id);
-    const tarefasEquipe = DB.tarefas.filter(t => projetosEquipe.some(p => p.id === t.projetoId));
-    const proximas = tarefasEquipe.filter(t => t.prazo).sort((a, b) => (parseDataLivre(a.prazo)?.getTime() || 0) - (parseDataLivre(b.prazo)?.getTime() || 0))[0];
-    return `<tr><td><strong>${eq.nome}</strong><br><small>${eq.responsavel}</small></td><td>${eq.membros || 'Sem membros'}</td><td>${projetosEquipe.length} projetos</td><td>${tarefasEquipe.length} tarefas</td><td>${proximas ? formatarDataBr(proximas.prazo) : 'Sem prazo'}</td></tr>`;
-  }).join('');
-  alvo.innerHTML = `
-    <h3>Equipes e responsabilidade</h3>
-    <p class="caption">Organize a hierarquia: primeiro equipes, depois projetos e tarefas.</p>
-    <div class="table-scroll">
-      <table class="macro-table">
-        <thead><tr><th>Equipe</th><th>Membros</th><th>Projetos</th><th>Tarefas</th><th>Próximo prazo</th></tr></thead>
-        <tbody>${linhas || '<tr><td colspan="5">Cadastre equipes para visualizar a tabela.</td></tr>'}</tbody>
-      </table>
-    </div>`;
+// ==============================
+// UPLOAD & ARQUIVOS
+// ==============================
+function renderArquivosDoProjeto(projeto) {
+  const painel = document.getElementById('painelArquivos');
+  if (!painel) return;
+  painel.innerHTML = '';
+
+  const arquivos = DB.arquivos.filter(a => a.projetoId === projeto.id);
+
+  if (!arquivos.length) {
+    painel.innerHTML = '<p class="caption">Nenhum arquivo enviado.</p>';
+    return;
+  }
+
+  painel.innerHTML = arquivos.map(a => `
+    <div class="card file-card">
+      <strong>${a.nome}</strong>
+      <small>${a.tipo} • ${a.tamanho}</small>
+      <small>Enviado por ${a.dono} em ${formatarDataBr(a.data)}</small>
+    </div>
+  `).join('');
+}
+
+// ==============================
+// CRONOGRAMA / GANTT
+// ==============================
+function renderCronogramaDoProjeto(projeto) {
+  const painel = document.getElementById('painelCronograma');
+  if (!painel) return;
+  painel.innerHTML = '';
+
+  const marcos = DB.marcos.filter(m => m.projetoId === projeto.id);
+
+  if (!marcos.length) {
+    painel.innerHTML = '<p class="caption">Nenhum marco cadastrado.</p>';
+    return;
+  }
+
+  painel.innerHTML = marcos.map(m => `
+    <div class="timeline-item">
+      <strong>${m.titulo}</strong>
+      <small>${formatarDataBr(m.data)}</small>
+    </div>
+  `).join('');
 }
 
 function renderMarcosGerais() {
@@ -2892,6 +3031,71 @@ function renderMarcosGerais() {
     const projeto = DB.projetos.find(p => p.id === m.projetoId);
     return `<div class="timeline-item"><div><strong>${m.titulo}</strong><br><small>${formatarDataBr(m.data)} · ${m.tipo || 'Marco'} · ${projeto ? projeto.nome : 'Projeto não definido'}</small></div><span class="pill">Resp.: ${m.responsavel || 'Definir'}</span></div>`;
   }).join('');
+}
+
+function renderFinanceiroDoProjeto(projeto) {
+  const painel = document.getElementById('painelFinanceiro');
+  if (!painel) return;
+  painel.innerHTML = '';
+
+  const custos = DB.custosProjetos.filter(c => c.projetoId === projeto.id);
+
+  if (!custos.length) {
+    painel.innerHTML = '<p class="caption">Nenhum custo cadastrado.</p>';
+    return;
+  }
+
+  const totalPrevisto = custos.reduce((s, c) => s + (c.previsto || 0), 0);
+  const totalRealizado = custos.reduce((s, c) => s + (c.realizado || 0), 0);
+
+  painel.innerHTML = `
+    <div class="kpi-grid">
+      <div class="kpi-card"><strong>R$ ${totalPrevisto.toFixed(2)}</strong><small>Previsto</small></div>
+      <div class="kpi-card"><strong>R$ ${totalRealizado.toFixed(2)}</strong><small>Realizado</small></div>
+    </div>
+
+    <div class="macro-table-wrapper">
+      <table class="macro-table">
+        <thead><tr><th>Categoria</th><th>Previsto</th><th>Realizado</th></tr></thead>
+        <tbody>
+          ${custos.map(c => `
+            <tr>
+              <td>${c.categoria}</td>
+              <td>R$ ${c.previsto.toFixed(2)}</td>
+              <td>R$ ${c.realizado.toFixed(2)}</td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+    </div>
+  `;
+}
+
+function renderEquipeDoProjeto(projeto) {
+  const painel = document.getElementById('painelEquipe');
+  if (!painel) return;
+
+  const equipe = DB.equipes.find(e => e.id === projeto.equipeId);
+  if (!equipe) {
+    painel.innerHTML = '<p class="caption">Nenhuma equipe vinculada.</p>';
+    return;
+  }
+
+  const membros = (equipe.membros || '').split(',').map(s => s.trim()).filter(Boolean);
+
+  painel.innerHTML = `
+    <div class="card">
+      <h4>Responsável principal</h4>
+      <p>${projeto.responsavel || 'Não definido'}</p>
+    </div>
+
+    <div class="card">
+      <h4>Membros da equipe</h4>
+      <ul>
+        ${membros.map(m => `<li>${m}</li>`).join('')}
+      </ul>
+    </div>
+  `;
 }
 
 function renderPainelProjetos() {
@@ -2922,13 +3126,14 @@ function renderPainelProjetos() {
 
   if (selectProjeto) selectProjeto.value = String(projeto.id);
   const equipe = DB.equipes.find(e => e.id === projeto.equipeId);
+  const prazoProjeto = projeto.fim || projeto.prazo;
   const statusInfo = indicadorStatus(projeto.status);
   headerTitulo.textContent = projeto.nome;
   if (statusBadge) {
     statusBadge.textContent = statusInfo.label;
     statusBadge.className = `status-badge ${statusInfo.classe}`.trim();
   }
-  if (prazoBadge) prazoBadge.textContent = projeto.prazo ? `Prazo: ${formatarDataBr(projeto.prazo)}` : 'Prazo não definido';
+  if (prazoBadge) prazoBadge.textContent = prazoProjeto ? `Prazo: ${formatarDataBr(prazoProjeto)}` : 'Prazo não definido';
   if (equipeBadge) equipeBadge.textContent = equipe ? `Equipe: ${equipe.nome}` : 'Equipe não atribuída';
 
   const { tarefas, progresso, pendentes, proximas, orcado, realizado } = calcularIndicadoresProjeto(projeto);
@@ -2997,66 +3202,13 @@ function renderPainelProjetos() {
         </div>`).join('') : '<p class="caption">Nada aqui ainda.</p>';
       return `<div class="kanban-col" data-status="${col.chave}"><h4>${col.titulo} <span class="pill">${itens.length}</span></h4>${cards}</div>`;
     }).join('');
-    habilitarKanbanDrag();
   }
 
-  if (painelEquipe) {
-    const equipeMembros = (equipe?.membros || '').split(',').map(s => s.trim()).filter(Boolean);
-    painelEquipe.innerHTML = `
-      <div class="card">
-        <h3>Responsável</h3>
-        <p class="caption">${equipe ? equipe.responsavel : 'Definir'}</p>
-      </div>
-      <div class="card card-full">
-        <h3>Distribuição de tarefas</h3>
-        <div class="field-row">
-          ${equipeMembros.length ? equipeMembros.map(m => {
-            const carga = tarefas.filter(t => (t.responsavel || '').toLowerCase().includes(m.toLowerCase())).length;
-            return `<div class="pill">${m} • ${carga} tarefa(s)</div>`;
-          }).join('') : '<p class="caption">Adicione membros para acompanhar a carga.</p>'}
-        </div>
-      </div>`;
-  }
-
-  if (painelArquivos) {
-    const anexos = DB.anexos.filter(a => a.projetoId === projeto.id);
-    painelArquivos.innerHTML = anexos.length ? anexos.map(a => `
-      <div class="arquivo-card">
-        <div>
-          <strong>${a.nome}</strong><br>
-          <span class="arquivo-meta">${a.tipo} • ${a.tamanho || '—'} • ${formatarDataBr(a.data)}${a.tarefaId ? ` • Tarefa ${a.tarefaId}` : ''}</span>
-        </div>
-        <span class="pill">${a.dono}</span>
-      </div>`).join('') : '<div class="card">Nenhum arquivo anexado.</div>';
-  }
-
-  if (painelFinanceiro) {
-    const centros = DB.custosProjetos.filter(c => c.projetoId === projeto.id);
-    painelFinanceiro.innerHTML = `
-      <div class="financeiro-grid">
-        <div class="card"><h3>Orçado</h3><strong>${formatarMoedaBr(orcado)}</strong><p class="caption">Planejado por categorias.</p></div>
-        <div class="card"><h3>Realizado</h3><strong>${formatarMoedaBr(realizado)}</strong><p class="caption">Atualize sempre que um custo for confirmado.</p></div>
-        <div class="card"><h3>Saldo</h3><strong>${formatarMoedaBr(orcado - realizado)}</strong><p class="caption">Controle para evitar estouros.</p></div>
-      </div>
-      <div class="card card-full">
-        <h3>Centros de custo</h3>
-        <div class="field-row">
-          ${centros.length ? centros.map(c => `<div class="pill">${c.categoria}: ${formatarMoedaBr(c.realizado)} / ${formatarMoedaBr(c.previsto)}</div>`).join('') : '<p class="caption">Nenhum centro cadastrado.</p>'}
-        </div>
-      </div>`;
-  }
-
-  if (painelCronograma) {
-    const marcos = DB.marcos.filter(m => m.projetoId === projeto.id).sort((a, b) => (parseDataLivre(a.data)?.getTime() || 0) - (parseDataLivre(b.data)?.getTime() || 0));
-    painelCronograma.innerHTML = marcos.length ? `<p class="caption">Linha do tempo / Gantt simplificado</p><div class="timeline">${marcos.map(m => `
-      <div class="timeline-item">
-        <div>
-          <strong>${m.titulo}</strong><br>
-          <small>${formatarDataBr(m.data)} · ${m.tipo || 'Marco'}</small>
-        </div>
-        <span class="pill">Resp.: ${m.responsavel || 'Definir'}</span>
-      </div>`).join('')}</div>` : '<div class="card">Nenhum marco cadastrado.</div>';
-  }
+  renderEquipeDoProjeto(projeto);
+  renderArquivosDoProjeto(projeto);
+  renderFinanceiroDoProjeto(projeto);
+  renderCronogramaDoProjeto(projeto);
+  habilitarKanbanDrag();
 }
 
 function abrirDetalheTarefa(id) {
@@ -3515,6 +3667,7 @@ function atualizarEdicao() {
   };
 
   setSelectOptions('projetoEquipe', DB.equipes, e => e.nome);
+  setSelectOptions('projetoResponsavel', DB.pessoas, p => p.nome);
   setSelectOptions('tarefaProjeto', DB.projetos, p => p.nome);
   setSelectOptions('aprovacaoSolicitacao', DB.solicitacoes, s => `${s.item} (${s.qtd} un)`);
   setSelectOptions('pedidoAprovado', DB.aprovacoes, a => `${a.item} - R$ ${a.valor.toFixed(2)}`);
@@ -3801,10 +3954,27 @@ document.getElementById('formProjeto').onsubmit = e => {
   const fd = new FormData(e.target);
   const nome = fd.get('nomeProjeto');
   const equipeId = fd.get('projetoEquipe');
-  const prazo = normalizarDataIso(fd.get('prazoProjeto'));
+  const responsavel = fd.get('projetoResponsavel');
+  const inicio = normalizarDataIso(fd.get('inicioProjeto'));
+  const fim = normalizarDataIso(fd.get('fimProjeto'));
   const status = fd.get('statusProjeto');
+  const orcamento = Number(fd.get('orcamentoProjeto')) || 0;
+  const descricao = fd.get('descricaoProjeto');
+  const capa = fd.get('capaProjeto');
   if (!equipeId) return alert('Selecione uma equipe para vincular o projeto.');
-  DB.projetos.push({ id: Date.now(), nome, equipeId: Number(equipeId), prazo, status });
+  DB.projetos.push({
+    id: Date.now(),
+    nome,
+    equipeId: Number(equipeId),
+    responsavel,
+    inicio,
+    fim,
+    prazo: fim,
+    status,
+    orcamento,
+    descricao,
+    capa: capa?.name || ''
+  });
   e.target.reset();
   atualizarLeitura(); atualizarEdicao(); salvar();
 };
