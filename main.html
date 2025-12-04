@@ -1,4 +1,3 @@
-<? function include(filename) { return HtmlService.createHtmlOutputFromFile(filename).getContent(); } ?>
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -288,23 +287,955 @@
   </ul>
 </nav>
 
-  <div class="container">
-  <main>
+<div class="container">
+<main>
 
-    <!-- SPA modularizado: cada módulo vem de um include do GAS -->
-    <?!= include('conta'); ?>
-    <?!= include('dashboard'); ?>
-    <?!= include('equipes'); ?>
-    <?!= include('participantes'); ?>
-    <?!= include('transporte'); ?>
-    <?!= include('alojamento'); ?>
-    <?!= include('cronograma'); ?>
-    <?!= include('cardapio'); ?>
-    <?!= include('compras'); ?>
-    <?!= include('palestras'); ?>
-    <?!= include('kids'); ?>
-    <?!= include('financeiro'); ?>
+<!-- CONTA -->
+<section id="conta" class="view active">
+  <div class="card">
+    <h2>Conta do Usuário</h2>
+    <p id="contaDescricao">Cadastre um usuário para acessar as edições. Todas as ações são registradas em log em formato JSON e os dados são mantidos somente durante a sessão atual.</p>
 
+    <div id="acoesConta" class="section-actions">
+      <button type="button" class="btn-salvar" data-modo-conta="cadastro">Criar nova conta</button>
+      <button type="button" class="btn-secondary" data-modo-conta="login">Já tenho conta</button>
+    </div>
+
+    <div id="blocoCadastro" class="card">
+      <h3>Novo cadastro</h3>
+      <form id="formCadastro">
+        <input type="text" placeholder="Nome completo" required>
+        <input type="email" placeholder="E-mail" required>
+        <input type="text" placeholder="Usuário" required>
+        <input type="password" placeholder="Senha" required>
+        <button type="submit" class="btn-salvar">Registrar</button>
+      </form>
+    </div>
+
+    <div id="blocoLogin" class="card hidden">
+      <h3>Login</h3>
+      <form id="formLogin">
+        <input type="text" placeholder="Usuário" required>
+        <input type="password" placeholder="Senha" required>
+        <div class="section-actions">
+          <button type="submit" class="btn-secondary">Entrar</button>
+          <button type="button" id="btnLogout" class="btn-no hidden">Sair</button>
+        </div>
+      </form>
+    </div>
+
+    <div id="blocoSessao" class="card hidden">
+      <h3>Dados da sessão</h3>
+      <div id="sessaoUsuario" class="pill">Nenhum usuário autenticado</div>
+      <div id="perfilSelecionado"></div>
+      <div class="section-actions" id="acoesSessao"></div>
+    </div>
+  </div>
+  <div class="modo-edicao" id="usuariosCard">
+    <h3>Usuários cadastrados</h3>
+    <div id="usuariosLista"></div>
+  </div>
+  <div class="modo-leitura" id="logCard">
+    <h3>Log de alterações</h3>
+    <div id="logAlteracoes"></div>
+  </div>
+</section>
+
+<!-- DASHBOARD -->
+<section id="dashboard" class="view">
+  <div class="modo-leitura">
+    <h2>Dashboard Executivo</h2>
+    <div class="grid-3">
+      <div class="card"><h3>Participantes</h3><div class="kpi" id="paxTotal">0</div></div>
+      <div class="card"><h3>Ônibus</h3><div class="kpi" id="onibusTotal">0</div></div>
+      <div class="card"><h3>Voos</h3><div class="kpi" id="voosTotal">0</div></div>
+      <div class="card"><h3>Quartos Ocupados</h3><div class="kpi" id="quartosInfo">0 / 0</div></div>
+      <div class="card"><h3>Orçado</h3><div class="kpi">R$ <span id="orcado">0,00</span></div></div>
+      <div class="card"><h3>Realizado</h3><div class="kpi">R$ <span id="realizado">0,00</span></div></div>
+    </div>
+  </div>
+
+  <div class="modo-edicao">
+    <h2>Editar Dashboard</h2>
+    <p>Os dados são atualizados automaticamente com base nos cadastros.</p>
+  </div>
+</section>
+
+<!-- EQUIPES E PROJETOS -->
+<section id="equipes" class="view">
+  <div class="modo-leitura">
+    <div class="view-toggle" id="equipesPainelToggle">
+      <button type="button" class="active" data-pane="macroPane">Dashboard macro</button>
+      <button type="button" data-pane="projetoPane">Projeto selecionado</button>
+      <button type="button" data-pane="equipesPane">Equipes e Gantt geral</button>
+    </div>
+
+    <div class="acoes-compactas" aria-label="Painel de cadastros de equipes e projetos">
+      <button type="button" class="btn-ghost" id="toggleEditorEquipes" aria-expanded="false">Mostrar cadastros (equipes, projetos, tarefas)</button>
+      <span class="caption">Oculto por padrão; abra somente quando precisar registrar algo.</span>
+    </div>
+
+    <div id="macroPane" class="equipes-pane active">
+      <div class="macro-wrap">
+        <div class="card" id="macroProjetos"></div>
+        <div class="macro-panel" id="macroComplemento"></div>
+      </div>
+      <div class="gantt-wrapper" id="ganttGeralWrapper">
+        <h3>Gantt geral dos projetos</h3>
+        <p class="caption">Visualize rapidamente como os projetos se distribuem na linha do tempo.</p>
+        <div class="gantt-board" id="ganttGeral"></div>
+      </div>
+    </div>
+
+    <div id="projetoPane" class="equipes-pane">
+      <div class="projeto-hero">
+        <div>
+          <p class="caption">Painel de projetos</p>
+          <h2 id="projetoTitulo">Selecione um projeto</h2>
+          <div class="hero-meta">
+            <span class="status-badge" id="projetoStatusBadge">Sem status</span>
+            <span class="pill" id="projetoPrazoBadge">Prazo não definido</span>
+          </div>
+        </div>
+        <div class="stacked" style="min-width:220px;">
+          <label class="caption">Alternar projeto</label>
+          <select id="projetoSelect"></select>
+          <span class="pill" id="projetoEquipeBadge">Equipe não atribuída</span>
+        </div>
+      </div>
+
+      <div class="acoes-compactas" aria-label="Ações rápidas de projeto">
+        <button type="button" onclick="abrirTarefaModal('self')">+ Tarefa para mim</button>
+        <button type="button" onclick="abrirTarefaModal('membro')">+ Tarefa para equipe</button>
+        <button type="button" class="btn-ghost" onclick="abrirAnexoModal()">Anexar evidência/nota</button>
+        <button type="button" class="btn-ghost" onclick="abrirCustoModal()">Vincular custo</button>
+        <span class="caption">Abra somente o que precisa: detalhes e formulários aparecem sob demanda.</span>
+      </div>
+
+      <div class="kpi-grid" id="projetoIndicadores"></div>
+
+      <div class="subnav projeto-tabs" id="projetoTabNav">
+        <button type="button" class="subtab active" data-projeto-tab="resumo">Visão geral</button>
+        <button type="button" class="subtab" data-projeto-tab="tarefas">Tarefas</button>
+        <button type="button" class="subtab" data-projeto-tab="equipe">Equipe</button>
+        <button type="button" class="subtab" data-projeto-tab="arquivos">Arquivos & Anexos</button>
+        <button type="button" class="subtab" data-projeto-tab="financeiro">Financeiro</button>
+        <button type="button" class="subtab" data-projeto-tab="cronograma">Cronograma</button>
+        <button type="button" class="subtab" data-projeto-tab="kanban">Kanban - status tarefas</button>
+      </div>
+
+      <div class="projeto-view active" id="tab-resumo">
+        <div class="section-grid" id="resumoGeral"></div>
+      </div>
+
+      <div class="projeto-view" id="tab-tarefas">
+        <div class="table-group">
+          <div class="table-controls">
+            <button type="button" class="btn-secondary btn-small" onclick="abrirTarefaModal('membro')">+ Nova tarefa</button>
+            <button type="button" class="btn-ghost btn-small" onclick="abrirTarefaModal('self')">+ Para mim</button>
+          </div>
+          <div class="table-scroll" id="tarefasLista"></div>
+        </div>
+      </div>
+
+      <div class="projeto-view" id="tab-equipe">
+        <div class="section-grid" id="painelEquipe"></div>
+      </div>
+
+      <div class="projeto-view" id="tab-arquivos">
+        <div class="section-grid" id="painelArquivos"></div>
+      </div>
+
+      <div class="projeto-view" id="tab-financeiro">
+        <div class="section-grid" id="painelFinanceiro"></div>
+      </div>
+
+      <div class="projeto-view" id="tab-cronograma">
+        <div class="section-grid" id="painelCronograma"></div>
+      </div>
+
+      <div class="projeto-view" id="tab-kanban">
+        <div class="kanban-board" id="kanbanBoard"></div>
+      </div>
+    </div>
+
+    <div id="equipesPane" class="equipes-pane">
+      <div class="card" id="equipesTabela"></div>
+      <div class="gantt-wrapper">
+        <h3>Calendário geral de marcos</h3>
+        <p class="caption">Veja todos os marcos e entregas em um único fluxo.</p>
+        <div class="timeline" id="marcosGerais"></div>
+      </div>
+    </div>
+
+    <div id="tarefaOverlay" class="detalhe-overlay hidden">
+      <div class="modal-shell">
+        <button class="detalhe-fechar" onclick="fecharOverlay('tarefaOverlay')">✕</button>
+        <h3>Nova tarefa rápida</h3>
+        <p class="caption">Escolha o projeto, selecione uma pessoa já cadastrada e defina prazo e prioridade.</p>
+        <form id="formTarefaModal">
+          <label>Projeto
+            <select id="modalProjeto" name="modalProjeto"></select>
+          </label>
+          <label>Título da tarefa
+            <input name="titulo" type="text" required placeholder="Ex: Solicitar orçamento para refeições">
+          </label>
+          <div class="field-row">
+            <label>Responsável
+              <select id="modalResponsavel" name="modalResponsavel" required></select>
+            </label>
+            <label>Prazo
+              <input name="prazo" type="date" lang="pt-BR" required>
+            </label>
+          </div>
+          <div class="field-row">
+            <label>Prioridade
+              <select name="prioridade">
+                <option value="alta">Alta</option>
+                <option value="media" selected>Média</option>
+                <option value="baixa">Baixa</option>
+              </select>
+            </label>
+            <label>Status inicial
+              <select name="status">
+                <option value="backlog">A fazer</option>
+                <option value="fazendo">Em progresso</option>
+                <option value="pronto">Concluído</option>
+              </select>
+            </label>
+          </div>
+          <textarea name="detalhes" placeholder="Observações, necessidades ou anexos esperados"></textarea>
+          <div class="detalhe-acoes">
+            <button type="button" class="btn-cancelar" onclick="fecharOverlay('tarefaOverlay')">Cancelar</button>
+            <button type="submit" class="btn-salvar">Salvar tarefa</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <div id="anexoOverlay" class="detalhe-overlay hidden">
+      <div class="modal-shell">
+        <button class="detalhe-fechar" onclick="fecharOverlay('anexoOverlay')">✕</button>
+        <h3>Anexar evidência ou nota</h3>
+        <p class="caption">Relacione arquivos a um projeto ou tarefa existente.</p>
+        <form id="formAnexoModal">
+          <label>Projeto
+            <select id="modalProjetoAnexo" name="modalProjetoAnexo"></select>
+          </label>
+          <label>Tarefa (opcional)
+            <select id="modalTarefaAnexo" name="modalTarefaAnexo"></select>
+          </label>
+          <label>Descrição do arquivo
+            <input name="descricao" type="text" required placeholder="Ex: Orçamento do fornecedor X">
+          </label>
+          <label>Upload
+            <input type="file" id="modalArquivoAnexo" name="arquivo" accept="image/*,application/pdf,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet">
+          </label>
+          <div class="field-row">
+            <label>Tipo
+              <select name="tipo">
+                <option>PDF</option>
+                <option>Imagem</option>
+                <option>Planilha</option>
+                <option>Recibo</option>
+              </select>
+            </label>
+            <label>Tamanho
+              <input name="tamanho" type="text" placeholder="1.2 MB">
+            </label>
+          </div>
+          <textarea name="observacao" placeholder="O que este arquivo comprova ou libera?"></textarea>
+          <div class="detalhe-acoes">
+            <button type="button" class="btn-cancelar" onclick="fecharOverlay('anexoOverlay')">Cancelar</button>
+            <button type="submit" class="btn-salvar">Salvar anexo</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <div id="custoOverlay" class="detalhe-overlay hidden">
+      <div class="modal-shell">
+        <button class="detalhe-fechar" onclick="fecharOverlay('custoOverlay')">✕</button>
+        <h3>Vincular custo ao plano</h3>
+        <p class="caption">Somente abra quando precisar informar um gasto ou estimativa ligada a uma tarefa.</p>
+        <form id="formCustoModal">
+          <label>Projeto
+            <select id="modalProjetoCusto" name="modalProjetoCusto"></select>
+          </label>
+          <label>Tarefa relacionada (opcional)
+            <select id="modalTarefaCusto" name="modalTarefaCusto"></select>
+          </label>
+          <div class="field-row">
+            <label>Categoria
+              <input name="categoria" type="text" required placeholder="Ex: Alimentação, Hospedagem">
+            </label>
+            <label>Valor realizado
+              <input name="valor" type="number" min="0" step="0.01" required>
+            </label>
+          </div>
+          <textarea name="justificativa" placeholder="Justifique o gasto ou descreva o plano de ação sem custo."></textarea>
+          <div class="detalhe-acoes">
+            <button type="button" class="btn-cancelar" onclick="fecharOverlay('custoOverlay')">Cancelar</button>
+            <button type="submit" class="btn-salvar">Registrar custo</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <div id="detalheTarefaOverlay" class="detalhe-overlay hidden">
+      <div class="modal-shell">
+        <button class="detalhe-fechar" onclick="fecharOverlay('detalheTarefaOverlay')">✕</button>
+        <div id="detalheTarefaConteudo"></div>
+      </div>
+    </div>
+  </div>
+  <div class="modo-edicao hidden" id="painelEditorEquipes">
+    <h2>Gerenciar Equipes e Projetos</h2>
+    <div class="section-actions">
+      <button type="button" class="btn-secondary" onclick="toggleFormCard('cardNovaEquipe')">+ Nova equipe</button>
+      <button type="button" class="btn-secondary" onclick="toggleFormCard('cardNovoProjeto')">+ Novo projeto</button>
+      <button type="button" class="btn-secondary" onclick="toggleFormCard('cardNovaTarefa')">+ Nova tarefa (kanban)</button>
+      <span class="caption">Formulários ficam ocultos e só aparecem quando chamados.</span>
+    </div>
+    <div class="grid-3">
+      <div class="card hidden" id="cardNovaEquipe">
+        <h3>Nova Equipe</h3>
+        <form id="formEquipe">
+          <input name="nomeEquipe" type="text" placeholder="Nome da equipe" required>
+          <input name="responsavelEquipe" type="text" placeholder="Responsável" required>
+          <textarea name="membrosEquipe" placeholder="Membros (separados por vírgula)"></textarea>
+          <button type="submit" class="btn-salvar">Salvar Equipe</button>
+        </form>
+      </div>
+      <div class="card hidden" id="cardNovoProjeto">
+        <h3>Novo Projeto</h3>
+        <form id="formProjeto">
+          <input name="nomeProjeto" type="text" placeholder="Nome do projeto" required>
+
+          <label>Equipe responsável
+            <select id="projetoEquipe" name="projetoEquipe"></select>
+          </label>
+
+          <label>Responsável principal
+            <select id="projetoResponsavel" name="projetoResponsavel"></select>
+          </label>
+
+          <div class="field-row">
+            <label>Data de início
+              <input name="inicioProjeto" type="date" required>
+            </label>
+            <label>Data de término
+              <input name="fimProjeto" type="date" required>
+            </label>
+          </div>
+
+          <label>Status inicial
+            <select name="statusProjeto">
+              <option value="planejado">Planejado</option>
+              <option value="andamento">Em andamento</option>
+              <option value="concluido">Concluído</option>
+              <option value="atrasado">Atrasado</option>
+            </select>
+          </label>
+
+          <label>Orçamento previsto
+            <input name="orcamentoProjeto" type="number" min="0" step="0.01" placeholder="0,00">
+          </label>
+
+          <textarea name="descricaoProjeto" placeholder="Descrição detalhada do projeto"></textarea>
+
+          <label>Imagem de capa
+            <input type="file" name="capaProjeto" accept="image/*">
+          </label>
+
+          <button type="submit" class="btn-salvar">Salvar Projeto</button>
+        </form>
+      </div>
+      <div class="card hidden" id="cardNovaTarefa">
+        <h3>Nova Tarefa (Kanban)</h3>
+        <form id="formTarefa">
+          <input name="tituloTarefa" type="text" placeholder="Título da tarefa" required>
+          <select id="tarefaProjeto" name="tarefaProjeto" required></select>
+          <input name="responsavelTarefa" type="text" placeholder="Responsável pela entrega" required>
+          <input name="prazoTarefa" type="date" lang="pt-BR" required>
+          <select name="prioridadeTarefa">
+            <option value="alta">Alta prioridade</option>
+            <option value="media" selected>Média prioridade</option>
+            <option value="baixa">Baixa prioridade</option>
+          </select>
+          <input name="etiquetaTarefa" type="text" placeholder="Etiqueta/Categoria (opcional)">
+          <select name="statusTarefa">
+            <option value="backlog">Backlog</option>
+            <option value="fazendo">Fazendo</option>
+            <option value="pronto">Pronto</option>
+          </select>
+          <button type="submit" class="btn-salvar">Adicionar Tarefa</button>
+        </form>
+      </div>
+    </div>
+    <div id="equipes-edicao"></div>
+  </div>
+</section>
+
+<!-- PARTICIPANTES -->
+<section id="participantes" class="view">
+  <div class="view-toggle" id="participantesToggle">
+    <button type="button" class="active" data-partview="cadastros">Cadastros</button>
+    <button type="button" data-partview="lista">Lista de inscritos</button>
+  </div>
+
+  <div class="modo-leitura hidden" id="participantes-lista">
+    <div class="totalizador">
+      <div>
+        <h2>Participantes Confirmados</h2>
+        <p class="caption">Escolha se quer buscar, filtrar ou ordenar. Clique em uma linha para ver detalhes.</p>
+      </div>
+      <span class="pill" id="participantesTotalizador">0 pessoas</span>
+    </div>
+    <div class="table-controls">
+      <input type="search" id="participantesBusca" placeholder="Buscar por nome, base, cidade...">
+      <select id="participantesFiltro">
+        <option value="todas">Todas as categorias</option>
+        <option value="Família missionária">Família missionária</option>
+        <option value="Equipe / Staff">Equipe / Staff</option>
+        <option value="Preletor">Preletor</option>
+        <option value="Convidado">Convidado</option>
+        <option value="Pastor">Pastor</option>
+      </select>
+      <span id="participantesTotal" class="caption"></span>
+    </div>
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th class="sortable" data-sort="categoria">Categoria <span>⇅</span></th>
+            <th class="sortable" data-sort="nome">Nome / Referência <span>⇅</span></th>
+            <th class="sortable" data-sort="base">Base / Igreja <span>⇅</span></th>
+            <th class="sortable" data-sort="origem">Origem <span>⇅</span></th>
+            <th class="sortable" data-sort="detalhe">Detalhe <span>⇅</span></th>
+          </tr>
+        </thead>
+        <tbody id="participantesTabela"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div id="participanteOverlay" class="detalhe-overlay hidden">
+    <div class="detalhe-shell">
+      <div id="participanteDetalhes" class="detalhe-card"></div>
+    </div>
+  </div>
+
+  <div class="modo-edicao" id="participantes-cadastros">
+    <h2>Cadastros de participantes</h2>
+    <p class="caption">Organize famílias missionárias, equipe de apoio, palestrantes, convidados e pastores com perguntas sob demanda.</p>
+
+    <div class="subnav" aria-label="Abas de participantes">
+      <button type="button" class="subtab active" data-subview="sub-missionarios">Família missionária</button>
+      <button type="button" class="subtab" data-subview="sub-equipe">Equipe / Staff</button>
+      <button type="button" class="subtab" data-subview="sub-preletores">Preletores</button>
+      <button type="button" class="subtab" data-subview="sub-convidados">Convidados</button>
+      <button type="button" class="subtab" data-subview="sub-pastores">Pastores</button>
+      <button type="button" class="subtab" data-subview="sub-complementar">Campos complementares</button>
+    </div>
+
+    <div class="section-grid subview active" id="sub-missionarios">
+      <div class="card card-full">
+        <h3>Família missionária</h3>
+        <p class="caption">Somente os campos necessários são exibidos. Confirme se há cônjuge e filhos antes de abrir os blocos.</p>
+        <form id="formMissionario" class="stacked">
+          <div class="field-row">
+            <input name="base" type="text" placeholder="Base missionária" required>
+            <input name="responsavel" type="text" placeholder="Nome completo do responsável" required>
+          </div>
+          <div class="field-row">
+            <label>Data de nascimento
+              <input name="nascimentoResponsavel" type="date" required>
+            </label>
+            <label>RG
+              <input name="rgResponsavel" type="text" placeholder="Documento" required>
+            </label>
+            <label>CPF
+              <input name="cpfResponsavel" type="text" placeholder="CPF" required>
+            </label>
+          </div>
+          <div class="field-row">
+            <label>Tamanho de camisa
+              <select name="camisaResponsavel" required>
+                <option value="">Selecione</option>
+                <option>P</option><option>M</option><option>G</option><option>GG</option><option>XG</option>
+              </select>
+            </label>
+            <label>Estado
+              <select name="estado" required>
+                <option value="">UF</option>
+                <option>AC</option><option>AL</option><option>AM</option><option>BA</option><option>CE</option>
+                <option>DF</option><option>ES</option><option>GO</option><option>MA</option><option>MG</option>
+                <option>MS</option><option>MT</option><option>PA</option><option>PB</option><option>PE</option>
+                <option>PI</option><option>PR</option><option>RJ</option><option>RN</option><option>RO</option>
+                <option>RR</option><option>RS</option><option>SC</option><option>SE</option><option>SP</option><option>TO</option>
+              </select>
+            </label>
+            <label>Município
+              <input name="municipio" type="text" placeholder="Cidade" required>
+            </label>
+          </div>
+          <div class="field-row">
+            <label>Casado?
+              <select id="casado" name="casado" required>
+                <option value="nao">Não</option>
+                <option value="sim">Sim</option>
+              </select>
+            </label>
+            <label>Filhos?
+              <select id="temFilhos" name="temFilhos" required>
+                <option value="nao">Não</option>
+                <option value="sim">Sim</option>
+              </select>
+            </label>
+          </div>
+
+          <div id="blocoConjuge" class="stacked hidden">
+            <h4>Cônjuge</h4>
+            <div class="field-row">
+              <input name="conjugeNome" type="text" placeholder="Nome completo do cônjuge">
+              <label>Data de nascimento
+                <input name="conjugeNascimento" type="date">
+              </label>
+              <label>RG
+                <input name="conjugeRg" type="text" placeholder="Documento">
+              </label>
+              <label>CPF
+                <input name="conjugeCpf" type="text" placeholder="CPF">
+              </label>
+            </div>
+            <label>Tamanho de camisa
+              <select name="conjugeCamisa">
+                <option value="">Selecione</option>
+                <option>P</option><option>M</option><option>G</option><option>GG</option><option>XG</option>
+              </select>
+            </label>
+          </div>
+
+          <div id="blocoFilhos" class="stacked hidden">
+            <div class="field-row">
+              <label>Quantos filhos irão para o evento?
+                <input id="quantosFilhos" name="quantosFilhos" type="number" min="1" value="1">
+              </label>
+            </div>
+            <div id="filhosContainer" class="stacked"></div>
+          </div>
+
+          <button type="submit" class="btn-salvar">Salvar família missionária</button>
+        </form>
+      </div>
+    </div>
+
+    <div class="section-grid subview" id="sub-equipe">
+      <div class="card">
+        <h3>Equipe / Staff</h3>
+        <form id="formEquipePessoa" class="stacked">
+          <input name="base" type="text" placeholder="Base / área" required>
+          <input name="nome" type="text" placeholder="Nome completo" required>
+          <div class="field-row">
+            <label>Data de nascimento
+              <input name="nascimento" type="date" required>
+            </label>
+            <label>RG
+              <input name="rg" type="text" placeholder="Documento" required>
+            </label>
+            <label>CPF
+              <input name="cpf" type="text" placeholder="CPF" required>
+            </label>
+          </div>
+          <label>Tamanho de camisa
+            <select name="camisa" required>
+              <option value="">Selecione</option>
+              <option>P</option><option>M</option><option>G</option><option>GG</option><option>XG</option>
+            </select>
+          </label>
+          <button type="submit" class="btn-salvar">Adicionar membro de equipe</button>
+        </form>
+      </div>
+    </div>
+
+    <div class="section-grid subview" id="sub-preletores">
+      <div class="card">
+        <h3>Preletores / Palestrantes</h3>
+        <form id="formPreletor" class="stacked">
+          <input name="nome" type="text" placeholder="Nome completo" required>
+          <label>Tamanho de camisa
+            <select name="camisa" required>
+              <option value="">Selecione</option>
+              <option>P</option><option>M</option><option>G</option><option>GG</option><option>XG</option>
+            </select>
+          </label>
+          <input name="tempo" type="text" placeholder="Tempo no evento (ex: 2 dias)" required>
+          <button type="submit" class="btn-salvar">Salvar palestrante</button>
+        </form>
+      </div>
+    </div>
+
+    <div class="section-grid subview" id="sub-convidados">
+      <div class="card">
+        <h3>Convidados</h3>
+        <form id="formConvidado" class="stacked">
+          <input name="nome" type="text" placeholder="Nome completo" required>
+          <label>Tamanho de camisa
+            <select name="camisa" required>
+              <option value="">Selecione</option>
+              <option>P</option><option>M</option><option>G</option><option>GG</option><option>XG</option>
+            </select>
+          </label>
+          <input name="tempo" type="text" placeholder="Tempo no evento (ex: 1 dia ou 1 refeição)">
+          <button type="submit" class="btn-salvar">Salvar convidado</button>
+        </form>
+      </div>
+    </div>
+
+    <div class="section-grid subview" id="sub-pastores">
+      <div class="card card-full">
+        <h3>Pastores das igrejas enviadoras</h3>
+        <form id="formPastor" class="stacked">
+          <div class="field-row">
+            <input name="igreja" type="text" placeholder="Igreja" required>
+            <label>UF
+              <select name="uf" required>
+                <option value="">UF</option>
+                <option>AC</option><option>AL</option><option>AM</option><option>BA</option><option>CE</option>
+                <option>DF</option><option>ES</option><option>GO</option><option>MA</option><option>MG</option>
+                <option>MS</option><option>MT</option><option>PA</option><option>PB</option><option>PE</option>
+                <option>PI</option><option>PR</option><option>RJ</option><option>RN</option><option>RO</option>
+                <option>RR</option><option>RS</option><option>SC</option><option>SE</option><option>SP</option><option>TO</option>
+              </select>
+            </label>
+            <input name="municipio" type="text" placeholder="Município" required>
+          </div>
+          <div class="field-row">
+            <input name="nome" type="text" placeholder="Nome completo" required>
+            <label>Telefone 1
+              <input name="tel1" type="tel" placeholder="(DDD)">
+            </label>
+            <label>Telefone 2
+              <input name="tel2" type="tel" placeholder="Opcional">
+            </label>
+          </div>
+          <div class="field-row">
+            <label>Data de nascimento
+              <input name="nascimento" type="date">
+            </label>
+            <label>RG
+              <input name="rg" type="text" placeholder="Documento">
+            </label>
+            <label>CPF
+              <input name="cpf" type="text" placeholder="CPF">
+            </label>
+          </div>
+          <div class="field-row">
+            <label>Tamanho de camisa
+              <select name="camisa" required>
+                <option value="">Selecione</option>
+                <option>P</option><option>M</option><option>G</option><option>GG</option><option>XG</option>
+              </select>
+            </label>
+            <label>Casado?
+              <select name="casado" id="pastorCasado">
+                <option value="nao">Não</option>
+                <option value="sim">Sim</option>
+              </select>
+            </label>
+          </div>
+          <div id="blocoConjugePastor" class="stacked hidden">
+            <h4>Cônjuge</h4>
+            <div class="field-row">
+              <input name="conjugeNome" type="text" placeholder="Nome completo do cônjuge">
+              <label>Data de nascimento
+                <input name="conjugeNascimento" type="date">
+              </label>
+              <label>RG
+                <input name="conjugeRg" type="text" placeholder="Documento">
+              </label>
+              <label>CPF
+                <input name="conjugeCpf" type="text" placeholder="CPF">
+              </label>
+            </div>
+            <label>Tamanho de camisa
+              <select name="conjugeCamisa">
+                <option value="">Selecione</option>
+                <option>P</option><option>M</option><option>G</option><option>GG</option><option>XG</option>
+              </select>
+            </label>
+          </div>
+          <button type="submit" class="btn-salvar">Salvar pastor</button>
+        </form>
+      </div>
+    </div>
+
+    <div class="section-grid subview" id="sub-complementar">
+      <div class="card card-full">
+        <h3>Campos personalizados (formulário complementar)</h3>
+        <p class="caption">Adicione perguntas de cuidado válidas para qualquer cadastro e registre respostas por participante ou família.</p>
+        <form id="formCampoPersonalizado" class="stacked">
+          <div class="field-row">
+            <input name="pergunta" type="text" placeholder="Nova pergunta" required>
+            <select name="tipo" required>
+              <option value="texto">Resposta em texto</option>
+              <option value="simnao">Sim/Não</option>
+              <option value="longo">Texto longo</option>
+            </select>
+            <input name="ajuda" type="text" placeholder="Observação (opcional)">
+          </div>
+          <button type="submit" class="btn-salvar">Adicionar campo personalizado</button>
+        </form>
+
+        <div id="listaCamposPersonalizados" class="stacked"></div>
+
+        <form id="formRespostasPersonalizadas" class="stacked">
+          <input name="referencia" type="text" placeholder="Para qual cadastro? Ex: Família Silva" required>
+          <div id="respostasDinamicas" class="stacked"></div>
+          <button type="submit" class="btn-salvar">Salvar formulário complementar</button>
+        </form>
+        <div id="listaRespostasPersonalizadas"></div>
+      </div>
+    </div>
+
+  </div>
+</section>
+<!-- TRANSPORTE -->
+<section id="transporte" class="view">
+  <div class="modo-leitura">
+    <h2>Transporte Organizado</h2>
+    <div id="leitura-transporte"></div>
+  </div>
+  <div class="modo-edicao">
+    <h2>Adicionar Transporte</h2>
+    <form id="formOnibus">
+      <input type="text" placeholder="Cidade de origem" required>
+      <input type="number" placeholder="Passageiros" required>
+      <input type="text" placeholder="Empresa/Motorista" required>
+      <input type="datetime-local" required>
+      <button type="submit" class="btn-salvar">Adicionar Ônibus</button>
+    </form>
+    <form id="formVoo" style="margin-top:1rem;">
+      <input type="text" placeholder="Passageiro" required>
+      <input type="text" placeholder="Voo (ex: G3 1234)" required>
+      <input type="datetime-local" required>
+      <button type="submit" class="btn-salvar">Adicionar Voo</button>
+    </form>
+    <div id="edicao-transporte"></div>
+  </div>
+</section>
+
+<!-- ALOJAMENTO -->
+<section id="alojamento" class="view">
+  <div class="modo-leitura">
+    <h2>Alojamentos</h2>
+    <p>Distribua as famílias em quartos usando o painel interativo abaixo.</p>
+    <div id="quartos-integrados">
+      <header>
+        <div>
+          <h3>Distribuição de Quartos (protótipo integrado)</h3>
+          <span>Conteúdo do quartos.html agora conectado às famílias cadastradas.</span>
+        </div>
+        <div class="badge">Mapa rápido</div>
+      </header>
+      <div class="qa-layout">
+        <section class="qa-panel" id="qaSpacesPanel">
+          <div class="qa-stack">
+            <h4>Espaços / prédios <small>Monte blocos para organizar os quartos.</small></h4>
+            <div class="qa-row">
+              <input id="qaSpaceName" type="text" class="qa-input" placeholder="Nome do espaço" />
+              <input id="qaSpaceColor" type="color" value="#c2412d" class="qa-input" style="width:70px; padding:0;" />
+            </div>
+            <button id="qaAddSpaceBtn" class="qa-btn primary">+ Adicionar espaço</button>
+            <div class="qa-space-list" id="qaSpaceList"></div>
+          </div>
+
+          <div class="qa-stack">
+            <h4>Quartos do espaço <small>Presets ou criação manual.</small></h4>
+            <div class="qa-row wrap">
+              <button class="qa-btn secondary small" data-qa-preset="casal">Casal (2)</button>
+              <button class="qa-btn secondary small" data-qa-preset="pequena">Família pequena (4)</button>
+              <button class="qa-btn secondary small" data-qa-preset="media">Família média (6)</button>
+              <button class="qa-btn secondary small" data-qa-preset="grande">Beliches grande (8)</button>
+            </div>
+            <div class="qa-row wrap">
+              <input id="qaRoomName" type="text" class="qa-input" placeholder="Nome / nº do quarto" style="flex:1" />
+              <input id="qaRoomCapacity" type="number" class="qa-input" min="1" value="4" style="width:90px" />
+            </div>
+            <small>Capacidade define a soma de camas; beliches usam 2 andares por padrão.</small>
+            <button id="qaAddRoomBtn" class="qa-btn primary">+ Adicionar quarto</button>
+          </div>
+        </section>
+
+        <section class="qa-panel" id="qaCanvasPanel">
+          <h4>Mapa do espaço selecionado <small>Arraste cartões para montar a planta.</small></h4>
+          <div class="qa-canvas" id="qaCanvas">
+            <div class="qa-label" id="qaCanvasLabel">Nenhum espaço selecionado</div>
+            <div class="qa-canvas-inner" id="qaCanvasInner"></div>
+          </div>
+        </section>
+
+        <section class="qa-panel" id="qaFamiliesPanel">
+          <h4>Famílias / participantes <small>Arraste para um quarto.</small></h4>
+          <div class="qa-family-search qa-stack">
+            <input type="text" id="qaFamilySearch" class="qa-input" placeholder="Buscar família" />
+            <span class="muted" id="qaFamilyCount"></span>
+          </div>
+          <div class="qa-family-list" id="qaFamilyList"></div>
+          <div class="qa-details" id="qaRoomDetails"></div>
+        </section>
+      </div>
+    </div>
+    <div id="leitura-alojamento"></div>
+  </div>
+</section>
+
+<!-- CRONOGRAMA -->
+<section id="cronograma" class="view">
+  <div class="modo-leitura">
+    <h2>Cronograma</h2>
+    <div id="cronograma-lista"></div>
+  </div>
+  <div class="modo-edicao">
+    <h2>Adicionar Atividade</h2>
+    <form id="formCronograma">
+      <input type="datetime-local" required>
+      <input type="text" placeholder="Atividade" required>
+      <input type="text" placeholder="Responsável" required>
+      <button type="submit" class="btn-salvar">Salvar Atividade</button>
+    </form>
+    <div id="cronograma-edicao"></div>
+  </div>
+</section>
+
+<!-- CARDÁPIO -->
+<section id="cardapio" class="view">
+  <div class="modo-leitura">
+    <h2>Cardápio e Compras Automáticas</h2>
+    <div id="cardapio-leitura"></div>
+  </div>
+  <div class="modo-edicao">
+    <h2>Planejar Refeição</h2>
+    <form id="formRefeicao">
+      <input type="date" required>
+      <select>
+        <option>Café</option>
+        <option>Almoço</option>
+        <option>Jantar</option>
+      </select>
+      <textarea placeholder="Cardápio detalhado" required></textarea>
+      <button type="submit" class="btn-salvar">Salvar Refeição</button>
+    </form>
+    <div id="cardapio-edicao"></div>
+  </div>
+</section>
+
+<!-- COMPRAS -->
+<section id="compras" class="view">
+  <div class="modo-leitura">
+    <h2>Solicitações, Aprovações e Pedidos</h2>
+    <div id="compras-leitura"></div>
+  </div>
+  <div class="modo-edicao">
+    <h2>Fluxo de Compras</h2>
+    <div class="grid-3">
+      <div class="card">
+        <h3>Solicitar Compra</h3>
+        <form id="formSolicitacao">
+          <input type="text" placeholder="Item" required>
+          <input type="number" placeholder="Quantidade" min="1" required>
+          <input type="text" placeholder="Centro de Custo" required>
+          <button type="submit" class="btn-salvar">Nova Solicitação</button>
+        </form>
+      </div>
+      <div class="card">
+        <h3>Aprovação Orçamentária</h3>
+        <form id="formAprovacao">
+          <select id="aprovacaoSolicitacao" required></select>
+          <input type="number" placeholder="Valor aprovado" min="0" step="0.01" required>
+          <button type="submit" class="btn-salvar">Aprovar</button>
+        </form>
+      </div>
+      <div class="card">
+        <h3>Registrar Pedido</h3>
+        <form id="formPedido">
+          <select id="pedidoAprovado" required></select>
+          <input type="text" placeholder="Fornecedor" required>
+          <button type="submit" class="btn-salvar">Registrar Pedido</button>
+        </form>
+      </div>
+    </div>
+    <div id="compras-edicao"></div>
+  </div>
+</section>
+
+<!-- PALESTRAS -->
+<section id="palestras" class="view">
+  <div class="modo-leitura">
+    <h2>Palestras</h2>
+    <div id="palestras-leitura"></div>
+  </div>
+  <div class="modo-edicao">
+    <h2>Programar Palestra</h2>
+    <form id="formPalestra">
+      <input type="datetime-local" required>
+      <input type="text" placeholder="Tema" required>
+      <input type="text" placeholder="Palestrante" required>
+      <button type="submit" class="btn-salvar">Salvar</button>
+    </form>
+    <div id="palestras-edicao"></div>
+  </div>
+</section>
+
+<!-- KIDS -->
+<section id="kids" class="view">
+  <div class="modo-leitura">
+    <h2>Programação Kids</h2>
+    <div id="kids-leitura"></div>
+  </div>
+  <div class="modo-edicao">
+    <h2>Adicionar Atividade Kids</h2>
+    <form id="formKids">
+      <input type="datetime-local" required>
+      <input type="text" placeholder="Atividade" required>
+      <input type="text" placeholder="Responsável" required>
+      <button type="submit" class="btn-salvar">Salvar</button>
+    </form>
+    <div id="kids-edicao"></div>
+  </div>
+</section>
+
+<!-- FINANCEIRO -->
+<section id="financeiro" class="view">
+  <div class="modo-leitura">
+    <h2>Financeiro</h2>
+    <div id="financeiro-leitura"></div>
+  </div>
+  <div class="modo-edicao">
+    <h2>Atualizar Financeiro</h2>
+    <div class="grid-3">
+      <div class="card">
+        <h3>Totais</h3>
+        <form id="formFinanceiro">
+          <input type="number" placeholder="Orçado" min="0" step="0.01" required>
+          <input type="number" placeholder="Realizado" min="0" step="0.01" required>
+          <button type="submit" class="btn-salvar">Salvar Totais</button>
+        </form>
+      </div>
+      <div class="card">
+        <h3>Novo Centro de Custo</h3>
+        <form id="formCentro">
+          <input type="text" placeholder="Centro" required>
+          <input type="number" placeholder="Orçado" min="0" step="0.01" required>
+          <input type="number" placeholder="Realizado" min="0" step="0.01" required>
+          <button type="submit" class="btn-salvar">Adicionar Centro</button>
+        </form>
+      </div>
+    </div>
+    <div id="financeiro-edicao"></div>
+  </div>
+</section>
 
 </main>
 </div>
