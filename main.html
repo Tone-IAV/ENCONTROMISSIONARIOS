@@ -1313,6 +1313,20 @@ function formatarMoedaBr(valor) {
   return numero.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 }
 
+function buildTable(titulo, headers, rows, vazio) {
+  const corpo = rows.length
+    ? rows.map(r => `<tr>${r.map(c => `<td>${c}</td>`).join('')}</tr>`).join('')
+    : `<tr><td colspan="${headers.length}">${vazio}</td></tr>`;
+  return `
+    <div class="table-group">
+      <h3>${titulo}</h3>
+      <table>
+        <thead><tr>${headers.map(h => `<th>${h}</th>`).join('')}</tr></thead>
+        <tbody>${corpo}</tbody>
+      </table>
+    </div>`;
+}
+
 const coresEspaco = ['#e0f2fe', '#ede9fe', '#dcfce7', '#fef9c3'];
 let mapaZoom = 1;
 let quartoSelecionadoId = null;
@@ -2182,21 +2196,6 @@ function selecionarProjeto(id) {
   renderPainelProjetos();
 }
 
-function calcularIndicadoresProjeto(projeto) {
-  const tarefas = DB.tarefas.filter(t => t.projetoId === projeto.id);
-  const concluidas = tarefas.filter(t => t.status === 'pronto').length;
-  const progresso = tarefas.length ? Math.round((concluidas / tarefas.length) * 100) : 0;
-  const pendentes = tarefas.filter(t => t.status !== 'pronto').length;
-  const proximas = tarefas
-    .filter(t => t.prazo)
-    .sort((a, b) => (parseDataLivre(a.prazo)?.getTime() || 0) - (parseDataLivre(b.prazo)?.getTime() || 0))
-    .slice(0, 2);
-  const custos = DB.custosProjetos.filter(c => c.projetoId === projeto.id);
-  const orcado = custos.reduce((s, c) => s + c.previsto, 0);
-  const realizado = custos.reduce((s, c) => s + c.realizado, 0);
-  return { tarefas, concluidas, progresso, pendentes, proximas, orcado, realizado };
-}
-
 function inicializarTabelaParticipantes() {
   const busca = document.getElementById('participantesBusca');
   const filtro = document.getElementById('participantesFiltro');
@@ -2571,20 +2570,6 @@ function atualizarLeitura() {
   document.getElementById('orcado').textContent = DB.financeiro.orcado.toFixed(2).replace('.', ',');
   document.getElementById('realizado').textContent = DB.financeiro.realizado.toFixed(2).replace('.', ',');
 
-  const buildTable = (titulo, headers, rows, vazio) => {
-    const corpo = rows.length
-      ? rows.map(r => `<tr>${r.map(c => `<td>${c}</td>`).join('')}</tr>`).join('')
-      : `<tr><td colspan="${headers.length}">${vazio}</td></tr>`;
-    return `
-      <div class="table-group">
-        <h3>${titulo}</h3>
-        <table>
-          <thead><tr>${headers.map(h => `<th>${h}</th>`).join('')}</tr></thead>
-          <tbody>${corpo}</tbody>
-        </table>
-      </div>`;
-  };
-
   renderPainelProjetos();
 
   document.getElementById('leitura-transporte').innerHTML = [
@@ -2755,28 +2740,6 @@ function preencherTarefasPorProjeto(selectId, projetoId = null) {
     || (obterProjetoAtual()?.id);
   const tarefas = projetoEscolhido ? DB.tarefas.filter(t => t.projetoId === projetoEscolhido) : [];
   select.innerHTML = '<option value="">Sem vínculo</option>' + tarefas.map(t => `<option value="${t.id}">${t.titulo}</option>`).join('');
-}
-
-function obterProjetoAtual() {
-  if (!DB.projetos.length) return null;
-  if (!projetoSelecionadoId || !DB.projetos.some(p => p.id === projetoSelecionadoId)) {
-    projetoSelecionadoId = DB.projetos[0].id;
-  }
-  return DB.projetos.find(p => p.id === projetoSelecionadoId) || null;
-}
-
-function indicadorStatus(status) {
-  if (status === 'concluido') return { label: 'Concluído', classe: 'status-concluido' };
-  if (status === 'andamento') return { label: 'Em andamento', classe: 'status-andamento' };
-  if (status === 'pendente') return { label: 'Pendente', classe: '' };
-  return { label: status || 'Sem status', classe: '' };
-}
-
-function selecionarProjeto(id) {
-  projetoSelecionadoId = id;
-  const select = document.getElementById('projetoSelect');
-  if (select) select.value = String(id);
-  renderPainelProjetos();
 }
 
 // ==============================
@@ -3652,20 +3615,6 @@ function salvarEdicaoDetalhe() {
 }
 
 function atualizarEdicao() {
-  const buildTable = (titulo, headers, rows, vazio) => {
-    const corpo = rows.length
-      ? rows.map(r => `<tr>${r.map(c => `<td>${c}</td>`).join('')}</tr>`).join('')
-      : `<tr><td colspan="${headers.length}">${vazio}</td></tr>`;
-    return `
-      <div class="table-group">
-        <h3>${titulo}</h3>
-        <table>
-          <thead><tr>${headers.map(h => `<th>${h}</th>`).join('')}</tr></thead>
-          <tbody>${corpo}</tbody>
-        </table>
-      </div>`;
-  };
-
   setSelectOptions('projetoEquipe', DB.equipes, e => e.nome);
   setSelectOptions('projetoResponsavel', DB.pessoas, p => p.nome);
   setSelectOptions('tarefaProjeto', DB.projetos, p => p.nome);
