@@ -187,24 +187,6 @@
   .macro-table { width:100%; border-collapse:collapse; margin-top:0.5rem; }
   .macro-table th, .macro-table td { padding:0.6rem 0.75rem; border-bottom:1px solid #e2e8f0; text-align:left; }
   .macro-table th { background:#f8fafc; font-size:0.92rem; }
-  .equipes-pane { display:none; flex-direction:column; gap:1rem; }
-  .equipes-pane.active { display:flex; }
-  .macro-wrap { display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); gap:1rem; align-items:start; }
-  .macro-panel { background:white; border-radius:12px; padding:1rem; box-shadow:0 10px 22px rgba(15,23,42,0.06); }
-  .macro-panel h3 { margin-bottom:0.35rem; }
-  .macro-legend { display:flex; gap:0.5rem; flex-wrap:wrap; margin-top:0.35rem; }
-  .macro-legend .pill { background:#e0f2fe; }
-  .gantt-wrapper { background:white; border:1px solid #e2e8f0; border-radius:12px; padding:1rem; box-shadow:0 10px 24px rgba(15,23,42,0.06); }
-  .gantt-board { display:flex; flex-direction:column; gap:0.75rem; }
-  .gantt-row { position:relative; padding:0.5rem 0.75rem 1.25rem; border:1px dashed #cbd5e1; border-radius:10px; background:#f8fafc; }
-  .gantt-row strong { display:block; margin-bottom:0.2rem; }
-  .gantt-scale { font-size:0.82rem; color:#475569; margin-bottom:0.45rem; display:flex; justify-content:space-between; }
-  .gantt-bar { position:absolute; height:12px; border-radius:999px; top:48px; box-shadow:0 4px 10px rgba(15,23,42,0.15); }
-  .gantt-bar span { position:absolute; top:-22px; left:0; font-size:0.82rem; background:#0f172a; color:white; padding:0.15rem 0.45rem; border-radius:8px; }
-  .gantt-bar.status-backlog { background:#cbd5e1; }
-  .gantt-bar.status-fazendo { background:#93c5fd; }
-  .gantt-bar.status-pronto { background:#86efac; }
-  .gantt-bar.status-marco { background:#fef3c7; }
   .projeto-tabs { margin:0.5rem 0 1rem; }
   .projeto-view { display:none; }
   .projeto-view.active { display:block; }
@@ -212,8 +194,6 @@
   .kanban-col { background:white; border-radius:12px; padding:0.9rem; box-shadow:0 10px 24px rgba(15,23,42,0.07); display:flex; flex-direction:column; gap:0.6rem; }
   .kanban-col h4 { display:flex; justify-content:space-between; align-items:center; font-size:1rem; }
   .kanban-item { border:1px solid #e2e8f0; border-radius:10px; padding:0.65rem 0.75rem; background:#f8fafc; display:flex; flex-direction:column; gap:0.35rem; }
-  .kanban-item.arrastando { opacity:0.75; }
-  .kanban-col.drop-target { outline:2px dashed #2563eb; }
   .kanban-tags { display:flex; gap:0.35rem; flex-wrap:wrap; }
   .tag { background:#e2e8f0; padding:0.2rem 0.65rem; border-radius:999px; font-size:0.85rem; }
   .tag.prioridade-alta { background:#fee2e2; color:#b91c1c; }
@@ -355,103 +335,76 @@
 <!-- EQUIPES E PROJETOS -->
 <section id="equipes" class="view">
   <div class="modo-leitura">
-    <div class="view-toggle" id="equipesPainelToggle">
-      <button type="button" class="active" data-pane="macroPane">Dashboard macro</button>
-      <button type="button" data-pane="projetoPane">Projeto selecionado</button>
-      <button type="button" data-pane="equipesPane">Equipes e Gantt geral</button>
-    </div>
+    <div class="card" id="macroProjetos"></div>
 
-    <div id="macroPane" class="equipes-pane active">
-      <div class="macro-wrap">
-        <div class="card" id="macroProjetos"></div>
-        <div class="macro-panel" id="macroComplemento"></div>
-      </div>
-      <div class="gantt-wrapper" id="ganttGeralWrapper">
-        <h3>Gantt geral dos projetos</h3>
-        <p class="caption">Visualize rapidamente como os projetos se distribuem na linha do tempo.</p>
-        <div class="gantt-board" id="ganttGeral"></div>
-      </div>
-    </div>
-
-    <div id="projetoPane" class="equipes-pane">
-      <div class="projeto-hero">
-        <div>
-          <p class="caption">Painel de projetos</p>
-          <h2 id="projetoTitulo">Selecione um projeto</h2>
-          <div class="hero-meta">
-            <span class="status-badge" id="projetoStatusBadge">Sem status</span>
-            <span class="pill" id="projetoPrazoBadge">Prazo não definido</span>
-          </div>
-        </div>
-        <div class="stacked" style="min-width:220px;">
-          <label class="caption">Alternar projeto</label>
-          <select id="projetoSelect"></select>
-          <span class="pill" id="projetoEquipeBadge">Equipe não atribuída</span>
+    <div class="projeto-hero">
+      <div>
+        <p class="caption">Painel de projetos</p>
+        <h2 id="projetoTitulo">Selecione um projeto</h2>
+        <div class="hero-meta">
+          <span class="status-badge" id="projetoStatusBadge">Sem status</span>
+          <span class="pill" id="projetoPrazoBadge">Prazo não definido</span>
         </div>
       </div>
-
-      <div class="acoes-compactas" aria-label="Ações rápidas de projeto">
-        <button type="button" onclick="abrirTarefaModal('self')">+ Tarefa para mim</button>
-        <button type="button" onclick="abrirTarefaModal('membro')">+ Tarefa para equipe</button>
-        <button type="button" class="btn-ghost" onclick="abrirAnexoModal()">Anexar evidência/nota</button>
-        <button type="button" class="btn-ghost" onclick="abrirCustoModal()">Vincular custo</button>
-        <span class="caption">Abra somente o que precisa: detalhes e formulários aparecem sob demanda.</span>
-      </div>
-
-      <div class="kpi-grid" id="projetoIndicadores"></div>
-
-      <div class="subnav projeto-tabs" id="projetoTabNav">
-        <button type="button" class="subtab active" data-projeto-tab="resumo">Visão geral</button>
-        <button type="button" class="subtab" data-projeto-tab="tarefas">Tarefas</button>
-        <button type="button" class="subtab" data-projeto-tab="equipe">Equipe</button>
-        <button type="button" class="subtab" data-projeto-tab="arquivos">Arquivos & Anexos</button>
-        <button type="button" class="subtab" data-projeto-tab="financeiro">Financeiro</button>
-        <button type="button" class="subtab" data-projeto-tab="cronograma">Cronograma</button>
-        <button type="button" class="subtab" data-projeto-tab="kanban">Kanban - status tarefas</button>
-      </div>
-
-      <div class="projeto-view active" id="tab-resumo">
-        <div class="section-grid" id="resumoGeral"></div>
-      </div>
-
-      <div class="projeto-view" id="tab-tarefas">
-        <div class="table-group">
-          <div class="table-controls">
-            <button type="button" class="btn-secondary btn-small" onclick="abrirTarefaModal('membro')">+ Nova tarefa</button>
-            <button type="button" class="btn-ghost btn-small" onclick="abrirTarefaModal('self')">+ Para mim</button>
-          </div>
-          <div class="table-scroll" id="tarefasLista"></div>
-        </div>
-      </div>
-
-      <div class="projeto-view" id="tab-equipe">
-        <div class="section-grid" id="painelEquipe"></div>
-      </div>
-
-      <div class="projeto-view" id="tab-arquivos">
-        <div class="section-grid" id="painelArquivos"></div>
-      </div>
-
-      <div class="projeto-view" id="tab-financeiro">
-        <div class="section-grid" id="painelFinanceiro"></div>
-      </div>
-
-      <div class="projeto-view" id="tab-cronograma">
-        <div class="section-grid" id="painelCronograma"></div>
-      </div>
-
-      <div class="projeto-view" id="tab-kanban">
-        <div class="kanban-board" id="kanbanBoard"></div>
+      <div class="stacked" style="min-width:220px;">
+        <label class="caption">Alternar projeto</label>
+        <select id="projetoSelect"></select>
+        <span class="pill" id="projetoEquipeBadge">Equipe não atribuída</span>
       </div>
     </div>
 
-    <div id="equipesPane" class="equipes-pane">
-      <div class="card" id="equipesTabela"></div>
-      <div class="gantt-wrapper">
-        <h3>Calendário geral de marcos</h3>
-        <p class="caption">Veja todos os marcos e entregas em um único fluxo.</p>
-        <div class="timeline" id="marcosGerais"></div>
+    <div class="acoes-compactas" aria-label="Ações rápidas de projeto">
+      <button type="button" onclick="abrirTarefaModal('self')">+ Tarefa para mim</button>
+      <button type="button" onclick="abrirTarefaModal('membro')">+ Tarefa para equipe</button>
+      <button type="button" class="btn-ghost" onclick="abrirAnexoModal()">Anexar evidência/nota</button>
+      <button type="button" class="btn-ghost" onclick="abrirCustoModal()">Vincular custo</button>
+      <span class="caption">Abra somente o que precisa: detalhes e formulários aparecem sob demanda.</span>
+    </div>
+
+    <div class="kpi-grid" id="projetoIndicadores"></div>
+
+    <div class="subnav projeto-tabs" id="projetoTabNav">
+      <button type="button" class="subtab active" data-projeto-tab="resumo">Visão geral</button>
+      <button type="button" class="subtab" data-projeto-tab="tarefas">Tarefas</button>
+      <button type="button" class="subtab" data-projeto-tab="equipe">Equipe</button>
+      <button type="button" class="subtab" data-projeto-tab="arquivos">Arquivos & Anexos</button>
+      <button type="button" class="subtab" data-projeto-tab="financeiro">Financeiro</button>
+      <button type="button" class="subtab" data-projeto-tab="cronograma">Cronograma</button>
+      <button type="button" class="subtab" data-projeto-tab="kanban">Kanban - status tarefas</button>
+    </div>
+
+    <div class="projeto-view active" id="tab-resumo">
+      <div class="section-grid" id="resumoGeral"></div>
+    </div>
+
+    <div class="projeto-view" id="tab-tarefas">
+      <div class="table-group">
+        <div class="table-controls">
+          <button type="button" class="btn-secondary btn-small" onclick="abrirTarefaModal('membro')">+ Nova tarefa</button>
+          <button type="button" class="btn-ghost btn-small" onclick="abrirTarefaModal('self')">+ Para mim</button>
+        </div>
+        <div class="table-scroll" id="tarefasLista"></div>
       </div>
+    </div>
+
+    <div class="projeto-view" id="tab-equipe">
+      <div class="section-grid" id="painelEquipe"></div>
+    </div>
+
+    <div class="projeto-view" id="tab-arquivos">
+      <div class="section-grid" id="painelArquivos"></div>
+    </div>
+
+    <div class="projeto-view" id="tab-financeiro">
+      <div class="section-grid" id="painelFinanceiro"></div>
+    </div>
+
+    <div class="projeto-view" id="tab-cronograma">
+      <div class="section-grid" id="painelCronograma"></div>
+    </div>
+
+    <div class="projeto-view" id="tab-kanban">
+      <div class="kanban-board" id="kanbanBoard"></div>
     </div>
 
     <div id="tarefaOverlay" class="detalhe-overlay hidden">
@@ -471,7 +424,7 @@
               <select id="modalResponsavel" name="modalResponsavel" required></select>
             </label>
             <label>Prazo
-              <input name="prazo" type="text" inputmode="numeric" placeholder="dd-mm-aaaa" required>
+              <input name="prazo" type="date" required>
             </label>
           </div>
           <div class="field-row">
@@ -513,9 +466,6 @@
           </label>
           <label>Descrição do arquivo
             <input name="descricao" type="text" required placeholder="Ex: Orçamento do fornecedor X">
-          </label>
-          <label>Upload
-            <input type="file" id="modalArquivoAnexo" name="arquivo" accept="image/*,application/pdf,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet">
           </label>
           <div class="field-row">
             <label>Tipo
@@ -598,7 +548,7 @@
         <form id="formProjeto">
           <input name="nomeProjeto" type="text" placeholder="Nome do projeto" required>
           <select id="projetoEquipe" name="projetoEquipe" required></select>
-          <input name="prazoProjeto" type="text" inputmode="numeric" placeholder="Prazo dd-mm-aaaa" required>
+          <input name="prazoProjeto" type="date" required>
           <select name="statusProjeto">
             <option value="pendente">Pendente</option>
             <option value="andamento">Em andamento</option>
@@ -613,7 +563,7 @@
           <input name="tituloTarefa" type="text" placeholder="Título da tarefa" required>
           <select id="tarefaProjeto" name="tarefaProjeto" required></select>
           <input name="responsavelTarefa" type="text" placeholder="Responsável pela entrega" required>
-          <input name="prazoTarefa" type="text" inputmode="numeric" placeholder="Prazo dd-mm-aaaa" required>
+          <input name="prazoTarefa" type="date" required>
           <select name="prioridadeTarefa">
             <option value="alta">Alta prioridade</option>
             <option value="media" selected>Média prioridade</option>
@@ -1238,42 +1188,6 @@ const DB = {
   financeiro: { orcado: 0, realizado: 0, centros: [] }
 };
 
-function formatarDataBr(valor) {
-  if (!valor) return '—';
-  const d = parseDataLivre(valor);
-  if (!d) return valor;
-  const dia = String(d.getDate()).padStart(2, '0');
-  const mes = String(d.getMonth() + 1).padStart(2, '0');
-  const ano = d.getFullYear();
-  return `${dia}-${mes}-${ano}`;
-}
-
-function parseDataLivre(valor) {
-  if (!valor) return null;
-  if (valor instanceof Date) return isNaN(valor) ? null : valor;
-  const limpo = String(valor).replace(/\//g, '-');
-  const partes = limpo.split('-');
-  let ano, mes, dia;
-  if (partes.length === 3 && partes[0].length === 2) {
-    [dia, mes, ano] = partes;
-  } else if (partes.length === 3) {
-    [ano, mes, dia] = partes;
-  }
-  const data = ano && mes && dia ? new Date(Number(ano), Number(mes) - 1, Number(dia)) : new Date(valor);
-  return isNaN(data) ? null : data;
-}
-
-function normalizarDataIso(valor) {
-  const d = parseDataLivre(valor);
-  if (!d) return '';
-  return d.toISOString().split('T')[0];
-}
-
-function formatarMoedaBr(valor) {
-  const numero = Number(valor) || 0;
-  return numero.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-}
-
 const coresEspaco = ['#e0f2fe', '#ede9fe', '#dcfce7', '#fef9c3'];
 let mapaZoom = 1;
 let quartoSelecionadoId = null;
@@ -1503,36 +1417,6 @@ function renderCamposFilhos(qtd = 0) {
       </label>`;
     container.appendChild(bloco);
   }
-}
-
-function habilitarKanbanDrag() {
-  const board = document.getElementById('kanbanBoard');
-  if (!board) return;
-  const itens = board.querySelectorAll('.kanban-item');
-  itens.forEach(card => {
-    card.addEventListener('dragstart', e => {
-      e.dataTransfer.setData('text/plain', card.dataset.id);
-      card.classList.add('arrastando');
-    });
-    card.addEventListener('dragend', () => card.classList.remove('arrastando'));
-  });
-
-  board.querySelectorAll('.kanban-col').forEach(col => {
-    col.addEventListener('dragover', e => { e.preventDefault(); col.classList.add('drop-target'); });
-    col.addEventListener('dragleave', () => col.classList.remove('drop-target'));
-    col.addEventListener('drop', e => {
-      e.preventDefault();
-      col.classList.remove('drop-target');
-      const id = Number(e.dataTransfer.getData('text/plain'));
-      const tarefa = DB.tarefas.find(t => t.id === id);
-      if (!tarefa) return;
-      tarefa.status = col.dataset.status;
-      registrarLog('mover_tarefa', { tarefa: tarefa.titulo, status: tarefa.status });
-      renderAnaliseMacroProjetos();
-      renderPainelProjetos();
-      salvar();
-    });
-  });
 }
 
 function toggleBlocosFamilia() {
@@ -2050,18 +1934,6 @@ function inicializarTabsProjetos() {
   }
 }
 
-function inicializarPaineisEquipes() {
-  const toggle = document.getElementById('equipesPainelToggle');
-  const panes = Array.from(document.querySelectorAll('.equipes-pane'));
-  if (!toggle || !panes.length) return;
-  const ativar = alvo => {
-    panes.forEach(p => p.classList.toggle('active', p.id === alvo));
-    toggle.querySelectorAll('button').forEach(btn => btn.classList.toggle('active', btn.dataset.pane === alvo));
-  };
-  toggle.querySelectorAll('button').forEach(btn => btn.addEventListener('click', () => ativar(btn.dataset.pane)));
-  ativar('macroPane');
-}
-
 function inicializarTabelaParticipantes() {
   const busca = document.getElementById('participantesBusca');
   const filtro = document.getElementById('participantesFiltro');
@@ -2291,14 +2163,13 @@ function salvarTarefaRapida(e) {
   const editId = e.target.dataset.editarId;
   const projetoId = Number(fd.get('projeto') || fd.get('modalProjeto')) || Number(document.getElementById('modalProjeto')?.value);
   if (!projetoId) return alert('Escolha um projeto.');
-  const prazoNormalizado = normalizarDataIso(fd.get('prazo'));
   if (editId) {
     const tarefa = DB.tarefas.find(t => String(t.id) === String(editId));
     if (tarefa) {
       tarefa.projetoId = projetoId;
       tarefa.titulo = fd.get('titulo');
       tarefa.responsavel = fd.get('responsavel') || fd.get('modalResponsavel');
-      tarefa.prazo = prazoNormalizado;
+      tarefa.prazo = fd.get('prazo');
       tarefa.prioridade = fd.get('prioridade');
       tarefa.etiqueta = fd.get('etiqueta') || tarefa.etiqueta;
       tarefa.status = fd.get('status') || fd.get('novoStatus') || tarefa.status;
@@ -2309,7 +2180,7 @@ function salvarTarefaRapida(e) {
       projetoId,
       titulo: fd.get('titulo'),
       responsavel: fd.get('responsavel') || fd.get('modalResponsavel'),
-      prazo: prazoNormalizado,
+      prazo: fd.get('prazo'),
       prioridade: fd.get('prioridade'),
       etiqueta: fd.get('etiqueta') || 'Demanda',
       status: fd.get('status') || fd.get('novoStatus') || 'backlog',
@@ -2351,17 +2222,14 @@ function salvarAnexoModal(e) {
   e.preventDefault();
   const fd = new FormData(e.target);
   const projetoId = Number(fd.get('modalProjetoAnexo')) || projetoSelecionadoId;
-  const arquivo = fd.get('arquivo');
-  const nomeArquivo = fd.get('descricao') || (arquivo && arquivo.name) || 'Anexo';
-  const tamanho = arquivo ? `${(arquivo.size / 1024 / 1024).toFixed(2)} MB` : fd.get('tamanho');
   DB.anexos.push({
     id: Date.now(),
     projetoId,
     tarefaId: fd.get('modalTarefaAnexo') ? Number(fd.get('modalTarefaAnexo')) : undefined,
-    nome: nomeArquivo,
+    nome: fd.get('descricao'),
     tipo: fd.get('tipo'),
-    tamanho,
-    data: formatarDataBr(new Date()),
+    tamanho: fd.get('tamanho'),
+    data: new Date().toLocaleDateString('pt-BR'),
     dono: DB.sessao ? DB.sessao.nome : 'Usuário'
   });
   registrarLog('anexar_projeto', { projetoId, nome: fd.get('descricao') });
@@ -2650,7 +2518,7 @@ function renderListaTarefas(tarefas, projetoId) {
     return `<tr>
       <td><strong>${t.titulo}</strong><br><small>${t.etiqueta || 'Sem etiqueta'}</small></td>
       <td>${t.responsavel || 'Definir'}</td>
-      <td>${formatarDataBr(t.prazo)}</td>
+      <td>${t.prazo ? new Date(t.prazo).toLocaleDateString('pt-BR') : '—'}</td>
       <td>${(t.prioridade || 'media').toUpperCase()}</td>
       <td>${t.status}</td>
       <td>
@@ -2704,7 +2572,7 @@ function calcularIndicadoresProjeto(projeto) {
   const pendentes = tarefas.filter(t => t.status !== 'pronto').length;
   const proximas = tarefas
     .filter(t => t.prazo)
-    .sort((a, b) => (parseDataLivre(a.prazo)?.getTime() || 0) - (parseDataLivre(b.prazo)?.getTime() || 0))
+    .sort((a, b) => new Date(a.prazo) - new Date(b.prazo))
     .slice(0, 2);
   const custos = DB.custosProjetos.filter(c => c.projetoId === projeto.id);
   const orcado = custos.reduce((s, c) => s + c.previsto, 0);
@@ -2717,14 +2585,6 @@ function renderAnaliseMacroProjetos() {
   if (!macro) return;
   if (!DB.projetos.length) {
     macro.innerHTML = '<h3>Visão macro dos projetos</h3><p class="caption">Cadastre um projeto para liberar as visões de Kanban, cronograma e financeiro.</p>';
-    const extra = document.getElementById('macroComplemento');
-    const gantt = document.getElementById('ganttGeral');
-    const equipes = document.getElementById('equipesTabela');
-    const marcos = document.getElementById('marcosGerais');
-    if (extra) extra.innerHTML = '<p class="caption">Sem dados para dashboard macro.</p>';
-    if (gantt) gantt.innerHTML = '<p class="caption">Cadastre projetos para gerar o Gantt geral.</p>';
-    if (equipes) equipes.innerHTML = '<p class="caption">Nenhuma equipe cadastrada.</p>';
-    if (marcos) marcos.innerHTML = '<p class="caption">Sem marcos disponíveis.</p>';
     return;
   }
 
@@ -2739,13 +2599,13 @@ function renderAnaliseMacroProjetos() {
   const linhas = DB.projetos.map(p => {
     const { progresso, pendentes: pend, proximas } = calcularIndicadoresProjeto(p);
     const equipe = DB.equipes.find(e => e.id === p.equipeId);
-    const entrega = proximas[0]?.prazo ? formatarDataBr(proximas[0].prazo) : '—';
+    const entrega = proximas[0]?.prazo ? new Date(proximas[0].prazo).toLocaleDateString('pt-BR') : '—';
     return `<tr>
       <td><strong>${p.nome}</strong><br><small>${equipe ? equipe.nome : 'Equipe não atribuída'}</small></td>
       <td>${p.status}</td>
       <td>${progresso}%</td>
       <td>${pend} pendentes</td>
-      <td>${formatarDataBr(p.prazo) || 'Sem prazo'}</td>
+      <td>${p.prazo ? new Date(p.prazo).toLocaleDateString('pt-BR') : 'Sem prazo'}</td>
       <td>${entrega}</td>
       <td><button class="btn-ghost btn-small" onclick="selecionarProjeto(${p.id})">Observar</button></td>
     </tr>`;
@@ -2757,7 +2617,7 @@ function renderAnaliseMacroProjetos() {
       <div class="macro-card"><h4>${totalProjetos} projetos</h4><p class="caption">Todos os projetos ativos e concluídos.</p></div>
       <div class="macro-card"><h4>${totalTarefas} tarefas</h4><p class="caption">${concluidas} concluídas · ${pendentes} pendentes.</p></div>
       <div class="macro-card"><h4>Equipe base</h4><p class="caption">${pessoasAtivas} pessoas disponíveis para atribuição.</p></div>
-      <div class="macro-card"><h4>Financeiro agregado</h4><p class="caption">${formatarMoedaBr(realizado)} de ${formatarMoedaBr(orcado)} utilizados.</p></div>
+      <div class="macro-card"><h4>Financeiro agregado</h4><p class="caption">R$ ${realizado.toLocaleString('pt-BR')} de R$ ${orcado.toLocaleString('pt-BR')} utilizados.</p></div>
     </div>
     <div class="table-scroll">
       <table class="macro-table">
@@ -2765,107 +2625,6 @@ function renderAnaliseMacroProjetos() {
         <tbody>${linhas}</tbody>
       </table>
     </div>`;
-
-  renderMacroComplemento(totalProjetos, totalTarefas, concluidas, orcado, realizado);
-  renderGanttGeral();
-  renderEquipesTabela();
-  renderMarcosGerais();
-}
-
-function renderMacroComplemento(totalProjetos, totalTarefas, concluidas, orcado, realizado) {
-  const alvo = document.getElementById('macroComplemento');
-  if (!alvo) return;
-  const atraso = DB.tarefas.filter(t => t.status !== 'pronto' && parseDataLivre(t.prazo) && parseDataLivre(t.prazo) < new Date()).length;
-  const anexos = DB.anexos.length;
-  const equipes = DB.equipes.length;
-  alvo.innerHTML = `
-    <h3>Radar de saúde</h3>
-    <p class="caption">Indicadores agregados para saber onde agir.</p>
-    <div class="macro-grid">
-      <div class="macro-card"><strong>${concluidas}/${totalTarefas}</strong><small>tarefas concluídas</small></div>
-      <div class="macro-card"><strong>${atraso}</strong><small>tarefas com prazo crítico</small></div>
-      <div class="macro-card"><strong>${equipes}</strong><small>equipes habilitadas</small></div>
-      <div class="macro-card"><strong>${anexos}</strong><small>anexos registrados</small></div>
-      <div class="macro-card"><strong>${formatarMoedaBr(realizado)}</strong><small>gasto validado</small></div>
-      <div class="macro-card"><strong>${formatarMoedaBr(orcado)}</strong><small>orçado total</small></div>
-    </div>
-    <div class="macro-legend">
-      <span class="pill">Datas em dd-mm-aaaa</span>
-      <span class="pill">Valores em BRL</span>
-      <span class="pill">Arraste tarefas no Kanban</span>
-    </div>`;
-}
-
-function construirFaixaGantt(itens) {
-  const datas = itens.flatMap(i => [i.inicio, i.fim]).filter(Boolean).map(parseDataLivre).filter(Boolean);
-  if (!datas.length) return { inicio: null, fim: null, conteudo: '<p class="caption">Cadastre tarefas com prazo para ver o Gantt.</p>' };
-  const inicio = new Date(Math.min(...datas));
-  const fim = new Date(Math.max(...datas));
-  const totalMs = fim - inicio || 1;
-  const conteudo = itens.map(item => {
-    const ini = parseDataLivre(item.inicio) || inicio;
-    const fimItem = parseDataLivre(item.fim) || fim;
-    const left = ((ini - inicio) / totalMs) * 100;
-    const width = Math.max(((fimItem - ini) / totalMs) * 100, 8);
-    return `<div class="gantt-row"><strong>${item.titulo}</strong><div class="gantt-scale"><span>${formatarDataBr(item.inicio)}</span><span>${formatarDataBr(item.fim)}</span></div><div class="gantt-bar status-${item.status}" style="left:${left}%; width:${width}%"><span>${item.projeto}</span></div></div>`;
-  }).join('');
-  return { inicio, fim, conteudo };
-}
-
-function renderGanttGeral() {
-  const alvo = document.getElementById('ganttGeral');
-  if (!alvo) return;
-  const itens = [];
-  DB.projetos.forEach(p => {
-    const tarefas = DB.tarefas.filter(t => t.projetoId === p.id && t.prazo);
-    tarefas.forEach(t => {
-      const fim = parseDataLivre(t.prazo);
-      if (!fim) return;
-      const inicio = new Date(fim);
-      inicio.setDate(inicio.getDate() - 3);
-      itens.push({ projeto: p.nome, titulo: t.titulo, inicio: inicio, fim, status: t.status || 'backlog' });
-    });
-    DB.marcos.filter(m => m.projetoId === p.id).forEach(m => {
-      if (!m.data) return;
-      itens.push({ projeto: p.nome, titulo: m.titulo, inicio: m.data, fim: m.data, status: 'marco' });
-    });
-  });
-  const faixa = construirFaixaGantt(itens);
-  alvo.innerHTML = faixa.conteudo;
-}
-
-function renderEquipesTabela() {
-  const alvo = document.getElementById('equipesTabela');
-  if (!alvo) return;
-  const linhas = DB.equipes.map(eq => {
-    const projetosEquipe = DB.projetos.filter(p => p.equipeId === eq.id);
-    const tarefasEquipe = DB.tarefas.filter(t => projetosEquipe.some(p => p.id === t.projetoId));
-    const proximas = tarefasEquipe.filter(t => t.prazo).sort((a, b) => (parseDataLivre(a.prazo)?.getTime() || 0) - (parseDataLivre(b.prazo)?.getTime() || 0))[0];
-    return `<tr><td><strong>${eq.nome}</strong><br><small>${eq.responsavel}</small></td><td>${eq.membros || 'Sem membros'}</td><td>${projetosEquipe.length} projetos</td><td>${tarefasEquipe.length} tarefas</td><td>${proximas ? formatarDataBr(proximas.prazo) : 'Sem prazo'}</td></tr>`;
-  }).join('');
-  alvo.innerHTML = `
-    <h3>Equipes e responsabilidade</h3>
-    <p class="caption">Organize a hierarquia: primeiro equipes, depois projetos e tarefas.</p>
-    <div class="table-scroll">
-      <table class="macro-table">
-        <thead><tr><th>Equipe</th><th>Membros</th><th>Projetos</th><th>Tarefas</th><th>Próximo prazo</th></tr></thead>
-        <tbody>${linhas || '<tr><td colspan="5">Cadastre equipes para visualizar a tabela.</td></tr>'}</tbody>
-      </table>
-    </div>`;
-}
-
-function renderMarcosGerais() {
-  const alvo = document.getElementById('marcosGerais');
-  if (!alvo) return;
-  const marcos = [...DB.marcos].sort((a, b) => (parseDataLivre(a.data)?.getTime() || 0) - (parseDataLivre(b.data)?.getTime() || 0));
-  if (!marcos.length) {
-    alvo.innerHTML = '<p class="caption">Nenhum marco cadastrado. Use cronograma de cada projeto para adicionar.</p>';
-    return;
-  }
-  alvo.innerHTML = marcos.map(m => {
-    const projeto = DB.projetos.find(p => p.id === m.projetoId);
-    return `<div class="timeline-item"><div><strong>${m.titulo}</strong><br><small>${formatarDataBr(m.data)} · ${m.tipo || 'Marco'} · ${projeto ? projeto.nome : 'Projeto não definido'}</small></div><span class="pill">Resp.: ${m.responsavel || 'Definir'}</span></div>`;
-  }).join('');
 }
 
 function renderPainelProjetos() {
@@ -2902,17 +2661,17 @@ function renderPainelProjetos() {
     statusBadge.textContent = statusInfo.label;
     statusBadge.className = `status-badge ${statusInfo.classe}`.trim();
   }
-  if (prazoBadge) prazoBadge.textContent = projeto.prazo ? `Prazo: ${formatarDataBr(projeto.prazo)}` : 'Prazo não definido';
+  if (prazoBadge) prazoBadge.textContent = projeto.prazo ? `Prazo: ${new Date(projeto.prazo).toLocaleDateString('pt-BR')}` : 'Prazo não definido';
   if (equipeBadge) equipeBadge.textContent = equipe ? `Equipe: ${equipe.nome}` : 'Equipe não atribuída';
 
   const { tarefas, progresso, pendentes, proximas, orcado, realizado } = calcularIndicadoresProjeto(projeto);
-  const entregasTexto = proximas.length ? proximas.map(t => `${t.titulo} • ${formatarDataBr(t.prazo)}`).join('<br>') : 'Sem entregas próximas.';
+  const entregasTexto = proximas.length ? proximas.map(t => `${t.titulo} • ${new Date(t.prazo).toLocaleDateString('pt-BR')}`).join('<br>') : 'Sem entregas próximas.';
   const saldo = orcado - realizado;
 
   kpiArea.innerHTML = `
     <div class="kpi-card"><small>Tarefas pendentes</small><strong>${pendentes}</strong><div class="kpi-trend risk">⚠️ Priorize entregas críticas</div></div>
     <div class="kpi-card"><small>Próximas entregas</small><strong>${proximas.length}</strong><div class="kpi-trend ok">${entregasTexto}</div></div>
-    <div class="kpi-card"><small>Orçamento usado</small><strong>${formatarMoedaBr(realizado)}</strong><div class="kpi-trend ${saldo < 0 ? 'risk' : 'ok'}">${saldo < 0 ? 'Estouro previsto' : 'Dentro do limite'}</div></div>
+    <div class="kpi-card"><small>Orçamento usado</small><strong>R$ ${realizado.toLocaleString('pt-BR')}</strong><div class="kpi-trend ${saldo < 0 ? 'risk' : 'ok'}">${saldo < 0 ? 'Estouro previsto' : 'Dentro do limite'}</div></div>
     <div class="kpi-card"><small>Progresso geral</small><strong>${progresso}%</strong><div class="kpi-trend ok">${progresso >= 70 ? 'Ritmo saudável' : 'Monitorar próximos marcos'}</div></div>`;
 
   if (resumoArea) {
@@ -2958,20 +2717,19 @@ function renderPainelProjetos() {
     kanbanBoard.innerHTML = colunas.map(col => {
       const itens = tarefas.filter(t => t.status === col.chave);
       const cards = itens.length ? itens.map(t => `
-        <div class="kanban-item" draggable="true" data-id="${t.id}">
+        <div class="kanban-item">
           <strong>${t.titulo}</strong>
           <div class="kanban-tags">
             <span class="tag prioridade-${t.prioridade || 'media'}">${(t.prioridade || 'media').toUpperCase()}</span>
             ${t.etiqueta ? `<span class="tag">${t.etiqueta}</span>` : ''}
           </div>
-          <small>Responsável: ${t.responsavel || 'Definir'} · Prazo: ${formatarDataBr(t.prazo)}</small>
+          <small>Responsável: ${t.responsavel || 'Definir'} · Prazo: ${t.prazo ? new Date(t.prazo).toLocaleDateString('pt-BR') : '—'}</small>
           <div class="detalhe-acoes">
             <button class="btn-secondary btn-small" type="button" onclick="abrirDetalheTarefa(${t.id})">Abrir detalhes</button>
           </div>
         </div>`).join('') : '<p class="caption">Nada aqui ainda.</p>';
-      return `<div class="kanban-col" data-status="${col.chave}"><h4>${col.titulo} <span class="pill">${itens.length}</span></h4>${cards}</div>`;
+      return `<div class="kanban-col"><h4>${col.titulo} <span class="pill">${itens.length}</span></h4>${cards}</div>`;
     }).join('');
-    habilitarKanbanDrag();
   }
 
   if (painelEquipe) {
@@ -2998,7 +2756,7 @@ function renderPainelProjetos() {
       <div class="arquivo-card">
         <div>
           <strong>${a.nome}</strong><br>
-          <span class="arquivo-meta">${a.tipo} • ${a.tamanho || '—'} • ${formatarDataBr(a.data)}${a.tarefaId ? ` • Tarefa ${a.tarefaId}` : ''}</span>
+          <span class="arquivo-meta">${a.tipo} • ${a.tamanho || '—'} • ${a.data || ''}${a.tarefaId ? ` • Tarefa ${a.tarefaId}` : ''}</span>
         </div>
         <span class="pill">${a.dono}</span>
       </div>`).join('') : '<div class="card">Nenhum arquivo anexado.</div>';
@@ -3008,25 +2766,25 @@ function renderPainelProjetos() {
     const centros = DB.custosProjetos.filter(c => c.projetoId === projeto.id);
     painelFinanceiro.innerHTML = `
       <div class="financeiro-grid">
-        <div class="card"><h3>Orçado</h3><strong>${formatarMoedaBr(orcado)}</strong><p class="caption">Planejado por categorias.</p></div>
-        <div class="card"><h3>Realizado</h3><strong>${formatarMoedaBr(realizado)}</strong><p class="caption">Atualize sempre que um custo for confirmado.</p></div>
-        <div class="card"><h3>Saldo</h3><strong>${formatarMoedaBr(orcado - realizado)}</strong><p class="caption">Controle para evitar estouros.</p></div>
+        <div class="card"><h3>Orçado</h3><strong>R$ ${orcado.toLocaleString('pt-BR')}</strong><p class="caption">Planejado por categorias.</p></div>
+        <div class="card"><h3>Realizado</h3><strong>R$ ${realizado.toLocaleString('pt-BR')}</strong><p class="caption">Atualize sempre que um custo for confirmado.</p></div>
+        <div class="card"><h3>Saldo</h3><strong>R$ ${(orcado - realizado).toLocaleString('pt-BR')}</strong><p class="caption">Controle para evitar estouros.</p></div>
       </div>
       <div class="card card-full">
         <h3>Centros de custo</h3>
         <div class="field-row">
-          ${centros.length ? centros.map(c => `<div class="pill">${c.categoria}: ${formatarMoedaBr(c.realizado)} / ${formatarMoedaBr(c.previsto)}</div>`).join('') : '<p class="caption">Nenhum centro cadastrado.</p>'}
+          ${centros.length ? centros.map(c => `<div class="pill">${c.categoria}: R$ ${c.realizado.toLocaleString('pt-BR')} / R$ ${c.previsto.toLocaleString('pt-BR')}</div>`).join('') : '<p class="caption">Nenhum centro cadastrado.</p>'}
         </div>
       </div>`;
   }
 
   if (painelCronograma) {
-    const marcos = DB.marcos.filter(m => m.projetoId === projeto.id).sort((a, b) => (parseDataLivre(a.data)?.getTime() || 0) - (parseDataLivre(b.data)?.getTime() || 0));
+    const marcos = DB.marcos.filter(m => m.projetoId === projeto.id).sort((a, b) => new Date(a.data) - new Date(b.data));
     painelCronograma.innerHTML = marcos.length ? `<p class="caption">Linha do tempo / Gantt simplificado</p><div class="timeline">${marcos.map(m => `
       <div class="timeline-item">
         <div>
           <strong>${m.titulo}</strong><br>
-          <small>${formatarDataBr(m.data)} · ${m.tipo || 'Marco'}</small>
+          <small>${new Date(m.data).toLocaleDateString('pt-BR')} · ${m.tipo || 'Marco'}</small>
         </div>
         <span class="pill">Resp.: ${m.responsavel || 'Definir'}</span>
       </div>`).join('')}</div>` : '<div class="card">Nenhum marco cadastrado.</div>';
@@ -3057,17 +2815,17 @@ function abrirDetalheTarefa(id) {
       <div class="detalhe-grid">
         <div class="detalhe-campo"><strong>Projeto</strong><span>${projeto ? projeto.nome : '—'}</span></div>
         <div class="detalhe-campo"><strong>Responsável</strong><span>${tarefa.responsavel || 'Definir'}</span></div>
-        <div class="detalhe-campo"><strong>Prazo</strong><span>${formatarDataBr(tarefa.prazo)}</span></div>
+        <div class="detalhe-campo"><strong>Prazo</strong><span>${tarefa.prazo ? new Date(tarefa.prazo).toLocaleDateString('pt-BR') : '—'}</span></div>
         <div class="detalhe-campo"><strong>Prioridade</strong><span>${tarefa.prioridade || 'média'}</span></div>
         <div class="detalhe-campo"><strong>Status</strong><span>${tarefa.status}</span></div>
       </div>
       <div class="stacked">
         <strong>Últimas interações</strong>
-        ${respostas.length ? respostas.map(r => `<div class="nota-dependencia">${formatarDataBr(r.data)} • ${r.usuario}: ${r.comentario || 'Sem comentário'} ${r.evidencia ? `<br><small>Anexo: ${r.evidencia}</small>` : ''}</div>`).join('') : '<p class="caption">Ninguém respondeu ainda.</p>'}
+        ${respostas.length ? respostas.map(r => `<div class="nota-dependencia">${new Date(r.data).toLocaleString('pt-BR')} • ${r.usuario}: ${r.comentario || 'Sem comentário'} ${r.evidencia ? `<br><small>Anexo: ${r.evidencia}</small>` : ''}</div>`).join('') : '<p class="caption">Ninguém respondeu ainda.</p>'}
       </div>
       <div class="stacked">
         <strong>Anexos vinculados</strong>
-        ${anexos.length ? anexos.map(a => `<div class="arquivo-card"><div><strong>${a.nome}</strong><br><span class="arquivo-meta">${a.tipo} • ${a.tamanho || '—'} • ${formatarDataBr(a.data)}</span></div><span class="pill">${a.dono}</span></div>`).join('') : '<p class="caption">Nenhuma evidência enviada.</p>'}
+        ${anexos.length ? anexos.map(a => `<div class="arquivo-card"><div><strong>${a.nome}</strong><br><span class="arquivo-meta">${a.tipo} • ${a.tamanho || '—'} • ${a.data || ''}</span></div><span class="pill">${a.dono}</span></div>`).join('') : '<p class="caption">Nenhuma evidência enviada.</p>'}
       </div>
       <form onsubmit="responderTarefa(event, ${id})" class="stacked">
         <div class="field-row">
@@ -3775,7 +3533,7 @@ document.getElementById('formProjeto').onsubmit = e => {
   const fd = new FormData(e.target);
   const nome = fd.get('nomeProjeto');
   const equipeId = fd.get('projetoEquipe');
-  const prazo = normalizarDataIso(fd.get('prazoProjeto'));
+  const prazo = fd.get('prazoProjeto');
   const status = fd.get('statusProjeto');
   if (!equipeId) return alert('Selecione uma equipe para vincular o projeto.');
   DB.projetos.push({ id: Date.now(), nome, equipeId: Number(equipeId), prazo, status });
@@ -3789,7 +3547,7 @@ document.getElementById('formTarefa').onsubmit = e => {
   const titulo = fd.get('tituloTarefa');
   const projetoId = fd.get('tarefaProjeto');
   const responsavel = fd.get('responsavelTarefa');
-  const prazo = normalizarDataIso(fd.get('prazoTarefa'));
+  const prazo = fd.get('prazoTarefa');
   const prioridade = fd.get('prioridadeTarefa');
   const etiqueta = fd.get('etiquetaTarefa');
   const status = fd.get('statusTarefa');
@@ -3897,7 +3655,6 @@ window.removerCentro = id => { DB.financeiro.centros = DB.financeiro.centros.fil
 inicializarQuartosIntegrados();
 inicializarSubtabs();
 inicializarTabsProjetos();
-inicializarPaineisEquipes();
 inicializarToggleParticipantes();
 inicializarOverlayParticipante();
 inicializarTabelaParticipantes();
