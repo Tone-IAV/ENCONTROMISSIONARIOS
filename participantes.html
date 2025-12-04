@@ -1,0 +1,324 @@
+<!-- PARTICIPANTES -->
+<section id="participantes" class="view">
+  <div class="view-toggle" id="participantesToggle">
+    <button type="button" class="active" data-partview="cadastros">Cadastros</button>
+    <button type="button" data-partview="lista">Lista de inscritos</button>
+  </div>
+
+  <div class="modo-leitura hidden" id="participantes-lista">
+    <div class="totalizador">
+      <div>
+        <h2>Participantes Confirmados</h2>
+        <p class="caption">Escolha se quer buscar, filtrar ou ordenar. Clique em uma linha para ver detalhes.</p>
+      </div>
+      <span class="pill" id="participantesTotalizador">0 pessoas</span>
+    </div>
+    <div class="table-controls">
+      <input type="search" id="participantesBusca" placeholder="Buscar por nome, base, cidade...">
+      <select id="participantesFiltro">
+        <option value="todas">Todas as categorias</option>
+        <option value="Família missionária">Família missionária</option>
+        <option value="Equipe / Staff">Equipe / Staff</option>
+        <option value="Preletor">Preletor</option>
+        <option value="Convidado">Convidado</option>
+        <option value="Pastor">Pastor</option>
+      </select>
+      <span id="participantesTotal" class="caption"></span>
+    </div>
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th class="sortable" data-sort="categoria">Categoria <span>⇅</span></th>
+            <th class="sortable" data-sort="nome">Nome / Referência <span>⇅</span></th>
+            <th class="sortable" data-sort="base">Base / Igreja <span>⇅</span></th>
+            <th class="sortable" data-sort="origem">Origem <span>⇅</span></th>
+            <th class="sortable" data-sort="detalhe">Detalhe <span>⇅</span></th>
+          </tr>
+        </thead>
+        <tbody id="participantesTabela"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div id="participanteOverlay" class="detalhe-overlay hidden">
+    <div class="detalhe-shell">
+      <div id="participanteDetalhes" class="detalhe-card"></div>
+    </div>
+  </div>
+
+  <div class="modo-edicao" id="participantes-cadastros">
+    <h2>Cadastros de participantes</h2>
+    <p class="caption">Organize famílias missionárias, equipe de apoio, palestrantes, convidados e pastores com perguntas sob demanda.</p>
+
+    <div class="subnav" aria-label="Abas de participantes">
+      <button type="button" class="subtab active" data-subview="sub-missionarios">Família missionária</button>
+      <button type="button" class="subtab" data-subview="sub-equipe">Equipe / Staff</button>
+      <button type="button" class="subtab" data-subview="sub-preletores">Preletores</button>
+      <button type="button" class="subtab" data-subview="sub-convidados">Convidados</button>
+      <button type="button" class="subtab" data-subview="sub-pastores">Pastores</button>
+      <button type="button" class="subtab" data-subview="sub-complementar">Campos complementares</button>
+    </div>
+
+    <div class="section-grid subview active" id="sub-missionarios">
+      <div class="card card-full">
+        <h3>Família missionária</h3>
+        <p class="caption">Somente os campos necessários são exibidos. Confirme se há cônjuge e filhos antes de abrir os blocos.</p>
+        <form id="formMissionario" class="stacked">
+          <div class="field-row">
+            <input name="base" type="text" placeholder="Base missionária" required>
+            <input name="responsavel" type="text" placeholder="Nome completo do responsável" required>
+          </div>
+          <div class="field-row">
+            <label>Data de nascimento
+              <input name="nascimentoResponsavel" type="date" required>
+            </label>
+            <label>RG
+              <input name="rgResponsavel" type="text" placeholder="Documento" required>
+            </label>
+            <label>CPF
+              <input name="cpfResponsavel" type="text" placeholder="CPF" required>
+            </label>
+          </div>
+          <div class="field-row">
+            <label>Tamanho de camisa
+              <select name="camisaResponsavel" required>
+                <option value="">Selecione</option>
+                <option>P</option><option>M</option><option>G</option><option>GG</option><option>XG</option>
+              </select>
+            </label>
+            <label>Estado
+              <select name="estado" required>
+                <option value="">UF</option>
+                <option>AC</option><option>AL</option><option>AM</option><option>BA</option><option>CE</option>
+                <option>DF</option><option>ES</option><option>GO</option><option>MA</option><option>MG</option>
+                <option>MS</option><option>MT</option><option>PA</option><option>PB</option><option>PE</option>
+                <option>PI</option><option>PR</option><option>RJ</option><option>RN</option><option>RO</option>
+                <option>RR</option><option>RS</option><option>SC</option><option>SE</option><option>SP</option><option>TO</option>
+              </select>
+            </label>
+            <label>Município
+              <input name="municipio" type="text" placeholder="Cidade" required>
+            </label>
+          </div>
+          <div class="field-row">
+            <label>Casado?
+              <select id="casado" name="casado" required>
+                <option value="nao">Não</option>
+                <option value="sim">Sim</option>
+              </select>
+            </label>
+            <label>Filhos?
+              <select id="temFilhos" name="temFilhos" required>
+                <option value="nao">Não</option>
+                <option value="sim">Sim</option>
+              </select>
+            </label>
+          </div>
+
+          <div id="blocoConjuge" class="stacked hidden">
+            <h4>Cônjuge</h4>
+            <div class="field-row">
+              <input name="conjugeNome" type="text" placeholder="Nome completo do cônjuge">
+              <label>Data de nascimento
+                <input name="conjugeNascimento" type="date">
+              </label>
+              <label>RG
+                <input name="conjugeRg" type="text" placeholder="Documento">
+              </label>
+              <label>CPF
+                <input name="conjugeCpf" type="text" placeholder="CPF">
+              </label>
+            </div>
+            <label>Tamanho de camisa
+              <select name="conjugeCamisa">
+                <option value="">Selecione</option>
+                <option>P</option><option>M</option><option>G</option><option>GG</option><option>XG</option>
+              </select>
+            </label>
+          </div>
+
+          <div id="blocoFilhos" class="stacked hidden">
+            <div class="field-row">
+              <label>Quantos filhos irão para o evento?
+                <input id="quantosFilhos" name="quantosFilhos" type="number" min="1" value="1">
+              </label>
+            </div>
+            <div id="filhosContainer" class="stacked"></div>
+          </div>
+
+          <button type="submit" class="btn-salvar">Salvar família missionária</button>
+        </form>
+      </div>
+    </div>
+
+    <div class="section-grid subview" id="sub-equipe">
+      <div class="card">
+        <h3>Equipe / Staff</h3>
+        <form id="formEquipePessoa" class="stacked">
+          <input name="base" type="text" placeholder="Base / área" required>
+          <input name="nome" type="text" placeholder="Nome completo" required>
+          <div class="field-row">
+            <label>Data de nascimento
+              <input name="nascimento" type="date" required>
+            </label>
+            <label>RG
+              <input name="rg" type="text" placeholder="Documento" required>
+            </label>
+            <label>CPF
+              <input name="cpf" type="text" placeholder="CPF" required>
+            </label>
+          </div>
+          <label>Tamanho de camisa
+            <select name="camisa" required>
+              <option value="">Selecione</option>
+              <option>P</option><option>M</option><option>G</option><option>GG</option><option>XG</option>
+            </select>
+          </label>
+          <button type="submit" class="btn-salvar">Adicionar membro de equipe</button>
+        </form>
+      </div>
+    </div>
+
+    <div class="section-grid subview" id="sub-preletores">
+      <div class="card">
+        <h3>Preletores / Palestrantes</h3>
+        <form id="formPreletor" class="stacked">
+          <input name="nome" type="text" placeholder="Nome completo" required>
+          <label>Tamanho de camisa
+            <select name="camisa" required>
+              <option value="">Selecione</option>
+              <option>P</option><option>M</option><option>G</option><option>GG</option><option>XG</option>
+            </select>
+          </label>
+          <input name="tempo" type="text" placeholder="Tempo no evento (ex: 2 dias)" required>
+          <button type="submit" class="btn-salvar">Salvar palestrante</button>
+        </form>
+      </div>
+    </div>
+
+    <div class="section-grid subview" id="sub-convidados">
+      <div class="card">
+        <h3>Convidados</h3>
+        <form id="formConvidado" class="stacked">
+          <input name="nome" type="text" placeholder="Nome completo" required>
+          <label>Tamanho de camisa
+            <select name="camisa" required>
+              <option value="">Selecione</option>
+              <option>P</option><option>M</option><option>G</option><option>GG</option><option>XG</option>
+            </select>
+          </label>
+          <input name="tempo" type="text" placeholder="Tempo no evento (ex: 1 dia ou 1 refeição)">
+          <button type="submit" class="btn-salvar">Salvar convidado</button>
+        </form>
+      </div>
+    </div>
+
+    <div class="section-grid subview" id="sub-pastores">
+      <div class="card card-full">
+        <h3>Pastores das igrejas enviadoras</h3>
+        <form id="formPastor" class="stacked">
+          <div class="field-row">
+            <input name="igreja" type="text" placeholder="Igreja" required>
+            <label>UF
+              <select name="uf" required>
+                <option value="">UF</option>
+                <option>AC</option><option>AL</option><option>AM</option><option>BA</option><option>CE</option>
+                <option>DF</option><option>ES</option><option>GO</option><option>MA</option><option>MG</option>
+                <option>MS</option><option>MT</option><option>PA</option><option>PB</option><option>PE</option>
+                <option>PI</option><option>PR</option><option>RJ</option><option>RN</option><option>RO</option>
+                <option>RR</option><option>RS</option><option>SC</option><option>SE</option><option>SP</option><option>TO</option>
+              </select>
+            </label>
+            <input name="municipio" type="text" placeholder="Município" required>
+          </div>
+          <div class="field-row">
+            <input name="nome" type="text" placeholder="Nome completo" required>
+            <label>Telefone 1
+              <input name="tel1" type="tel" placeholder="(DDD)">
+            </label>
+            <label>Telefone 2
+              <input name="tel2" type="tel" placeholder="Opcional">
+            </label>
+          </div>
+          <div class="field-row">
+            <label>Data de nascimento
+              <input name="nascimento" type="date">
+            </label>
+            <label>RG
+              <input name="rg" type="text" placeholder="Documento">
+            </label>
+            <label>CPF
+              <input name="cpf" type="text" placeholder="CPF">
+            </label>
+          </div>
+          <div class="field-row">
+            <label>Tamanho de camisa
+              <select name="camisa" required>
+                <option value="">Selecione</option>
+                <option>P</option><option>M</option><option>G</option><option>GG</option><option>XG</option>
+              </select>
+            </label>
+            <label>Casado?
+              <select name="casado" id="pastorCasado">
+                <option value="nao">Não</option>
+                <option value="sim">Sim</option>
+              </select>
+            </label>
+          </div>
+          <div id="blocoConjugePastor" class="stacked hidden">
+            <h4>Cônjuge</h4>
+            <div class="field-row">
+              <input name="conjugeNome" type="text" placeholder="Nome completo do cônjuge">
+              <label>Data de nascimento
+                <input name="conjugeNascimento" type="date">
+              </label>
+              <label>RG
+                <input name="conjugeRg" type="text" placeholder="Documento">
+              </label>
+              <label>CPF
+                <input name="conjugeCpf" type="text" placeholder="CPF">
+              </label>
+            </div>
+            <label>Tamanho de camisa
+              <select name="conjugeCamisa">
+                <option value="">Selecione</option>
+                <option>P</option><option>M</option><option>G</option><option>GG</option><option>XG</option>
+              </select>
+            </label>
+          </div>
+          <button type="submit" class="btn-salvar">Salvar pastor</button>
+        </form>
+      </div>
+    </div>
+
+    <div class="section-grid subview" id="sub-complementar">
+      <div class="card card-full">
+        <h3>Campos personalizados (formulário complementar)</h3>
+        <p class="caption">Adicione perguntas de cuidado válidas para qualquer cadastro e registre respostas por participante ou família.</p>
+        <form id="formCampoPersonalizado" class="stacked">
+          <div class="field-row">
+            <input name="pergunta" type="text" placeholder="Nova pergunta" required>
+            <select name="tipo" required>
+              <option value="texto">Resposta em texto</option>
+              <option value="simnao">Sim/Não</option>
+              <option value="longo">Texto longo</option>
+            </select>
+            <input name="ajuda" type="text" placeholder="Observação (opcional)">
+          </div>
+          <button type="submit" class="btn-salvar">Adicionar campo personalizado</button>
+        </form>
+
+        <div id="listaCamposPersonalizados" class="stacked"></div>
+
+        <form id="formRespostasPersonalizadas" class="stacked">
+          <input name="referencia" type="text" placeholder="Para qual cadastro? Ex: Família Silva" required>
+          <div id="respostasDinamicas" class="stacked"></div>
+          <button type="submit" class="btn-salvar">Salvar formulário complementar</button>
+        </form>
+        <div id="listaRespostasPersonalizadas"></div>
+      </div>
+    </div>
+
+  </div>
+</section>
