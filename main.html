@@ -32,6 +32,10 @@
   .modo-edicao { background:#fff1d6; border:2px dashed #f4b860; border-radius:12px; padding:2rem; margin-bottom:2rem; }
 
   .card { background:white; border-radius:10px; padding:1.5rem; box-shadow:0 4px 15px rgba(0,0,0,0.08); margin-bottom:1rem; }
+  .qr-grid { display:grid; gap:0.8rem; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); }
+  .qr-card { border:1px solid #e2e8f0; border-radius:10px; padding:0.75rem; background:#fffaf3; display:grid; gap:0.35rem; justify-items:center; }
+  .qr-card strong { color:var(--ink); text-align:center; }
+  .qr-box { background:white; padding:0.4rem; border-radius:8px; border:1px solid #e2e8f0; }
   .grid-3 { display:grid; gap:1.5rem; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); }
   .section-grid { display:grid; gap:1rem; grid-template-columns:repeat(auto-fit,minmax(320px,1fr)); align-items:start; }
   .card-full { grid-column:1 / -1; }
@@ -277,6 +281,7 @@
     <li><a href="#dashboard" class="nav-link">Dashboard</a></li>
     <li><a href="#equipes" class="nav-link">Equipes & Projetos</a></li>
     <li><a href="#participantes" class="nav-link">Participantes</a></li>
+    <li><a href="#embarque-checkin" class="nav-link">Embarque/Check-in</a></li>
     <li><a href="#transporte" class="nav-link">Transporte</a></li>
     <li><a href="#alojamento" class="nav-link">Alojamento</a></li>
     <li><a href="#cronograma" class="nav-link">Cronograma</a></li>
@@ -296,6 +301,7 @@
     <?!= include('dashboard'); ?>
     <?!= include('equipes'); ?>
     <?!= include('participantes'); ?>
+    <?!= include('embarque-checkin'); ?>
     <?!= include('transporte'); ?>
     <?!= include('alojamento'); ?>
     <?!= include('cronograma'); ?>
@@ -365,20 +371,53 @@ function formatarDataBr(valor) {
   return `${dia}-${mes}-${ano}`;
 }
 
-function parseDataLivre(valor) {
-  if (!valor) return null;
-  if (valor instanceof Date) return isNaN(valor) ? null : valor;
-  const limpo = String(valor).replace(/\//g, '-');
-  const partes = limpo.split('-');
+  function parseDataLivre(valor) {
+    if (!valor) return null;
+    if (valor instanceof Date) return isNaN(valor) ? null : valor;
+    const limpo = String(valor).replace(/\//g, '-');
+    const partes = limpo.split('-');
   let ano, mes, dia;
   if (partes.length === 3 && partes[0].length === 2) {
     [dia, mes, ano] = partes;
   } else if (partes.length === 3) {
     [ano, mes, dia] = partes;
   }
-  const data = ano && mes && dia ? new Date(Number(ano), Number(mes) - 1, Number(dia)) : new Date(valor);
-  return isNaN(data) ? null : data;
-}
+    const data = ano && mes && dia ? new Date(Number(ano), Number(mes) - 1, Number(dia)) : new Date(valor);
+    return isNaN(data) ? null : data;
+  }
+
+  function normalizarCpfBr(cpf) {
+    return (cpf || '').replace(/\D/g, '');
+  }
+
+  function formatarCpfBr(cpf) {
+    const limpo = normalizarCpfBr(cpf);
+    return limpo.length === 11 ? limpo.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4') : limpo;
+  }
+
+  function listarPessoasComCpf() {
+    const pessoas = [];
+    const adicionar = (nome, cpf) => {
+      const limpo = normalizarCpfBr(cpf);
+      if (!nome || limpo.length !== 11) return;
+      pessoas.push({ nome, cpf: limpo });
+    };
+
+    DB.missionarios.forEach(f => {
+      adicionar(f.responsavel?.nome, f.responsavel?.cpf);
+      if (f.casado && f.conjuge) adicionar(f.conjuge.nome, f.conjuge.cpf);
+      (f.filhos || []).forEach(filho => adicionar(filho.nome, filho.cpf));
+    });
+    DB.equipePessoas.forEach(p => adicionar(p.nome, p.cpf));
+    DB.preletores.forEach(p => adicionar(p.nome, p.cpf));
+    DB.convidados.forEach(p => adicionar(p.nome, p.cpf));
+    DB.pastores.forEach(p => {
+      adicionar(p.nome, p.cpf);
+      if (p.conjuge) adicionar(p.conjuge.nome, p.conjuge.cpf);
+    });
+    return pessoas;
+  }
+  window.listarPessoasComCpf = listarPessoasComCpf;
 
 function normalizarDataIso(valor) {
   const d = parseDataLivre(valor);
@@ -1149,6 +1188,9 @@ document.querySelectorAll('.nav-link').forEach(l => {
     l.classList.add('active');
     document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
     document.querySelector(l.getAttribute('href')).classList.add('active');
+    if (l.getAttribute('href') === '#embarque-checkin' && window.ativarEmbarqueCheckin) {
+      window.ativarEmbarqueCheckin();
+    }
     atualizarContaUI();
     atualizarLeitura();
     atualizarEdicao();
@@ -1624,6 +1666,33 @@ function formatarDataHora(valor) {
   return new Date(valor).toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' });
 }
 
+function renderQRCodesParticipantes() {
+  const grid = document.getElementById('qrGridParticipantes');
+  if (!grid || typeof QRCode === 'undefined') return;
+  grid.innerHTML = '';
+
+  const pessoas = listarPessoasComCpf();
+  if (!pessoas.length) {
+    grid.innerHTML = '<p class="caption">Cadastre participantes com CPF para gerar QR Codes automaticamente.</p>';
+    return;
+  }
+
+  pessoas.forEach((p, idx) => {
+    const card = document.createElement('div');
+    card.className = 'qr-card';
+    const nome = document.createElement('strong');
+    nome.textContent = p.nome;
+    const cpf = document.createElement('span');
+    cpf.textContent = formatarCpfBr(p.cpf);
+    const qrBox = document.createElement('div');
+    qrBox.className = 'qr-box';
+    qrBox.id = `qrp-${idx}`;
+    card.append(nome, cpf, qrBox);
+    grid.appendChild(card);
+    new QRCode(qrBox, { text: `${p.nome} | ${formatarCpfBr(p.cpf)}`, width: 140, height: 140 });
+  });
+}
+
 function calcularTotalParticipantes() {
   const totalMissionarios = DB.missionarios.reduce((s, f) => s + (f.totalPessoas || f.qtd || 0), 0);
   const totalEquipe = DB.equipePessoas.length;
@@ -1639,6 +1708,8 @@ function atualizarLeitura() {
   document.getElementById('paxTotal').textContent = total;
   const totalBadge = document.getElementById('participantesTotalizador');
   if (totalBadge) totalBadge.textContent = `${total} pessoas`;
+  renderQRCodesParticipantes();
+  if (window.atualizarPainelEmbarqueCheckin) window.atualizarPainelEmbarqueCheckin();
   document.getElementById('onibusTotal').textContent = DB.onibus.length;
   document.getElementById('voosTotal').textContent = DB.voos.length;
   const quartosOcupados = DB.quartos.filter(q => ocupacaoQuarto(q) > 0).length;
