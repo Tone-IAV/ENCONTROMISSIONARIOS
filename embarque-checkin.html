@@ -1,0 +1,304 @@
+<!-- EMBARQUE E CHECK-IN -->
+<section id="embarque-checkin" class="view">
+  <style>
+    #embarque-checkin {
+      background: radial-gradient(circle at 20% 20%, #0b1530, #050913 60%);
+      color: #e2e8f0;
+      border-radius: 16px;
+      padding: 1.5rem;
+      box-shadow: 0 14px 40px rgba(0,0,0,0.35);
+      margin-bottom: 1.5rem;
+    }
+    #embarque-checkin .ec-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1rem; align-items: start; }
+    #embarque-checkin .ec-card {
+      background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.02));
+      border: 1px solid rgba(255,255,255,0.05);
+      border-radius: 16px;
+      padding: 1.2rem 1.3rem;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.35);
+    }
+    #embarque-checkin .ec-card h2 { margin: 0 0 0.6rem; font-size: 1.15rem; }
+    #embarque-checkin .ec-card p { color: #cbd5e1; margin: 0 0 0.8rem; }
+    #embarque-checkin label { display: block; margin-bottom: 0.4rem; font-weight: 600; color: #e2e8f0; }
+    #embarque-checkin input[type="text"],
+    #embarque-checkin input[type="search"],
+    #embarque-checkin textarea {
+      width: 100%;
+      padding: 0.7rem 0.75rem;
+      border-radius: 10px;
+      border: 1px solid rgba(255,255,255,0.1);
+      background: rgba(255,255,255,0.04);
+      color: #e2e8f0;
+      font-size: 1rem;
+    }
+    #embarque-checkin input::placeholder,
+    #embarque-checkin textarea::placeholder { color: #94a3b8; }
+    #embarque-checkin button {
+      background: linear-gradient(135deg, #22c55e, #16a34a);
+      color: white;
+      border: none;
+      border-radius: 12px;
+      padding: 0.75rem 1.2rem;
+      font-weight: 800;
+      font-size: 0.95rem;
+      letter-spacing: 0.01em;
+      cursor: pointer;
+      box-shadow: 0 10px 30px rgba(34,197,94,0.35);
+    }
+    #embarque-checkin button.secondary { background: linear-gradient(135deg, #38bdf8, #0284c7); box-shadow: 0 10px 30px rgba(56,189,248,0.35); }
+    #embarque-checkin button.small { padding: 0.45rem 0.7rem; font-size: 0.9rem; }
+    #embarque-checkin .pill { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.35rem 0.6rem; border-radius: 999px; background: rgba(255,255,255,0.06); color: #cbd5e1; font-size: 0.9rem; }
+    #embarque-checkin .status-painel {
+      border-radius: 18px;
+      padding: clamp(1.6rem, 3vw, 2.4rem);
+      text-align: center;
+      border: 1px solid rgba(255,255,255,0.08);
+      background: radial-gradient(circle at 20% 20%, rgba(34,197,94,0.08), rgba(255,255,255,0.02));
+      transition: background 0.3s, border 0.3s;
+      min-height: 180px;
+      display: grid;
+      gap: 0.6rem;
+      align-content: center;
+    }
+    #embarque-checkin .status-painel[data-status="ok"] { border-color: rgba(34,197,94,0.45); background: radial-gradient(circle at 30% 20%, rgba(34,197,94,0.2), rgba(255,255,255,0.02)); }
+    #embarque-checkin .status-painel[data-status="erro"] { border-color: rgba(239,68,68,0.5); background: radial-gradient(circle at 30% 20%, rgba(239,68,68,0.18), rgba(255,255,255,0.02)); }
+    #embarque-checkin .status-painel strong { display: block; font-size: clamp(2.1rem, 4vw, 2.8rem); line-height: 1.15; }
+    #embarque-checkin .status-painel span { color: #cbd5e1; font-size: clamp(1rem, 2vw, 1.2rem); }
+    #embarque-checkin .modo-toggle { display: inline-flex; background: rgba(255,255,255,0.05); padding: 0.35rem; border-radius: 12px; gap: 0.35rem; }
+    #embarque-checkin .modo-toggle button { background: transparent; border: 1px solid transparent; box-shadow: none; color: #cbd5e1; padding: 0.65rem 1rem; }
+    #embarque-checkin .modo-toggle button.active { background: rgba(34,197,94,0.12); color: white; border-color: rgba(34,197,94,0.3); }
+    #embarque-checkin .stack { display: flex; flex-direction: column; gap: 0.65rem; }
+    #embarque-checkin .lista { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 0.75rem; margin-top: 0.75rem; }
+    #embarque-checkin .card-mini {
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 12px;
+      padding: 0.75rem;
+      background: rgba(255,255,255,0.03);
+      display: grid;
+      gap: 0.3rem;
+    }
+    #embarque-checkin .card-mini strong { font-size: 1.05rem; }
+    #embarque-checkin .qr { justify-self: start; border-radius: 12px; padding: 0.4rem; background: white; }
+    #embarque-checkin .log { max-height: 280px; overflow: auto; border: 1px solid rgba(255,255,255,0.07); border-radius: 12px; margin-top: 0.8rem; }
+    #embarque-checkin .log ul { list-style: none; margin: 0; padding: 0; }
+    #embarque-checkin .log li { padding: 0.75rem 0.9rem; border-bottom: 1px solid rgba(255,255,255,0.05); display: flex; justify-content: space-between; gap: 0.5rem; }
+    #embarque-checkin .log small { color: #cbd5e1; }
+    #embarque-checkin .nota { padding: 0.7rem 0.75rem; border-radius: 12px; background: rgba(56,189,248,0.08); border: 1px solid rgba(56,189,248,0.25); color: #cbd5e1; font-size: 0.95rem; }
+    @media (max-width: 640px) {
+      #embarque-checkin { padding: 1rem; }
+      #embarque-checkin .status-painel strong { font-size: 2rem; }
+    }
+  </style>
+
+  <header style="display:flex; align-items:center; justify-content:space-between; gap:1rem; flex-wrap:wrap;">
+    <div>
+      <h2 style="margin:0; color:#e2e8f0;">Embarque e Check-in</h2>
+      <small style="color:#cbd5e1;">Use o leitor de código de barras/QR e acompanhe o status em tempo real.</small>
+    </div>
+    <div class="modo-toggle" role="group" aria-label="Modo de leitura">
+      <button type="button" class="active" data-modo="embarque">Embarque</button>
+      <button type="button" data-modo="checkin">Check-in</button>
+    </div>
+  </header>
+
+  <div class="ec-grid" style="margin-top:1rem;">
+    <div class="ec-card">
+      <h2>Painel de leitura</h2>
+      <p>Conecte o leitor de código de barras/QR e clique no campo abaixo para ativar. Ao ler, a tela exibirá o status em texto grande.</p>
+      <div class="stack">
+        <label for="campoLeitura">Campo do leitor</label>
+        <input id="campoLeitura" type="search" placeholder="Aponte o leitor para um QR Code ou código de barras">
+        <div class="nota">Dica: o código esperado é <strong>Nome | CPF</strong>, mas o sistema também reconhece somente o CPF.</div>
+        <div id="painelStatus" class="status-painel" data-status="ok">
+          <strong id="statusTitulo">Aguardando leitura...</strong>
+          <span id="statusDetalhe">Selecione o modo (embarque ou check-in) e escaneie um participante.</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="ec-card">
+      <h2>Log rápido</h2>
+      <p>Histórico das últimas leituras registradas nesta sessão.</p>
+      <div class="log" aria-live="polite">
+        <ul id="logLeituras"></ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="ec-card" style="margin-top:1rem;">
+    <h2>Lista de inscritos + QR Codes</h2>
+    <p>Adicione participantes e gere um QR Code com <strong>Nome + CPF</strong>. Imprima ou envie para o público.</p>
+    <div class="ec-grid">
+      <div class="stack">
+        <label>Adicionar novo inscrito</label>
+        <input id="novoNome" type="text" placeholder="Nome completo" autocomplete="name">
+        <input id="novoCpf" type="text" placeholder="CPF (apenas números)" inputmode="numeric">
+        <button id="btnAdicionar" type="button">Salvar participante</button>
+        <div class="nota">Os dados ficam armazenados apenas no navegador (localStorage). Para usar outra base, importe a lista e ela será convertida em QR Codes.</div>
+      </div>
+      <div>
+        <label for="campoImportar">Importar lista (um por linha: Nome;CPF)</label>
+        <textarea id="campoImportar" rows="7"></textarea>
+        <button class="secondary small" type="button" id="btnImportar">Importar inscritos</button>
+      </div>
+    </div>
+
+    <div class="lista" id="listaQrs" aria-live="polite"></div>
+  </div>
+
+  <script>
+    /*! qrcode.js v1.0.0 (https://github.com/davidshimjs/qrcodejs) */
+    (function(o){function n(a,b){this._htOption={width:256,height:256,typeNumber:4,colorDark:"#000000",colorLight:"#ffffff",correctLevel:e.H};if("string"==typeof b&&(b=document.getElementById(b)),this._el=b,this._htOption.width=a.width||256,this._htOption.height=a.height||256,this._htOption.text=a.text||"",this._htOption.correctLevel=a.correctLevel||e.H,"string"==typeof a&&(this._htOption.text=a),this._android=g(),this._el.style.position="relative",this._el.style.padding="0",this._el.style.margin="0",this._el.style.width=this._htOption.width+"px",this._el.style.height=this._htOption.height+"px",this._el.style.display="inline-block",this._el.innerHTML="",this._oQRCode=null,this._elCanvas=null,this._elImg=null,this._htOption.text){this.makeCode(this._htOption.text)}}function g(){var a=navigator.userAgent.toLowerCase();return-1!==a.indexOf("android")}function t(a,b){if(a&&b){var c=document.createElement("canvas");c.width=b;c.height=b;a.appendChild(c);return c}}function m(a){this.mode=i.MODE_8BIT_BYTE;this.data=a;this.parsedData=[];for(var b=[],c=0;c<this.data.length;c++){var d=[];d=this.data.charCodeAt(c);d=128>d?d:2048>d?(d>>6|192)+" "+(d&63|128):55296>d||57344<=d?d>>12|224+" "+(d>>6&63|128)+" "+(d&63|128):(c++,65536+((d&1023)<<10)+(this.data.charCodeAt(c)&1023))>>18|240+" "+(65536+((d&1023)<<10)+(this.data.charCodeAt(c)&1023))>>12&63|128+" "+(65536+((d&1023)<<10)+(this.data.charCodeAt(c)&1023))>>6&63|128+" "+(65536+((d&1023)<<10)+(this.data.charCodeAt(c)&1023))&63|128;"string"==typeof d&&(d=d.split(" "));b.push(d)}this.parsedData=b;this.parsedData.forEach(function(a){0!=a.length&&("number"==typeof a?this.parsedData2.push(a):this.parsedData2=this.parsedData2.concat(a))},this);this.parsedData2=[];for(c=0;c<b.length;c++)"number"==typeof b[c]?this.parsedData2.push(b[c]):this.parsedData2=this.parsedData2.concat(b[c]);this.parsedData=this.parsedData2}function h(a,b){this.typeNumber=a;this.errorCorrectLevel=b;this.modules=null;this.moduleCount=0;this.dataCache=null;this.dataList=[]}var e={L:1,M:0,Q:3,H:2},i={MODE_NUMBER:1,MODE_ALPHA_NUM:2,MODE_8BIT_BYTE:4,MODE_KANJI:8},p={PATTERN_POSITION_TABLE:[[],[6,18],[6,22],[6,26],[6,30],[6,34],[6,22,38],[6,24,42],[6,26,46],[6,28,50],[6,30,54],[6,32,58],[6,34,62],[6,26,46,66],[6,26,48,70],[6,26,50,74],[6,30,54,78],[6,30,56,82],[6,30,58,86],[6,34,62,90],[6,28,50,72,94],[6,26,50,74,98],[6,30,54,78,102],[6,28,54,80,106],[6,32,58,84,110],[6,30,58,86,114],[6,34,62,90,118],[6,26,50,74,98,122],[6,30,54,78,102,126],[6,26,52,78,104,130],[6,30,56,82,108,134],[6,34,60,86,112,138],[6,30,58,86,114,142],[6,34,62,90,118,146],[6,30,54,78,102,126,150],[6,24,50,76,102,128,154],[6,28,54,80,106,132,158],[6,32,58,84,110,136,162],[6,26,54,82,110,138,166],[6,30,58,86,114,142,170]],G15:(1<<10|1<<8|1<<5|1<<4|1<<2|1<<1|1)+0,G18:(1<<12|1<<11|1<<10|1<<9|1<<8|1<<5|1<<2|1<<1)+0,G15_MASK:21522};n.prototype.makeCode=function(a){this._htOption.text=a;this._oQRCode=new h(r(this._htOption.text,this._htOption.correctLevel),this._htOption.correctLevel);this._oQRCode.addData(this._htOption.text);this._oQRCode.make();this._el.innerHTML="";this._el.style.position="relative";this._el.style.width=this._htOption.width+"px";this._el.style.height=this._htOption.height+"px";if(this._android&&null===this._elCanvas)this._elCanvas=t(this._el,this._htOption.width);else if(this._elCanvas=this._elCanvas||t(this._el,this._htOption.width),this._elCanvas.getContext){this._elCanvas.height=this._htOption.height;var b=this._elCanvas.getContext("2d");b.clearRect(0,0,this._elCanvas.width,this._elCanvas.height);this._oQRCode.renderTo2dContext(b,this._htOption.width,this._htOption.height)}this._elImg=document.createElement("img");this._elImg.alt="QR code";this._elImg.src=this._elCanvas.toDataURL("image/png");this._elImg.style.display="block";this._elImg.width=this._htOption.width;this._elImg.height=this._htOption.height;this._el.appendChild(this._elImg)};n.prototype.clear=function(){this._el.innerHTML=""};h.prototype={addData:function(a){var b=new m(a);this.dataList.push(b);this.dataCache=null},isDark:function(a,b){if(0>a||this.moduleCount<=a||0>b||this.moduleCount<=b)throw Error(a+","+b);return this.modules[a][b]},getModuleCount:function(){return this.moduleCount},make:function(){if(!this.typeNumber){for(var a=1;40>a;a++){for(var b=q.getRSBlocks(a,this.errorCorrectLevel),c=new k,d=0;d<b.length;d++)c.totalDataCount+=b[d].dataCount;for(d=0;d<this.dataList.length;d++)b=this.dataList[d],c.totalDataCount+=b.parsedData.length;var f=8*a+8;if(c.totalDataCount<=f*f-8*f+8&&(this.typeNumber=a,break))}}this.modules=Array(this.typeNumber*4+17);this.moduleCount=this.modules.length;for(a=0;a<this.moduleCount;a++)this.modules[a]=Array(this.moduleCount);this.setupPositionProbePattern(0,0);this.setupPositionProbePattern(this.moduleCount-7,0);this.setupPositionProbePattern(0,this.moduleCount-7);this.setupTimingPattern();this.setupPositionAdjustPattern();this.setupTypeNumber(!0);this.typeNumber>=7&&this.setupTypeNumber(!1);this.dataCache||(this.dataCache=h.createData(this.typeNumber,this.errorCorrectLevel,this.dataList));this.mapData(this.dataCache)},setupPositionProbePattern:function(a,b){for(var c=-1;7>=c;c++)if(!(0>a+c||this.moduleCount<=a+c))for(var d=-1;7>=d;d++)0>b+d||this.moduleCount<=b+d||(this.modules[a+c][b+d]=0<=c&&c<=6&&(0==d||6==d)||0<=d&&d<=6&&(0==c||6==c)||2<=c&&c<=4&&2<=d&&d<=4)},getBestMaskPattern:function(){for(var a=0,b=0,c=0;8>c;c++){this.makeImpl(!0,c);var d=s.getLostPoint(this);if(0==c||d<a)a=d,b=c}return b},createMovieClip:function(a,b,c){var d=a.createEmptyMovieClip(b,c);this.make();for(var f=1;this.modules.length>=f;f++)for(var g=f-1,h=1;this.modules[f-1].length>=h;h++){var l=h-1,m=1;this.modules[f-1][h-1]&&(m=100);d.beginFill(0,100);d.moveTo(2*h-2,2*g-2);d.lineTo(2*h-1,2*g-2);d.lineTo(2*h-1,2*g-1);d.lineTo(2*h-2,2*g-1);d.endFill()}return d},setupTimingPattern:function(){for(var a=8;a<this.moduleCount-8;a++)null==this.modules[a][6]&&(this.modules[a][6]=0==a%2,null==this.modules[6][a]&&(this.modules[6][a]=0==a%2))},setupPositionAdjustPattern:function(){for(var a=p.PATTERN_POSITION_TABLE[this.typeNumber-1],b=0;b<a.length;b++)for(var c=0;c<a.length;c++){var d=a[b],f=a[c];if(null==this.modules[d][f])for(var g=-2;2>=g;g++)for(var h=-2;2>=h;h++)this.modules[d+g][f+h]=-2==g||2==g||-2==h||2==h||0==g&&0==h}},setupTypeNumber:function(a){for(var b=q.getBCHTypeNumber(this.typeNumber),c=0;18>c;c++){var d=!a&&0==c%2;this.modules[Math.floor(c/3)][c%3+this.moduleCount-8-3]=d;this.modules[c%3+this.moduleCount-8-3][Math.floor(c/3)]=d}},setupTypeInfo:function(a,b){for(var c=this.errorCorrectLevel<<3|b,d=q.getBCHTypeInfo(c),f=0;15>f;f++){var g=!a&&0==f%2;6>f?this.modules[f][8]=g:8>f?this.modules[f+1][8]=g:this.modules[this.moduleCount-15+f][8]=g}for(f=0;15>f;f++){g=!a&&0==f%2;8>f?this.modules[8][this.moduleCount-f-1]=g:9>f?this.modules[8][15-f-1]=g:this.modules[8][this.moduleCount-15+f]=g}this.modules[this.moduleCount-8][8]=!a},mapData:function(a,b){for(var c=-1,d=this.moduleCount-1,f=7,g=0,h=this.moduleCount-1;0<h;h-=2)for(6==h&&h--;;){for(var k=0;2>k;k++)null==this.modules[d][h-k]&&(g<this.dataCache.length&&(this.modules[d][h-k]=1==(this.dataCache[g]>>>f&1)),f--,-1==f&&(g++,f=7));d+=c;if(0>d||this.moduleCount<=d){d-=c;c=-c;break}}},addData:function(a){this.dataList.push(new m(a));this.dataCache=null}};h.PAD0=236;h.PAD1=17;h.createData=function(a,b,c){for(var d=q.getRSBlocks(a,b),f=new k,g=0;g<c.length;g++){var h=c[g];f.put(h.mode,4);f.put(h.parsedData.length,h.mode==i.MODE_8BIT_BYTE?8:10);for(var l=0;l<h.parsedData.length;l++)f.put(h.parsedData[l],8)}for(g=f.getLengthInBits();0!=(g&7);)f.putBit(!1),g++;for(g=0;g<d.length;g++)for(var h=d[g].dataCount,l=0;l<h;l++)f.putByte(0);return h.createBytes(a,b,c,f)};h.createBytes=function(a,b,c,d){for(var f=0,g=0,h=0,l=0,m=0,n=0,p=0;p<c.length;p++)f=Math.max(f,c[p].parsedData.length);for(p=0;p<d.length;p++)g=Math.max(g,d[p]);for(p=0;p<c.length;p++)h+=c[p].parsedData.length;for(p=0;p<d.length;p++)l+=d[p];for(p=0;p<f;p++)for(m=0;m<c.length;m++)p<c[m].parsedData.length&&(d[d.length]=c[m].parsedData[p]);for(p=0;p<g;p++)for(m=0;m<d.length;m++)p<d[m]&&(d[d.length]=d[m]);for(p=0;p<h;p++)d[p]=c[p].parsedData[p];for(p=h;p<h+l;p++)d[p]=d[p];return d};n.prototype._android=g;window.QRCode=n})(this);
+    // =================== APP ===================
+    (function() {
+      const storageKey = 'embarque_checkin_participantes';
+      const listaQrs = document.getElementById('listaQrs');
+      const painelStatus = document.getElementById('painelStatus');
+      const statusTitulo = document.getElementById('statusTitulo');
+      const statusDetalhe = document.getElementById('statusDetalhe');
+      const campoLeitura = document.getElementById('campoLeitura');
+      const modoBotoes = document.querySelectorAll('#embarque-checkin .modo-toggle button');
+      const logLeituras = document.getElementById('logLeituras');
+      let participantes = JSON.parse(localStorage.getItem(storageKey) || '[]');
+      if (!participantes.length) {
+        participantes = [
+          { nome: 'Camila Ferreira', cpf: '12345678901' },
+          { nome: 'Rafael Lima', cpf: '98765432100' },
+          { nome: 'Priscila Duarte', cpf: '74185296344' },
+          { nome: 'Marcos Oliveira', cpf: '36925814700' },
+          { nome: 'Júlia Santos', cpf: '25836914780' }
+        ];
+      }
+
+      let modoAtual = 'embarque';
+      const historico = [];
+
+      function normalizarCpf(cpf) {
+        return (cpf || '').replace(/\D/g, '');
+      }
+
+      function gerarPayload(participante) {
+        return `${participante.nome} | ${normalizarCpf(participante.cpf)}`;
+      }
+
+      function salvarParticipantes() {
+        localStorage.setItem(storageKey, JSON.stringify(participantes));
+      }
+
+      function limparQrs() {
+        listaQrs.innerHTML = '';
+      }
+
+      function desenharQrs() {
+        limparQrs();
+        participantes.forEach((p, idx) => {
+          const card = document.createElement('div');
+          card.className = 'card-mini';
+          const codigo = gerarPayload(p);
+          card.innerHTML = `
+            <div class="pill">#${String(idx + 1).padStart(2, '0')}</div>
+            <strong>${p.nome}</strong>
+            <span>CPF: ${normalizarCpf(p.cpf)}</span>
+            <div class="qr" id="qr-${idx}"></div>
+            <small class="pill" style="background: rgba(34,197,94,0.15); color:white;">${codigo}</small>
+          `;
+          listaQrs.appendChild(card);
+          const alvoQr = document.getElementById(`qr-${idx}`);
+          new QRCode(alvoQr, { text: codigo, width: 140, height: 140, colorDark: '#000', colorLight: '#fff' });
+        });
+      }
+
+      function atualizarStatusOk(participante, codigoLido) {
+        const acao = modoAtual === 'embarque' ? 'embarcado' : 'realizou check-in';
+        painelStatus.dataset.status = 'ok';
+        statusTitulo.textContent = `${participante.nome} ${acao}`;
+        statusDetalhe.textContent = `CPF ${normalizarCpf(participante.cpf)} • ${new Date().toLocaleTimeString()} • código: ${codigoLido}`;
+      }
+
+      function atualizarStatusErro(codigoLido) {
+        painelStatus.dataset.status = 'erro';
+        statusTitulo.textContent = 'Participante não localizado';
+        statusDetalhe.textContent = `O código "${codigoLido}" não corresponde a nenhum inscrito.`;
+      }
+
+      function registrarLog(texto) {
+        historico.unshift({ texto, horario: new Date() });
+        if (historico.length > 20) historico.pop();
+        logLeituras.innerHTML = historico.map(item => `<li><span>${item.texto}</span><small>${item.horario.toLocaleTimeString()}</small></li>`).join('');
+      }
+
+      function localizarParticipante(codigoLido) {
+        const codigo = (codigoLido || '').trim();
+        if (!codigo) return null;
+        const cpfLido = normalizarCpf(codigo);
+        return participantes.find(p => {
+          const matchCpf = cpfLido && normalizarCpf(p.cpf) === cpfLido;
+          const matchPayload = gerarPayload(p).toLowerCase() === codigo.toLowerCase();
+          return matchCpf || matchPayload;
+        }) || null;
+      }
+
+      function processarLeitura(codigoLido) {
+        const participante = localizarParticipante(codigoLido);
+        if (participante) {
+          atualizarStatusOk(participante, codigoLido);
+          registrarLog(`${participante.nome} (${modoAtual})`);
+        } else {
+          atualizarStatusErro(codigoLido);
+          registrarLog(`Código não encontrado: ${codigoLido}`);
+        }
+      }
+
+      campoLeitura.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          processarLeitura(e.target.value);
+          e.target.select();
+        }
+      });
+
+      campoLeitura.addEventListener('blur', () => setTimeout(() => campoLeitura.focus(), 100));
+
+      document.getElementById('btnAdicionar').addEventListener('click', () => {
+        const nome = document.getElementById('novoNome').value.trim();
+        const cpf = normalizarCpf(document.getElementById('novoCpf').value);
+        if (!nome || cpf.length < 11) {
+          alert('Informe nome e CPF válidos.');
+          return;
+        }
+        participantes.push({ nome, cpf });
+        salvarParticipantes();
+        desenharQrs();
+        document.getElementById('novoNome').value = '';
+        document.getElementById('novoCpf').value = '';
+        document.getElementById('novoNome').focus();
+      });
+
+      document.getElementById('btnImportar').addEventListener('click', () => {
+        const texto = document.getElementById('campoImportar').value;
+        if (!texto.trim()) return;
+        const linhas = texto.split(/\n+/).map(l => l.trim()).filter(Boolean);
+        linhas.forEach(linha => {
+          const [nome, cpf] = linha.split(/;|,/);
+          if (nome && cpf) participantes.push({ nome: nome.trim(), cpf: normalizarCpf(cpf) });
+        });
+        salvarParticipantes();
+        desenharQrs();
+      });
+
+      modoBotoes.forEach(btn => {
+        btn.addEventListener('click', () => {
+          modoAtual = btn.dataset.modo;
+          modoBotoes.forEach(b => b.classList.toggle('active', b.dataset.modo === modoAtual));
+          registrarLog(`Modo alterado para ${modoAtual}`);
+        });
+      });
+
+      desenharQrs();
+
+      window.ativarEmbarqueCheckin = () => {
+        setTimeout(() => campoLeitura.focus(), 50);
+      };
+    })();
+    </script>
+</section>
