@@ -277,7 +277,6 @@
     <li><a href="#dashboard" class="nav-link">Dashboard</a></li>
     <li><a href="#equipes" class="nav-link">Equipes & Projetos</a></li>
     <li><a href="#participantes" class="nav-link">Participantes</a></li>
-    <li><a href="#embarque-checkin" class="nav-link">Embarque/Check-in</a></li>
     <li><a href="#transporte" class="nav-link">Transporte</a></li>
     <li><a href="#alojamento" class="nav-link">Alojamento</a></li>
     <li><a href="#cronograma" class="nav-link">Cronograma</a></li>
@@ -297,7 +296,6 @@
     <?!= include('dashboard'); ?>
     <?!= include('equipes'); ?>
     <?!= include('participantes'); ?>
-    <?!= include('embarque-checkin'); ?>
     <?!= include('transporte'); ?>
     <?!= include('alojamento'); ?>
     <?!= include('cronograma'); ?>
@@ -1151,9 +1149,6 @@ document.querySelectorAll('.nav-link').forEach(l => {
     l.classList.add('active');
     document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
     document.querySelector(l.getAttribute('href')).classList.add('active');
-    if (l.getAttribute('href') === '#embarque-checkin' && window.ativarEmbarqueCheckin) {
-      window.ativarEmbarqueCheckin();
-    }
     atualizarContaUI();
     atualizarLeitura();
     atualizarEdicao();
