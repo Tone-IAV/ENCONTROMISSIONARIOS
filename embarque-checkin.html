@@ -1,0 +1,298 @@
+<!-- EMBARQUE E CHECK-IN -->
+<section id="embarque-checkin" class="view">
+  <style>
+    #embarque-checkin {
+      background: #f7f7f8;
+      color: #0f172a;
+      border-radius: 12px;
+      padding: 1.5rem;
+      border: 1px solid #e2e8f0;
+      box-shadow: 0 6px 20px rgba(15, 23, 42, 0.08);
+      margin-bottom: 1.5rem;
+    }
+    #embarque-checkin h2 { margin: 0; color: #0f172a; }
+    #embarque-checkin .caption { color: #475569; margin-top: 0.25rem; }
+    #embarque-checkin .shell {
+      display: grid;
+      gap: 1rem;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      align-items: stretch;
+    }
+    #embarque-checkin .painel {
+      background: white;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      padding: clamp(1.2rem, 2vw, 1.6rem);
+      display: grid;
+      gap: 1rem;
+      place-items: center;
+      min-height: 320px;
+    }
+    #embarque-checkin .status {
+      text-align: center;
+      display: grid;
+      gap: 0.75rem;
+      width: 100%;
+    }
+    #embarque-checkin .status-title {
+      font-size: clamp(2.2rem, 5vw, 3rem);
+      font-weight: 800;
+      margin: 0;
+    }
+    #embarque-checkin .status-detail {
+      font-size: clamp(1.05rem, 2.4vw, 1.4rem);
+      margin: 0;
+      color: #475569;
+    }
+    #embarque-checkin .status[data-state="ok"] .status-title { color: #16a34a; }
+    #embarque-checkin .status[data-state="ok"] .status-detail { color: #15803d; }
+    #embarque-checkin .status[data-state="erro"] .status-title { color: #dc2626; }
+    #embarque-checkin .status[data-state="erro"] .status-detail { color: #b91c1c; }
+    #embarque-checkin .modo {
+      display: inline-flex;
+      gap: 0.5rem;
+      padding: 0.4rem;
+      background: #e2e8f0;
+      border-radius: 999px;
+      align-items: center;
+    }
+    #embarque-checkin .modo button {
+      border: none;
+      background: transparent;
+      padding: 0.5rem 0.9rem;
+      border-radius: 999px;
+      font-weight: 700;
+      color: #475569;
+      cursor: pointer;
+    }
+    #embarque-checkin .modo button.active {
+      background: white;
+      color: #0f172a;
+      box-shadow: 0 4px 12px rgba(15, 23, 42, 0.12);
+      border: 1px solid #cbd5e1;
+    }
+    #embarque-checkin #scannerInput {
+      position: absolute;
+      opacity: 0;
+      pointer-events: none;
+      height: 0;
+      width: 0;
+    }
+    #embarque-checkin details {
+      background: white;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 1rem 1.25rem;
+    }
+    #embarque-checkin summary {
+      cursor: pointer;
+      font-weight: 700;
+      color: #0f172a;
+      outline: none;
+    }
+    #embarque-checkin .grid2 { display: grid; gap: 0.75rem; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); margin-top: 0.8rem; }
+    #embarque-checkin label { display: block; font-weight: 600; color: #0f172a; margin-bottom: 0.25rem; }
+    #embarque-checkin input, #embarque-checkin textarea { width: 100%; border: 1px solid #cbd5e1; border-radius: 10px; padding: 0.6rem 0.7rem; font-size: 1rem; color: #0f172a; }
+    #embarque-checkin button.primary { background: #16a34a; color: white; border: none; border-radius: 10px; padding: 0.65rem 0.9rem; font-weight: 800; cursor: pointer; }
+    #embarque-checkin button.secondary { background: #0ea5e9; color: white; border: none; border-radius: 10px; padding: 0.5rem 0.8rem; font-weight: 700; cursor: pointer; }
+    #embarque-checkin .lista-qrs { display: grid; gap: 0.8rem; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); margin-top: 1rem; }
+    #embarque-checkin .qr-card { border: 1px solid #e2e8f0; border-radius: 10px; padding: 0.75rem; background: #f8fafc; display: grid; gap: 0.35rem; justify-items: center; }
+    #embarque-checkin .qr-card strong { color: #0f172a; text-align: center; }
+    #embarque-checkin .qr-box { background: white; padding: 0.4rem; border-radius: 8px; border: 1px solid #e2e8f0; }
+  </style>
+
+  <div style="display:flex; justify-content:space-between; gap:1rem; flex-wrap:wrap; align-items:center; margin-bottom:0.75rem;">
+    <div>
+      <h2>Embarque e Check-in</h2>
+      <p class="caption">Deixe o leitor ativo e acompanhe apenas o status de leitura.</p>
+    </div>
+    <div class="modo" role="group" aria-label="Modo de leitura">
+      <button type="button" class="active" data-modo="embarque">Embarque</button>
+      <button type="button" data-modo="checkin">Check-in</button>
+    </div>
+  </div>
+
+  <div class="shell">
+    <div class="painel">
+      <div class="status" id="statusPainel" data-state="neutro">
+        <p class="status-title" id="statusTitulo">Aguardando leitura</p>
+        <p class="status-detail" id="statusMensagem">Aponte o leitor para um QR Code ou código de barras.</p>
+      </div>
+      <input id="scannerInput" type="text" autocomplete="off" aria-hidden="true">
+      <button type="button" class="secondary" id="btnAtivarLeitor">Ativar leitor</button>
+    </div>
+    <details>
+      <summary>Gerenciar participantes e QR Codes</summary>
+      <div class="grid2">
+        <div>
+          <label for="novoNome">Nome completo</label>
+          <input id="novoNome" type="text" placeholder="Nome completo" autocomplete="name">
+        </div>
+        <div>
+          <label for="novoCpf">CPF</label>
+          <input id="novoCpf" type="text" placeholder="Apenas números" inputmode="numeric">
+        </div>
+      </div>
+      <div style="margin-top:0.6rem; display:flex; gap:0.5rem; flex-wrap:wrap;">
+        <button id="btnAdicionar" type="button" class="primary">Salvar participante</button>
+        <button id="btnImportar" type="button" class="secondary">Importar lista (Nome;CPF por linha)</button>
+      </div>
+      <textarea id="campoImportar" rows="4" style="margin-top:0.6rem; width:100%;" placeholder="Nome completo;CPF"></textarea>
+      <div class="lista-qrs" id="listaQrs" aria-live="polite"></div>
+    </details>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <script>
+    (() => {
+      const storageKey = 'embarque_checkin_participantes';
+      const scannerInput = document.getElementById('scannerInput');
+      const statusPainel = document.getElementById('statusPainel');
+      const statusTitulo = document.getElementById('statusTitulo');
+      const statusMensagem = document.getElementById('statusMensagem');
+      const modoBotoes = document.querySelectorAll('#embarque-checkin .modo button');
+      let modoAtual = 'embarque';
+
+      let participantes = JSON.parse(localStorage.getItem(storageKey) || '[]');
+      if (!participantes.length) {
+        participantes = [
+          { nome: 'João Silva', cpf: '12345678901' },
+          { nome: 'Maria Oliveira', cpf: '98765432100' },
+          { nome: 'Ana Santos', cpf: '45678912300' }
+        ];
+        salvarParticipantes();
+      }
+
+      function salvarParticipantes() {
+        localStorage.setItem(storageKey, JSON.stringify(participantes));
+      }
+
+      function desenharQrs() {
+        const lista = document.getElementById('listaQrs');
+        lista.innerHTML = '';
+        participantes.forEach((p, idx) => {
+          const card = document.createElement('div');
+          card.className = 'qr-card';
+          const strong = document.createElement('strong');
+          strong.textContent = p.nome;
+          const info = document.createElement('span');
+          info.textContent = formatarCpf(p.cpf);
+          const qrBox = document.createElement('div');
+          qrBox.className = 'qr-box';
+          qrBox.id = `qr-${idx}`;
+          card.append(strong, info, qrBox);
+          lista.appendChild(card);
+          new QRCode(qrBox, {
+            text: `${p.nome} | ${formatarCpf(p.cpf)}`,
+            width: 140,
+            height: 140,
+          });
+        });
+      }
+
+      function formatarCpf(cpf) {
+        return cpf.replace(/\D/g, '').replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
+      }
+
+      function normalizarCpf(cpf) {
+        return (cpf || '').replace(/\D/g, '');
+      }
+
+      function localizarParticipante(valor) {
+        const normalizado = valor.trim();
+        const cpfBusca = normalizarCpf(normalizado);
+        return participantes.find(p => {
+          const matchCpf = cpfBusca && normalizarCpf(p.cpf) === cpfBusca;
+          const matchTexto = normalizado.toLowerCase().includes(p.nome.toLowerCase());
+          return matchCpf || matchTexto;
+        });
+      }
+
+      function atualizarStatusOk(participante) {
+        statusPainel.dataset.state = 'ok';
+        statusTitulo.textContent = `${participante.nome}`;
+        statusMensagem.textContent = `${modoAtual.toUpperCase()} confirmado`;
+      }
+
+      function atualizarStatusErro(codigo) {
+        statusPainel.dataset.state = 'erro';
+        statusTitulo.textContent = 'Participante não localizado';
+        statusMensagem.textContent = codigo ? `Código lido: ${codigo}` : 'Revise o QR Code ou CPF.';
+      }
+
+      function resetStatus() {
+        statusPainel.dataset.state = 'neutro';
+        statusTitulo.textContent = 'Aguardando leitura';
+        statusMensagem.textContent = 'Aponte o leitor para um QR Code ou código de barras.';
+      }
+
+      function processarLeitura(valor) {
+        if (!valor.trim()) return;
+        const participante = localizarParticipante(valor);
+        if (participante) {
+          atualizarStatusOk(participante);
+        } else {
+          atualizarStatusErro(valor.trim());
+        }
+      }
+
+      scannerInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          processarLeitura(e.target.value);
+          e.target.value = '';
+        }
+      });
+
+      document.getElementById('btnAtivarLeitor').addEventListener('click', () => {
+        scannerInput.focus();
+        resetStatus();
+      });
+
+      scannerInput.addEventListener('blur', () => setTimeout(() => scannerInput.focus(), 50));
+
+      document.getElementById('btnAdicionar').addEventListener('click', () => {
+        const nome = document.getElementById('novoNome').value.trim();
+        const cpf = normalizarCpf(document.getElementById('novoCpf').value);
+        if (!nome || cpf.length < 11) {
+          alert('Informe nome e CPF válidos.');
+          return;
+        }
+        participantes.push({ nome, cpf });
+        salvarParticipantes();
+        desenharQrs();
+        document.getElementById('novoNome').value = '';
+        document.getElementById('novoCpf').value = '';
+        document.getElementById('novoNome').focus();
+      });
+
+      document.getElementById('btnImportar').addEventListener('click', () => {
+        const texto = document.getElementById('campoImportar').value;
+        if (!texto.trim()) return;
+        const linhas = texto.split(/\n+/).map(l => l.trim()).filter(Boolean);
+        linhas.forEach(linha => {
+          const [nome, cpf] = linha.split(/;|,/);
+          if (nome && cpf) participantes.push({ nome: nome.trim(), cpf: normalizarCpf(cpf) });
+        });
+        salvarParticipantes();
+        desenharQrs();
+        document.getElementById('campoImportar').value = '';
+      });
+
+      modoBotoes.forEach(btn => {
+        btn.addEventListener('click', () => {
+          modoAtual = btn.dataset.modo;
+          modoBotoes.forEach(b => b.classList.toggle('active', b.dataset.modo === modoAtual));
+          scannerInput.focus();
+        });
+      });
+
+      desenharQrs();
+      resetStatus();
+
+      window.ativarEmbarqueCheckin = () => {
+        setTimeout(() => scannerInput.focus(), 50);
+      };
+    })();
+  </script>
+</section>
