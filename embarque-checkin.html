@@ -1,250 +1,170 @@
-<!-- EMBARQUE E CHECK-IN -->
-<section id="embarque-checkin" class="view">
-  <style>
+<section id="embarque-checkin" class="view estado-aguardando">
+
+<style>
+    /* ISOLAMENTO TOTAL — nada atinge o restante do sistema */
     #embarque-checkin {
-      background: #f8f8fb;
-      color: #0f172a;
-      border-radius: 12px;
-      padding: 1.25rem;
-      border: 1px solid #e2e8f0;
-      box-shadow: 0 6px 16px rgba(15, 23, 42, 0.08);
-      display: grid;
-      gap: 1rem;
+        height: 100vh;
+        width: 100%;
+        overflow: hidden;
+        transition: background 0.3s ease;
+        background-color: #2c3e50;
+        color: white;
+        position: relative;
     }
-    #embarque-checkin h2 { margin: 0; color: #0f172a; }
-    #embarque-checkin .caption { color: #475569; margin-top: 0.25rem; }
-    #embarque-checkin .header { display:flex; justify-content:space-between; align-items:flex-start; gap:1rem; flex-wrap:wrap; }
-    #embarque-checkin .painel {
-      background: white;
-      border: 1px solid #e2e8f0;
-      border-radius: 12px;
-      padding: clamp(1.3rem, 3vw, 1.8rem);
-      display: grid;
-      gap: 1rem;
-      place-items: center;
-      min-height: 260px;
+
+    #embarque-checkin .container {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        height: 100%;
+        text-align: center;
     }
-    #embarque-checkin .status {
-      text-align: center;
-      display: grid;
-      gap: 0.6rem;
-      width: 100%;
+
+    #embarque-checkin.estado-sucesso { background-color: #27ae60; }
+    #embarque-checkin.estado-erro { background-color: #c0392b; }
+    #embarque-checkin.estado-aguardando { background-color: #2c3e50; }
+
+    #embarque-checkin .blink {
+        animation: piscar 1.5s infinite;
+        font-size: 4rem;
+        font-weight: bold;
+        text-transform: uppercase;
     }
-    #embarque-checkin .status-title {
-      font-size: clamp(2.2rem, 4vw, 2.9rem);
-      font-weight: 800;
-      margin: 0;
+
+    @keyframes piscar {
+        0% { opacity: 1; }
+        50% { opacity: 0.3; }
+        100% { opacity: 1; }
     }
-    #embarque-checkin .status-detail {
-      font-size: clamp(1.05rem, 2.4vw, 1.4rem);
-      margin: 0;
-      color: #475569;
+
+    #embarque-checkin .mensagem-detalhe {
+        font-size: 2rem;
+        margin-top: 20px;
     }
-    #embarque-checkin .status[data-state="ok"] .status-title { color: #16a34a; }
-    #embarque-checkin .status[data-state="ok"] .status-detail { color: #15803d; }
-    #embarque-checkin .status[data-state="erro"] .status-title { color: #dc2626; }
-    #embarque-checkin .status[data-state="erro"] .status-detail { color: #b91c1c; }
-    #embarque-checkin #scannerInput { position:absolute; opacity:0; pointer-events:none; height:0; width:0; }
-    #embarque-checkin .modo { display:inline-flex; gap:0.5rem; padding:0.4rem; background:#e2e8f0; border-radius:999px; align-items:center; }
-    #embarque-checkin .modo button { border:none; background:transparent; padding:0.5rem 0.9rem; border-radius:999px; font-weight:700; color:#475569; cursor:pointer; }
-    #embarque-checkin .modo button.active { background:white; color:#0f172a; box-shadow:0 4px 12px rgba(15, 23, 42, 0.12); border:1px solid #cbd5e1; }
-    #embarque-checkin .lista {
-      background:white;
-      border:1px solid #e2e8f0;
-      border-radius:12px;
-      padding:1rem 1.1rem;
-      display:grid;
-      gap:0.6rem;
+
+    #embarque-checkin #leitor-camera {
+        width: 300px;
+        display: none;
+        margin-bottom: 20px;
+        background: white;
+        padding: 10px;
+        border-radius: 8px;
     }
-    #embarque-checkin .lista h3 { margin:0; color:#0f172a; }
-    #embarque-checkin .lista .linha { display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:0.5rem; align-items:center; padding:0.55rem 0.65rem; border-bottom:1px solid #e2e8f0; }
-    #embarque-checkin .lista .linha:last-child { border-bottom:none; }
-    #embarque-checkin .tag { display:inline-flex; align-items:center; gap:0.35rem; padding:0.35rem 0.8rem; border-radius:999px; font-weight:700; font-size:0.92rem; }
-    #embarque-checkin .tag.embarque { background:#dcfce7; color:#15803d; }
-    #embarque-checkin .tag.checkin { background:#e0f2fe; color:#0ea5e9; }
-    #embarque-checkin .tag.pendente { background:#fee2e2; color:#b91c1c; }
-    #embarque-checkin .linha strong { color:#0f172a; }
-  </style>
 
-  <div class="header">
-    <div>
-      <h2>Embarque e Check-in</h2>
-      <p class="caption">Deixe o leitor ativo. A tela mostra apenas o status da leitura e a lista de checkados.</p>
-    </div>
-    <div class="modo" role="group" aria-label="Modo de leitura">
-      <button type="button" class="active" data-modo="embarque">Embarque</button>
-      <button type="button" data-modo="checkin">Check-in</button>
-    </div>
-  </div>
+    #embarque-checkin #btn-mobile {
+        position: absolute;
+        bottom: 20px;
+        padding: 15px 30px;
+        font-size: 1.2rem;
+        background-color: #3498db;
+        color: white;
+        border: none;
+        border-radius: 50px;
+        cursor: pointer;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+        z-index: 100;
+    }
+</style>
 
-  <div class="painel">
-    <div class="status" id="statusPainel" data-state="neutro">
-      <p class="status-title" id="statusTitulo">Aguardando leitura</p>
-      <p class="status-detail" id="statusMensagem">Aponte o leitor para um QR Code ou código de barras.</p>
-    </div>
-    <input id="scannerInput" type="text" autocomplete="off" aria-hidden="true">
-    <button type="button" class="modo" id="btnAtivarLeitor" style="border:none;">Ativar leitor</button>
-  </div>
+<div class="container">
+    <div id="leitor-camera"></div>
+    <div id="status-texto" class="blink">AGUARDANDO...</div>
+    <div id="status-detalhe" class="mensagem-detalhe">Passe o item no leitor</div>
+</div>
 
-  <div class="lista" aria-live="polite">
-    <div style="display:flex; justify-content:space-between; align-items:center; gap:0.5rem; flex-wrap:wrap;">
-      <h3>Lista de checkados</h3>
-      <small class="caption" id="resumoCheckados">Nenhum registro ainda.</small>
-    </div>
-    <div id="listaCheckados"></div>
-  </div>
+<button id="btn-mobile">📷 Ativar Câmera (Celular)</button>
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-  <script>
-    (() => {
-      const scannerInput = document.getElementById('scannerInput');
-      const statusPainel = document.getElementById('statusPainel');
-      const statusTitulo = document.getElementById('statusTitulo');
-      const statusMensagem = document.getElementById('statusMensagem');
-      const modoBotoes = document.querySelectorAll('#embarque-checkin .modo button[data-modo]');
-      const listaCheckados = document.getElementById('listaCheckados');
-      const resumoCheckados = document.getElementById('resumoCheckados');
-      const storageKey = 'embarque_checkin_status';
-      let modoAtual = 'embarque';
+<script src="https://unpkg.com/html5-qrcode"></script>
 
-      const estados = new Map();
+<script>
+(() => {
 
-      function normalizarCpf(cpf) {
-        return (cpf || '').replace(/\D/g, '');
-      }
+    // AGORA O “CORPO” É A SEÇÃO ISOLADA
+    const secao = document.getElementById("embarque-checkin");
+    const textoPrincipal = secao.querySelector("#status-texto");
+    const textoDetalhe = secao.querySelector("#status-detalhe");
+    const btnMobile = secao.querySelector("#btn-mobile");
 
-      function formatarCpf(cpf) {
-        const limpo = normalizarCpf(cpf);
-        return limpo.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
-      }
+    // Lista real de participantes
+    let listaParticipantes = [];
 
-      function carregarEstados() {
-        const salvo = JSON.parse(localStorage.getItem(storageKey) || '[]');
-        salvo.forEach(item => estados.set(item.cpf, item));
-      }
-
-      function salvarEstados() {
-        localStorage.setItem(storageKey, JSON.stringify(Array.from(estados.values())));
-      }
-
-      function obterParticipantes() {
-        return typeof window.listarPessoasComCpf === 'function' ? window.listarPessoasComCpf() : [];
-      }
-
-      function localizarParticipante(valor) {
-        const bruto = valor.trim();
-        const cpfLido = normalizarCpf(bruto);
-        const participantes = obterParticipantes();
-        return participantes.find(p => {
-          const cpfMatch = cpfLido && p.cpf === cpfLido;
-          const textoMatch = bruto.toLowerCase().includes(p.nome.toLowerCase());
-          return cpfMatch || textoMatch;
-        }) || null;
-      }
-
-      function atualizarStatusOk(participante) {
-        statusPainel.dataset.state = 'ok';
-        const acao = modoAtual === 'embarque' ? 'Embarcado' : 'Check-in realizado';
-        statusTitulo.textContent = participante.nome;
-        statusMensagem.textContent = `${acao} com sucesso.`;
-      }
-
-      function atualizarStatusErro(mensagem, codigo = '') {
-        statusPainel.dataset.state = 'erro';
-        statusTitulo.textContent = mensagem;
-        statusMensagem.textContent = codigo ? `Código lido: ${codigo}` : 'Revise o QR Code ou CPF.';
-      }
-
-      function resetStatus() {
-        statusPainel.dataset.state = 'neutro';
-        statusTitulo.textContent = 'Aguardando leitura';
-        statusMensagem.textContent = 'Aponte o leitor para um QR Code ou código de barras.';
-      }
-
-      function registrarLeitura(participante) {
-        const chave = normalizarCpf(participante.cpf);
-        const atual = estados.get(chave) || { cpf: chave, nome: participante.nome, embarque: false, checkin: false, atualizado: Date.now() };
-        if (modoAtual === 'embarque') {
-          atual.embarque = true;
-        } else if (modoAtual === 'checkin' && atual.embarque) {
-          atual.checkin = true;
+    function carregarParticipantes() {
+        if (typeof window.listarPessoasComCpf === "function") {
+            listaParticipantes = window.listarPessoasComCpf().map(p => ({
+                nome: (p.nome || "").toUpperCase(),
+                cpf: (p.cpf || "").replace(/\D/g, "")
+            }));
         }
-        atual.nome = participante.nome;
-        atual.atualizado = Date.now();
-        estados.set(chave, atual);
-        salvarEstados();
-        desenharLista();
-      }
+    }
 
-      function desenharLista() {
-        const itens = Array.from(estados.values()).sort((a, b) => b.atualizado - a.atualizado);
-        if (!itens.length) {
-          listaCheckados.innerHTML = '<p class="caption" style="margin:0;">Ninguém foi lido ainda.</p>';
-          resumoCheckados.textContent = 'Nenhum registro ainda.';
-          return;
+    window.addEventListener("load", carregarParticipantes);
+
+    function processarCodigo(codigo) {
+        const entrada = codigo.trim().toUpperCase();
+        const num = entrada.replace(/\D/g, "");
+
+        const encontrado = listaParticipantes.some(p =>
+            p.cpf === num || p.nome.includes(entrada)
+        );
+
+        mostrarResultado(encontrado, entrada);
+    }
+
+    function mostrarResultado(ok, codigo) {
+        secao.classList.remove("estado-aguardando", "estado-sucesso", "estado-erro");
+        textoPrincipal.classList.remove("blink");
+
+        if (ok) {
+            secao.classList.add("estado-sucesso");
+            textoPrincipal.textContent = "AUTORIZADO";
+        } else {
+            secao.classList.add("estado-erro");
+            textoPrincipal.textContent = "NÃO LOCALIZADO";
         }
-        resumoCheckados.textContent = `${itens.length} código(s) lido(s)`;
-        listaCheckados.innerHTML = itens.map(item => {
-          const statusTag = item.checkin ? '<span class="tag checkin">Check-in</span>'
-            : item.embarque ? '<span class="tag embarque">Embarcado</span>'
-            : '<span class="tag pendente">Pendente</span>';
-          const detalhe = item.checkin ? 'Check-in concluído' : item.embarque ? 'Aguardando check-in' : 'Aguardando embarque';
-          return `<div class="linha"><div><strong>${item.nome}</strong><br><small>${formatarCpf(item.cpf)}</small></div><div>${statusTag}<br><small class="caption">${detalhe}</small></div></div>`;
-        }).join('');
-      }
 
-      function processarLeitura(valor) {
-        if (!valor.trim()) return;
-        const participante = localizarParticipante(valor);
-        if (!participante) {
-          atualizarStatusErro('Participante não localizado', valor.trim());
-          return;
+        textoDetalhe.textContent = "Código: " + codigo;
+
+        setTimeout(resetTela, 3000);
+    }
+
+    function resetTela() {
+        secao.classList.remove("estado-sucesso", "estado-erro");
+        secao.classList.add("estado-aguardando");
+        textoPrincipal.classList.add("blink");
+        textoPrincipal.textContent = "AGUARDANDO...";
+        textoDetalhe.textContent = "Passe o item no leitor";
+    }
+
+    // LEITOR USB
+    let buffer = "";
+    document.addEventListener("keydown", e => {
+        if (!secao.classList.contains("active")) return;
+        
+        if (e.key === "Enter") {
+            if (buffer.length > 0) processarCodigo(buffer);
+            buffer = "";
+        } else if (e.key.length === 1) {
+            buffer += e.key;
         }
-        const chave = normalizarCpf(participante.cpf);
-        const atual = estados.get(chave);
-        if (modoAtual === 'checkin' && !(atual && atual.embarque)) {
-          atualizarStatusErro('Participante não embarcado', valor.trim());
-          return;
-        }
-        registrarLeitura(participante);
-        atualizarStatusOk(participante);
-      }
+    });
 
-      scannerInput.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter') {
-          e.preventDefault();
-          processarLeitura(e.target.value);
-          e.target.value = '';
-        }
-      });
+    // CAMERA
+    let scanner = null;
 
-      document.getElementById('btnAtivarLeitor').addEventListener('click', () => {
-        scannerInput.focus();
-        resetStatus();
-      });
+    btnMobile.addEventListener("click", () => {
+        const area = secao.querySelector("#leitor-camera");
+        area.style.display = "block";
+        btnMobile.style.display = "none";
 
-      scannerInput.addEventListener('blur', () => setTimeout(() => scannerInput.focus(), 50));
+        scanner = new Html5QrcodeScanner("leitor-camera", { fps:10, qrbox:250 });
+        scanner.render(
+            text => processarCodigo(text),
+            err => {}
+        );
+    });
 
-      modoBotoes.forEach(btn => {
-        btn.addEventListener('click', () => {
-          modoAtual = btn.dataset.modo;
-          modoBotoes.forEach(b => b.classList.toggle('active', b.dataset.modo === modoAtual));
-          scannerInput.focus();
-          resetStatus();
-        });
-      });
+})();
+</script>
 
-      carregarEstados();
-      desenharLista();
-      resetStatus();
-
-      window.ativarEmbarqueCheckin = () => {
-        setTimeout(() => scannerInput.focus(), 50);
-      };
-
-      window.atualizarPainelEmbarqueCheckin = () => {
-        desenharLista();
-      };
-    })();
-  </script>
 </section>
