@@ -1,30 +1,28 @@
-<!-- FINANCEIRO -->
 <section id="financeiro" class="view">
-  <div class="modo-leitura">
+  <div class="section-card">
     <h2>Financeiro</h2>
-    <div id="financeiro-leitura"></div>
-  </div>
-  <div class="modo-edicao">
-    <h2>Atualizar Financeiro</h2>
-    <div class="grid-3">
-      <div class="card">
-        <h3>Totais</h3>
-        <form id="formFinanceiro">
-          <input type="number" placeholder="Orçado" min="0" step="0.01" required>
-          <input type="number" placeholder="Realizado" min="0" step="0.01" required>
-          <button type="submit" class="btn-salvar">Salvar Totais</button>
-        </form>
+    <p class="small-note">Acompanhe entradas, saídas e centros de custo.</p>
+    <form data-list-target="financeiro-list" class="stacked">
+      <div class="form-grid">
+        <label>Tipo
+          <select name="tipo" required>
+            <option value="">Selecione</option>
+            <option value="entrada">Entrada</option>
+            <option value="saida">Saída</option>
+          </select>
+        </label>
+        <label>Descrição
+          <input name="descricao" type="text" required>
+        </label>
+        <label>Valor
+          <input name="valor" type="number" step="0.01" min="0" required>
+        </label>
+        <label>Centro de custo
+          <input name="centro" type="text" required>
+        </label>
       </div>
-      <div class="card">
-        <h3>Novo Centro de Custo</h3>
-        <form id="formCentro">
-          <input type="text" placeholder="Centro" required>
-          <input type="number" placeholder="Orçado" min="0" step="0.01" required>
-          <input type="number" placeholder="Realizado" min="0" step="0.01" required>
-          <button type="submit" class="btn-salvar">Adicionar Centro</button>
-        </form>
-      </div>
-    </div>
-    <div id="financeiro-edicao"></div>
+      <button type="submit">Registrar movimentação</button>
+    </form>
+    <ul id="financeiro-list" class="list"></ul>
   </div>
 </section>

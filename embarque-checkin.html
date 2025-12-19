@@ -1,170 +1,29 @@
-<section id="embarque-checkin" class="view estado-aguardando">
-
-<style>
-    /* ISOLAMENTO TOTAL — nada atinge o restante do sistema */
-    #embarque-checkin {
-        height: 100vh;
-        width: 100%;
-        overflow: hidden;
-        transition: background 0.3s ease;
-        background-color: #2c3e50;
-        color: white;
-        position: relative;
-    }
-
-    #embarque-checkin .container {
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        height: 100%;
-        text-align: center;
-    }
-
-    #embarque-checkin.estado-sucesso { background-color: #27ae60; }
-    #embarque-checkin.estado-erro { background-color: #c0392b; }
-    #embarque-checkin.estado-aguardando { background-color: #2c3e50; }
-
-    #embarque-checkin .blink {
-        animation: piscar 1.5s infinite;
-        font-size: 4rem;
-        font-weight: bold;
-        text-transform: uppercase;
-    }
-
-    @keyframes piscar {
-        0% { opacity: 1; }
-        50% { opacity: 0.3; }
-        100% { opacity: 1; }
-    }
-
-    #embarque-checkin .mensagem-detalhe {
-        font-size: 2rem;
-        margin-top: 20px;
-    }
-
-    #embarque-checkin #leitor-camera {
-        width: 300px;
-        display: none;
-        margin-bottom: 20px;
-        background: white;
-        padding: 10px;
-        border-radius: 8px;
-    }
-
-    #embarque-checkin #btn-mobile {
-        position: absolute;
-        bottom: 20px;
-        padding: 15px 30px;
-        font-size: 1.2rem;
-        background-color: #3498db;
-        color: white;
-        border: none;
-        border-radius: 50px;
-        cursor: pointer;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.3);
-        z-index: 100;
-    }
-</style>
-
-<div class="container">
-    <div id="leitor-camera"></div>
-    <div id="status-texto" class="blink">AGUARDANDO...</div>
-    <div id="status-detalhe" class="mensagem-detalhe">Passe o item no leitor</div>
-</div>
-
-<button id="btn-mobile">📷 Ativar Câmera (Celular)</button>
-
-<script src="https://unpkg.com/html5-qrcode"></script>
-
-<script>
-(() => {
-
-    // AGORA O “CORPO” É A SEÇÃO ISOLADA
-    const secao = document.getElementById("embarque-checkin");
-    const textoPrincipal = secao.querySelector("#status-texto");
-    const textoDetalhe = secao.querySelector("#status-detalhe");
-    const btnMobile = secao.querySelector("#btn-mobile");
-
-    // Lista real de participantes
-    let listaParticipantes = [];
-
-    function carregarParticipantes() {
-        if (typeof window.listarPessoasComCpf === "function") {
-            listaParticipantes = window.listarPessoasComCpf().map(p => ({
-                nome: (p.nome || "").toUpperCase(),
-                cpf: (p.cpf || "").replace(/\D/g, "")
-            }));
-        }
-    }
-
-    window.addEventListener("load", carregarParticipantes);
-
-    function processarCodigo(codigo) {
-        const entrada = codigo.trim().toUpperCase();
-        const num = entrada.replace(/\D/g, "");
-
-        const encontrado = listaParticipantes.some(p =>
-            p.cpf === num || p.nome.includes(entrada)
-        );
-
-        mostrarResultado(encontrado, entrada);
-    }
-
-    function mostrarResultado(ok, codigo) {
-        secao.classList.remove("estado-aguardando", "estado-sucesso", "estado-erro");
-        textoPrincipal.classList.remove("blink");
-
-        if (ok) {
-            secao.classList.add("estado-sucesso");
-            textoPrincipal.textContent = "AUTORIZADO";
-        } else {
-            secao.classList.add("estado-erro");
-            textoPrincipal.textContent = "NÃO LOCALIZADO";
-        }
-
-        textoDetalhe.textContent = "Código: " + codigo;
-
-        setTimeout(resetTela, 3000);
-    }
-
-    function resetTela() {
-        secao.classList.remove("estado-sucesso", "estado-erro");
-        secao.classList.add("estado-aguardando");
-        textoPrincipal.classList.add("blink");
-        textoPrincipal.textContent = "AGUARDANDO...";
-        textoDetalhe.textContent = "Passe o item no leitor";
-    }
-
-    // LEITOR USB
-    let buffer = "";
-    document.addEventListener("keydown", e => {
-        if (!secao.classList.contains("active")) return;
-        
-        if (e.key === "Enter") {
-            if (buffer.length > 0) processarCodigo(buffer);
-            buffer = "";
-        } else if (e.key.length === 1) {
-            buffer += e.key;
-        }
-    });
-
-    // CAMERA
-    let scanner = null;
-
-    btnMobile.addEventListener("click", () => {
-        const area = secao.querySelector("#leitor-camera");
-        area.style.display = "block";
-        btnMobile.style.display = "none";
-
-        scanner = new Html5QrcodeScanner("leitor-camera", { fps:10, qrbox:250 });
-        scanner.render(
-            text => processarCodigo(text),
-            err => {}
-        );
-    });
-
-})();
-</script>
-
+<section id="embarque-checkin" class="view">
+  <div class="section-card">
+    <h2>Embarque e check-in</h2>
+    <p class="small-note">Controle chegadas e saídas sem dados de demonstração.</p>
+    <form data-list-target="embarque-list" class="stacked">
+      <div class="form-grid">
+        <label>Nome
+          <input name="nome" type="text" required>
+        </label>
+        <label>Transporte
+          <select name="transporte" required>
+            <option value="">Selecione</option>
+            <option value="onibus">Ônibus</option>
+            <option value="voo">Voo</option>
+            <option value="carro">Carro</option>
+          </select>
+        </label>
+        <label>Chegada
+          <input name="chegada" type="datetime-local" required>
+        </label>
+        <label>Saída
+          <input name="saida" type="datetime-local">
+        </label>
+      </div>
+      <button type="submit">Registrar</button>
+    </form>
+    <ul id="embarque-list" class="list"></ul>
+  </div>
 </section>

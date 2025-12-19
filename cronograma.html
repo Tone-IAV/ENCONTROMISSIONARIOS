@@ -1,17 +1,25 @@
-<!-- CRONOGRAMA -->
 <section id="cronograma" class="view">
-  <div class="modo-leitura">
+  <div class="section-card">
     <h2>Cronograma</h2>
-    <div id="cronograma-lista"></div>
-  </div>
-  <div class="modo-edicao">
-    <h2>Adicionar Atividade</h2>
-    <form id="formCronograma">
-      <input type="datetime-local" required>
-      <input type="text" placeholder="Atividade" required>
-      <input type="text" placeholder="Responsável" required>
-      <button type="submit" class="btn-salvar">Salvar Atividade</button>
+    <p class="small-note">Planeje sessões e horários essenciais.</p>
+    <form data-list-target="cronograma-list" class="stacked">
+      <div class="form-grid">
+        <label>Atividade
+          <input name="atividade" type="text" required>
+        </label>
+        <label>Data
+          <input name="data" type="date" required>
+        </label>
+        <label>Início
+          <input name="inicio" type="time" required>
+        </label>
+        <label>Término
+          <input name="fim" type="time" required>
+        </label>
+      </div>
+      <textarea name="descricao" placeholder="Descrição breve"></textarea>
+      <button type="submit">Salvar atividade</button>
     </form>
-    <div id="cronograma-edicao"></div>
+    <ul id="cronograma-list" class="list"></ul>
   </div>
 </section>

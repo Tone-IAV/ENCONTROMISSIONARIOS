@@ -1,38 +1,30 @@
-<!-- COMPRAS -->
 <section id="compras" class="view">
-  <div class="modo-leitura">
-    <h2>Solicitações, Aprovações e Pedidos</h2>
-    <div id="compras-leitura"></div>
-  </div>
-  <div class="modo-edicao">
-    <h2>Fluxo de Compras</h2>
-    <div class="grid-3">
-      <div class="card">
-        <h3>Solicitar Compra</h3>
-        <form id="formSolicitacao">
-          <input type="text" placeholder="Item" required>
-          <input type="number" placeholder="Quantidade" min="1" required>
-          <input type="text" placeholder="Centro de Custo" required>
-          <button type="submit" class="btn-salvar">Nova Solicitação</button>
-        </form>
+  <div class="section-card">
+    <h2>Compras</h2>
+    <p class="small-note">Controle solicitações, aprovações e pedidos de forma enxuta.</p>
+    <form data-list-target="compras-list" class="stacked">
+      <div class="form-grid">
+        <label>Item
+          <input name="item" type="text" required>
+        </label>
+        <label>Quantidade
+          <input name="quantidade" type="number" min="1" required>
+        </label>
+        <label>Centro de custo
+          <input name="centro" type="text" required>
+        </label>
+        <label>Status
+          <select name="status" required>
+            <option value="">Selecione</option>
+            <option value="solicitado">Solicitado</option>
+            <option value="aprovado">Aprovado</option>
+            <option value="pedido">Pedido</option>
+          </select>
+        </label>
       </div>
-      <div class="card">
-        <h3>Aprovação Orçamentária</h3>
-        <form id="formAprovacao">
-          <select id="aprovacaoSolicitacao" required></select>
-          <input type="number" placeholder="Valor aprovado" min="0" step="0.01" required>
-          <button type="submit" class="btn-salvar">Aprovar</button>
-        </form>
-      </div>
-      <div class="card">
-        <h3>Registrar Pedido</h3>
-        <form id="formPedido">
-          <select id="pedidoAprovado" required></select>
-          <input type="text" placeholder="Fornecedor" required>
-          <button type="submit" class="btn-salvar">Registrar Pedido</button>
-        </form>
-      </div>
-    </div>
-    <div id="compras-edicao"></div>
+      <textarea name="observacao" placeholder="Observação rápida"></textarea>
+      <button type="submit">Registrar</button>
+    </form>
+    <ul id="compras-list" class="list"></ul>
   </div>
 </section>

@@ -1,17 +1,24 @@
-<!-- KIDS -->
 <section id="kids" class="view">
-  <div class="modo-leitura">
-    <h2>Programação Kids</h2>
-    <div id="kids-leitura"></div>
-  </div>
-  <div class="modo-edicao">
-    <h2>Adicionar Atividade Kids</h2>
-    <form id="formKids">
-      <input type="datetime-local" required>
-      <input type="text" placeholder="Atividade" required>
-      <input type="text" placeholder="Responsável" required>
-      <button type="submit" class="btn-salvar">Salvar</button>
+  <div class="section-card">
+    <h2>Kids</h2>
+    <p class="small-note">Organize turmas infantis e responsáveis.</p>
+    <form data-list-target="kids-list" class="stacked">
+      <div class="form-grid">
+        <label>Criança
+          <input name="crianca" type="text" required>
+        </label>
+        <label>Responsável
+          <input name="responsavel" type="text" required>
+        </label>
+        <label>Faixa etária
+          <input name="faixa" type="text" required>
+        </label>
+        <label>Observação
+          <input name="observacao" type="text">
+        </label>
+      </div>
+      <button type="submit">Salvar</button>
     </form>
-    <div id="kids-edicao"></div>
+    <ul id="kids-list" class="list"></ul>
   </div>
 </section>
