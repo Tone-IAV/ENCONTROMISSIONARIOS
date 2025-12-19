@@ -2874,6 +2874,110 @@ function atualizarEdicao() {
   renderQuartosIntegrados();
 }
 
+const IBGE_ESTADOS_URL = 'https://servicodados.ibge.gov.br/api/v1/localidades/estados';
+const IBGE_MUNICIPIOS_URL = uf => `https://servicodados.ibge.gov.br/api/v1/localidades/estados/${uf}/municipios`;
+const cacheMunicipiosIbge = {};
+const ESTADOS_BRASIL_FALLBACK = [
+  { sigla: 'AC', nome: 'Acre' }, { sigla: 'AL', nome: 'Alagoas' }, { sigla: 'AM', nome: 'Amazonas' }, { sigla: 'AP', nome: 'Amapá' },
+  { sigla: 'BA', nome: 'Bahia' }, { sigla: 'CE', nome: 'Ceará' }, { sigla: 'DF', nome: 'Distrito Federal' }, { sigla: 'ES', nome: 'Espírito Santo' },
+  { sigla: 'GO', nome: 'Goiás' }, { sigla: 'MA', nome: 'Maranhão' }, { sigla: 'MG', nome: 'Minas Gerais' }, { sigla: 'MS', nome: 'Mato Grosso do Sul' },
+  { sigla: 'MT', nome: 'Mato Grosso' }, { sigla: 'PA', nome: 'Pará' }, { sigla: 'PB', nome: 'Paraíba' }, { sigla: 'PE', nome: 'Pernambuco' },
+  { sigla: 'PI', nome: 'Piauí' }, { sigla: 'PR', nome: 'Paraná' }, { sigla: 'RJ', nome: 'Rio de Janeiro' }, { sigla: 'RN', nome: 'Rio Grande do Norte' },
+  { sigla: 'RO', nome: 'Rondônia' }, { sigla: 'RR', nome: 'Roraima' }, { sigla: 'RS', nome: 'Rio Grande do Sul' }, { sigla: 'SC', nome: 'Santa Catarina' },
+  { sigla: 'SE', nome: 'Sergipe' }, { sigla: 'SP', nome: 'São Paulo' }, { sigla: 'TO', nome: 'Tocantins' }
+];
+
+function limparSelectComPlaceholder(select, placeholder) {
+  if (!select) return;
+  select.innerHTML = '';
+  const option = document.createElement('option');
+  option.value = '';
+  option.textContent = placeholder;
+  select.appendChild(option);
+}
+
+async function carregarEstadosBrasil(selects) {
+  if (!selects.length) return;
+  selects.forEach(sel => { limparSelectComPlaceholder(sel, 'UF'); sel.disabled = true; });
+  try {
+    const resposta = await fetch(IBGE_ESTADOS_URL);
+    if (!resposta.ok) throw new Error('Falha ao buscar estados');
+    const estados = (await resposta.json()).sort((a, b) => a.sigla.localeCompare(b.sigla));
+    popularEstadosNosSelects(selects, estados);
+  } catch (erro) {
+    console.error('Erro ao carregar estados do IBGE', erro);
+    popularEstadosNosSelects(selects, ESTADOS_BRASIL_FALLBACK);
+  }
+}
+
+function popularEstadosNosSelects(selects, estados) {
+  selects.forEach(sel => {
+    limparSelectComPlaceholder(sel, 'UF');
+    estados.forEach(est => {
+      const opt = document.createElement('option');
+      opt.value = est.sigla;
+      opt.textContent = `${est.sigla} - ${est.nome}`;
+      sel.appendChild(opt);
+    });
+    sel.disabled = false;
+  });
+}
+
+async function obterMunicipiosPorUf(uf) {
+  if (!uf) return [];
+  const sigla = uf.toUpperCase();
+  if (cacheMunicipiosIbge[sigla]) return cacheMunicipiosIbge[sigla];
+  const resposta = await fetch(IBGE_MUNICIPIOS_URL(sigla));
+  if (!resposta.ok) throw new Error('Falha ao buscar municípios');
+  const municipios = (await resposta.json()).map(m => m.nome).sort((a, b) => a.localeCompare(b, 'pt', { sensitivity: 'base' }));
+  cacheMunicipiosIbge[sigla] = municipios;
+  return municipios;
+}
+
+async function atualizarMunicipiosSelect(uf, select) {
+  if (!select) return;
+  limparSelectComPlaceholder(select, 'Selecione a cidade');
+  select.disabled = true;
+  if (!uf) return;
+  try {
+    const municipios = await obterMunicipiosPorUf(uf);
+    limparSelectComPlaceholder(select, 'Selecione a cidade');
+    municipios.forEach(cidade => {
+      const opt = document.createElement('option');
+      opt.value = cidade;
+      opt.textContent = cidade;
+      select.appendChild(opt);
+    });
+    select.disabled = false;
+  } catch (erro) {
+    console.error('Erro ao carregar municípios do IBGE', erro);
+    select.disabled = false;
+  }
+}
+
+function inicializarLocalidadesBrasil() {
+  const estadoMissionario = document.getElementById('estadoMissionario');
+  const municipioMissionario = document.getElementById('municipioMissionario');
+  const estadoPastor = document.getElementById('estadoPastor');
+  const municipioPastor = document.getElementById('municipioPastor');
+  const selectsEstado = [estadoMissionario, estadoPastor].filter(Boolean);
+
+  if (!selectsEstado.length) return;
+
+  carregarEstadosBrasil(selectsEstado);
+
+  const vincularEstadoCidade = (estadoSelect, cidadeSelect) => {
+    if (!estadoSelect || !cidadeSelect) return;
+    limparSelectComPlaceholder(cidadeSelect, 'Selecione a cidade');
+    cidadeSelect.disabled = true;
+    if (estadoSelect.value) atualizarMunicipiosSelect(estadoSelect.value, cidadeSelect);
+    estadoSelect.addEventListener('change', e => atualizarMunicipiosSelect(e.target.value, cidadeSelect));
+  };
+
+  vincularEstadoCidade(estadoMissionario, municipioMissionario);
+  vincularEstadoCidade(estadoPastor, municipioPastor);
+}
+
 // =============================================
 // CADASTROS (exemplo participantes e transporte)
 // =============================================
@@ -3193,6 +3297,7 @@ inicializarSubtabs();
 inicializarTabsProjetos();
 inicializarPaineisEquipes();
 inicializarPainelEditorEquipes();
+inicializarLocalidadesBrasil();
 inicializarToggleParticipantes();
 inicializarOverlayParticipante();
 inicializarTabelaParticipantes();
