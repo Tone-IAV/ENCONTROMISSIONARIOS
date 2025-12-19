@@ -1,30 +1,163 @@
 <section id="participantes" class="view">
-  <div class="section-card">
-    <h2>Participantes</h2>
-    <p class="small-note">Registre apenas os dados essenciais para o evento.</p>
-    <form data-list-target="participantes-list" class="stacked">
-      <div class="form-grid">
-        <label>Nome
-          <input name="nome" type="text" required>
-        </label>
-        <label>Categoria
-          <select name="categoria" required>
-            <option value="">Selecione</option>
-            <option value="familia">Família</option>
-            <option value="staff">Equipe</option>
-            <option value="preletor">Preletor</option>
-            <option value="convidado">Convidado</option>
-          </select>
-        </label>
-        <label>Origem
-          <input name="origem" type="text" placeholder="Cidade/Estado" required>
-        </label>
-        <label>Contato
-          <input name="contato" type="text" placeholder="Telefone ou e-mail" required>
-        </label>
+  <div class="section-card participants-header">
+    <div>
+      <p class="eyebrow">Gestão de Inscritos</p>
+      <h2>Controle total de registros e dados</h2>
+      <p class="small-note">Formulários dinâmicos, agrupamento familiar e indicadores sem dados fictícios.</p>
+    </div>
+    <div class="inline gap-sm">
+      <button class="ghost-btn" type="button" id="openIndicators">Painel de Indicadores</button>
+      <button class="ghost-btn" type="button" id="openFormBuilder">Campos</button>
+      <button class="primary-btn" type="button" id="openParticipantForm">+ Novo</button>
+    </div>
+  </div>
+
+  <div class="section-card category-shell">
+    <div class="category-tabs" id="categoryTabs" aria-label="Categorias de participantes"></div>
+    <div class="category-summary" id="categoryTotals"></div>
+  </div>
+
+  <div class="section-card participants-board">
+    <div class="board-head">
+      <div>
+        <strong>Participantes inscritos</strong>
+        <p class="small-note">Visualize titulares, membros vinculados e filtros por categoria.</p>
       </div>
-      <button type="submit">Salvar participante</button>
-    </form>
-    <ul id="participantes-list" class="list"></ul>
+      <div class="inline gap-sm">
+        <label class="search-field">
+          <span class="sr-only">Buscar</span>
+          <input type="search" id="participantSearch" placeholder="Buscar por nome, cidade ou categoria">
+        </label>
+        <button class="ghost-btn" type="button" id="refreshIndicators">Atualizar painel</button>
+      </div>
+    </div>
+    <div class="participants-table" role="table" aria-label="Lista de participantes">
+      <div class="participants-header" role="row">
+        <span role="columnheader">Participante principal</span>
+        <span role="columnheader">Membros</span>
+        <span role="columnheader">Categoria</span>
+        <span role="columnheader">Cidade</span>
+        <span role="columnheader" class="align-right">Ver</span>
+      </div>
+      <div id="participantsList" class="participants-rows" role="rowgroup"></div>
+    </div>
+  </div>
+
+  <div class="section-card detail-shell">
+    <div class="family-panel">
+      <header>
+        <p class="eyebrow">Grupo familiar</p>
+        <h3>Selecione para ver detalhes</h3>
+      </header>
+      <div id="familyList" class="family-list"></div>
+    </div>
+    <div class="detail-panel" id="participantDetail">
+      <div class="empty-detail">
+        <p class="small-note">Selecione um participante para abrir dados completos, editar ou adicionar informações.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal" id="participantModal" aria-hidden="true">
+    <div class="modal-content wide">
+      <header class="modal-head">
+        <div>
+          <p class="eyebrow">Novo cadastro</p>
+          <h3 id="participantModalTitle">Registrar titular e membros</h3>
+        </div>
+        <button class="ghost-btn" type="button" data-close-modal="participantModal">Fechar</button>
+      </header>
+
+      <form id="participantForm" class="stacked gap-md">
+        <div class="form-grid">
+          <label>Categoria
+            <select name="categoria" id="participantCategory" required></select>
+          </label>
+          <label>Nome do titular
+            <input name="titular" type="text" placeholder="Informe o titular ou representante" required>
+          </label>
+          <label>Cidade / Estado
+            <input name="cidade" type="text" placeholder="Informe a origem" required>
+          </label>
+          <label>Contato principal
+            <input name="contato" type="text" placeholder="Telefone ou e-mail" required>
+          </label>
+        </div>
+
+        <div class="section-divider">
+          <div>
+            <p class="eyebrow">Vínculos familiares</p>
+            <h4>Titular e membros</h4>
+            <p class="small-note">Cadastre mais de uma pessoa com o mesmo representante.</p>
+          </div>
+          <button class="ghost-btn" type="button" id="addMember">+ Adicionar membro</button>
+        </div>
+
+        <div id="membersContainer" class="family-grid" aria-live="polite"></div>
+
+        <div id="customFieldsContainer" class="custom-section"></div>
+
+        <label>Observações ou histórico
+          <textarea name="observacoes" placeholder="Inclua anotações, etapas ou restrições específicas"></textarea>
+        </label>
+
+        <div class="modal-actions">
+          <button class="ghost-btn" type="button" data-close-modal="participantModal">Cancelar</button>
+          <button class="primary-btn" type="submit">Salvar cadastro</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="modal" id="formBuilderModal" aria-hidden="true">
+    <div class="modal-content wide">
+      <header class="modal-head">
+        <div>
+          <p class="eyebrow">Configuração de formulários</p>
+          <h3 id="builderTitle">Campos personalizados por categoria</h3>
+        </div>
+        <button class="ghost-btn" type="button" data-close-modal="formBuilderModal">Fechar</button>
+      </header>
+
+      <form id="builderForm" class="stacked gap-md">
+        <div class="form-grid">
+          <label>Selecionar categoria
+            <select id="builderCategorySelect" required></select>
+          </label>
+          <label>Nome da categoria
+            <input id="builderCategoryName" type="text" placeholder="Ex: Missionário, Equipe, Convidado" required>
+          </label>
+        </div>
+
+        <div class="section-divider">
+          <div>
+            <p class="eyebrow">Setores e seções</p>
+            <h4>Estruture perguntas por área</h4>
+            <p class="small-note">Inclua campos, seções e regras de decisão ao estilo de formulários inteligentes.</p>
+          </div>
+          <button class="ghost-btn" type="button" id="addSection">+ Adicionar seção</button>
+        </div>
+
+        <div id="builderSections" class="builder-sections"></div>
+
+        <div class="modal-actions">
+          <button class="ghost-btn" type="button" data-close-modal="formBuilderModal">Cancelar</button>
+          <button class="primary-btn" type="submit">Salvar configuração</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="modal" id="indicatorsModal" aria-hidden="true">
+    <div class="modal-content">
+      <header class="modal-head">
+        <div>
+          <p class="eyebrow">Indicadores dos participantes</p>
+          <h3>Painel rápido</h3>
+        </div>
+        <button class="ghost-btn" type="button" data-close-modal="indicatorsModal">Fechar</button>
+      </header>
+      <div class="stat-grid" id="indicatorGrid"></div>
+    </div>
   </div>
 </section>
