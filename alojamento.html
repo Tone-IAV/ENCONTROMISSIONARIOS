@@ -1,64 +1,24 @@
-<!-- ALOJAMENTO -->
 <section id="alojamento" class="view">
-  <div class="modo-leitura">
-    <h2>Alojamentos</h2>
-    <p>Distribua as famílias em quartos usando o painel interativo abaixo.</p>
-    <div id="quartos-integrados">
-      <header>
-        <div>
-          <h3>Distribuição de Quartos (protótipo integrado)</h3>
-          <span>Conteúdo do quartos.html agora conectado às famílias cadastradas.</span>
-        </div>
-        <div class="badge">Mapa rápido</div>
-      </header>
-      <div class="qa-layout">
-        <section class="qa-panel" id="qaSpacesPanel">
-          <div class="qa-stack">
-            <h4>Espaços / prédios <small>Monte blocos para organizar os quartos.</small></h4>
-            <div class="qa-row">
-              <input id="qaSpaceName" type="text" class="qa-input" placeholder="Nome do espaço" />
-              <input id="qaSpaceColor" type="color" value="#c2412d" class="qa-input" style="width:70px; padding:0;" />
-            </div>
-            <button id="qaAddSpaceBtn" class="qa-btn primary">+ Adicionar espaço</button>
-            <div class="qa-space-list" id="qaSpaceList"></div>
-          </div>
-
-          <div class="qa-stack">
-            <h4>Quartos do espaço <small>Presets ou criação manual.</small></h4>
-            <div class="qa-row wrap">
-              <button class="qa-btn secondary small" data-qa-preset="casal">Casal (2)</button>
-              <button class="qa-btn secondary small" data-qa-preset="pequena">Família pequena (4)</button>
-              <button class="qa-btn secondary small" data-qa-preset="media">Família média (6)</button>
-              <button class="qa-btn secondary small" data-qa-preset="grande">Beliches grande (8)</button>
-            </div>
-            <div class="qa-row wrap">
-              <input id="qaRoomName" type="text" class="qa-input" placeholder="Nome / nº do quarto" style="flex:1" />
-              <input id="qaRoomCapacity" type="number" class="qa-input" min="1" value="4" style="width:90px" />
-            </div>
-            <small>Capacidade define a soma de camas; beliches usam 2 andares por padrão.</small>
-            <button id="qaAddRoomBtn" class="qa-btn primary">+ Adicionar quarto</button>
-          </div>
-        </section>
-
-        <section class="qa-panel" id="qaCanvasPanel">
-          <h4>Mapa do espaço selecionado <small>Arraste cartões para montar a planta.</small></h4>
-          <div class="qa-canvas" id="qaCanvas">
-            <div class="qa-label" id="qaCanvasLabel">Nenhum espaço selecionado</div>
-            <div class="qa-canvas-inner" id="qaCanvasInner"></div>
-          </div>
-        </section>
-
-        <section class="qa-panel" id="qaFamiliesPanel">
-          <h4>Famílias / participantes <small>Arraste para um quarto.</small></h4>
-          <div class="qa-family-search qa-stack">
-            <input type="text" id="qaFamilySearch" class="qa-input" placeholder="Buscar família" />
-            <span class="muted" id="qaFamilyCount"></span>
-          </div>
-          <div class="qa-family-list" id="qaFamilyList"></div>
-          <div class="qa-details" id="qaRoomDetails"></div>
-        </section>
+  <div class="section-card">
+    <h2>Alojamento</h2>
+    <p class="small-note">Distribua quartos e capacidade mínima necessária.</p>
+    <form data-list-target="alojamento-list" class="stacked">
+      <div class="form-grid">
+        <label>Quarto ou casa
+          <input name="espaco" type="text" required>
+        </label>
+        <label>Capacidade
+          <input name="capacidade" type="number" min="1" required>
+        </label>
+        <label>Responsável
+          <input name="responsavel" type="text">
+        </label>
+        <label>Observações
+          <input name="observacoes" type="text" placeholder="Acessibilidade, famílias, etc.">
+        </label>
       </div>
-    </div>
-    <div id="leitura-alojamento"></div>
+      <button type="submit">Adicionar acomodação</button>
+    </form>
+    <ul id="alojamento-list" class="list"></ul>
   </div>
 </section>

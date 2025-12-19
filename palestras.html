@@ -1,17 +1,25 @@
-<!-- PALESTRAS -->
 <section id="palestras" class="view">
-  <div class="modo-leitura">
+  <div class="section-card">
     <h2>Palestras</h2>
-    <div id="palestras-leitura"></div>
-  </div>
-  <div class="modo-edicao">
-    <h2>Programar Palestra</h2>
-    <form id="formPalestra">
-      <input type="datetime-local" required>
-      <input type="text" placeholder="Tema" required>
-      <input type="text" placeholder="Palestrante" required>
-      <button type="submit" class="btn-salvar">Salvar</button>
+    <p class="small-note">Cadastre temas, horários e responsáveis.</p>
+    <form data-list-target="palestras-list" class="stacked">
+      <div class="form-grid">
+        <label>Tema
+          <input name="tema" type="text" required>
+        </label>
+        <label>Palestrante
+          <input name="palestrante" type="text" required>
+        </label>
+        <label>Data
+          <input name="data" type="date" required>
+        </label>
+        <label>Horário
+          <input name="hora" type="time" required>
+        </label>
+      </div>
+      <textarea name="descricao" placeholder="Resumo curto"></textarea>
+      <button type="submit">Salvar palestra</button>
     </form>
-    <div id="palestras-edicao"></div>
+    <ul id="palestras-list" class="list"></ul>
   </div>
 </section>

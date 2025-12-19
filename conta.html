@@ -1,50 +1,29 @@
-<!-- CONTA -->
-<section id="conta" class="view active">
-  <div class="card">
-    <h2>Conta do Usuário</h2>
-    <p id="contaDescricao">Cadastre um usuário para acessar as edições. Todas as ações são registradas em log em formato JSON e os dados são mantidos somente durante a sessão atual.</p>
-
-    <div id="acoesConta" class="section-actions">
-      <button type="button" class="btn-salvar" data-modo-conta="cadastro">Criar nova conta</button>
-      <button type="button" class="btn-secondary" data-modo-conta="login">Já tenho conta</button>
-    </div>
-
-    <div id="blocoCadastro" class="card">
-      <h3>Novo cadastro</h3>
-      <form id="formCadastro">
-        <input type="text" placeholder="Nome completo" required>
-        <input type="email" placeholder="E-mail" required>
-        <input type="text" placeholder="Usuário" required>
-        <input type="password" placeholder="Senha" required>
-        <button type="submit" class="btn-salvar">Registrar</button>
-      </form>
-    </div>
-
-    <div id="blocoLogin" class="card hidden">
-      <h3>Login</h3>
-      <form id="formLogin">
-        <input type="text" placeholder="Usuário" required>
-        <input type="password" placeholder="Senha" required>
-        <div class="section-actions">
-          <button type="submit" class="btn-secondary">Entrar</button>
-          <button type="button" id="btnLogout" class="btn-no hidden">Sair</button>
-        </div>
-      </form>
-    </div>
-
-    <div id="blocoSessao" class="card hidden">
-      <h3>Dados da sessão</h3>
-      <div id="sessaoUsuario" class="pill">Nenhum usuário autenticado</div>
-      <div id="perfilSelecionado"></div>
-      <div class="section-actions" id="acoesSessao"></div>
-    </div>
-  </div>
-  <div class="modo-edicao" id="usuariosCard">
-    <h3>Usuários cadastrados</h3>
-    <div id="usuariosLista"></div>
-  </div>
-  <div class="modo-leitura" id="logCard">
-    <h3>Log de alterações</h3>
-    <div id="logAlteracoes"></div>
+<section id="conta" class="view">
+  <div class="section-card">
+    <h2>Conta do usuário</h2>
+    <p class="small-note">Cadastre credenciais e organize acessos sem dados de exemplo.</p>
+    <form data-list-target="conta-list" class="stacked">
+      <div class="form-grid">
+        <label>Nome completo
+          <input name="nome" type="text" required>
+        </label>
+        <label>E-mail
+          <input name="email" type="email" required>
+        </label>
+        <label>Usuário
+          <input name="usuario" type="text" required>
+        </label>
+        <label>Perfil
+          <select name="perfil" required>
+            <option value="">Selecione</option>
+            <option value="admin">Administração</option>
+            <option value="apoio">Equipe de apoio</option>
+            <option value="consulta">Somente leitura</option>
+          </select>
+        </label>
+      </div>
+      <button type="submit">Salvar acesso</button>
+    </form>
+    <ul id="conta-list" class="list"></ul>
   </div>
 </section>
